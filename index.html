@@ -3,146 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RT 003 / RW 001 - Paninggilan</title>
+    <title>RT 003 Digital</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --green-main: #108a74; --navy: #1a2a3a; --bg-light: #f8faf9; }
-        body { background: var(--bg-light); font-family: 'Plus Jakarta Sans', sans-serif; color: #333; }
+        :root { --teal: #108a74; --bg: #f4f7f6; }
+        body { background-color: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; }
 
-        /* Navbar */
-        .navbar { background: white; border-bottom: 1px solid #f0f0f0; padding: 12px 0; }
-        .nav-link { font-weight: 600; color: #666 !important; font-size: 0.9rem; cursor: pointer; padding: 10px 15px !important; }
-        .nav-link:hover, .nav-link.active-nav { color: var(--green-main) !important; }
+        /* Navbar Identik */
+        .navbar { background: white; border-bottom: 1px solid #eee; padding: 15px 0; }
+        .nav-link { font-weight: 700; color: #444 !important; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-link:hover { color: var(--teal) !important; }
+        .btn-login-nav { background: var(--teal); color: white !important; border-radius: 12px; padding: 8px 20px !important; margin-left: 10px; }
 
-        /* Hero */
-        .hero-section { background: var(--green-main); color: white; padding: 80px 0; border-radius: 0 0 50px 50px; }
-        .hero-title { font-weight: 800; font-size: 2.5rem; letter-spacing: -1px; }
+        /* Hero & Stats */
+        .hero { background: var(--teal); color: white; padding: 60px 0 120px; border-radius: 0 0 40px 40px; text-align: center; }
+        .stat-box { margin-top: -80px; }
+        .card-stat { border: none; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; padding: 25px; height: 100%; }
+        .icon-circle { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.4rem; }
 
-        /* Content Control */
-        .section-content { display: none; padding: 50px 0; min-height: 60vh; }
-        .active-section { display: block; animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* Foto Kegiatan ala Gambar 4 & 5 */
+        .img-card { border-radius: 25px; overflow: hidden; position: relative; border: none; margin-bottom: 20px; }
+        .img-card img { height: 250px; object-fit: cover; width: 100%; transition: 0.4s; }
+        .img-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color: white; }
 
-        /* Cards ala Screenshot */
-        .card-custom { border: none; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); background: white; transition: 0.3s; }
-        .icon-box { width: 60px; height: 60px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 1.5rem; }
-        .icon-green { background: #e0f7f4; color: var(--green-main); }
+        /* Keuangan ala Gambar 6 & 7 */
+        .card-kas { background: var(--teal); color: white; border-radius: 30px; padding: 40px; border: none; margin-bottom: 30px; }
+        .table-custom { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.02); }
+        .table-custom th { background: #fafafa; border: none; padding: 20px; font-size: 0.8rem; color: #888; }
+        .table-custom td { padding: 20px; border-top: 1px solid #f5f5f5; vertical-align: middle; }
+        .badge-kategori { background: #f0f2f1; color: #555; padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; }
 
-        /* Galeri Foto Kegiatan */
-        .img-giat { width: 100%; height: 200px; object-fit: cover; border-radius: 20px; transition: 0.4s; }
-        .img-giat:hover { transform: scale(1.05); }
+        /* Kontak ala Gambar 10 */
+        .card-contact { background: var(--teal); color: white; border-radius: 30px; padding: 40px; border: none; display: flex; align-items: center; justify-content: space-between; }
+        .btn-call { background: white; color: var(--teal); border-radius: 15px; padding: 12px 25px; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
 
-        /* Tabel Keuangan */
-        .nominal-in { color: #2f9e44; font-weight: 800; }
-        .nominal-out { color: #e03131; font-weight: 800; }
-        .badge-cat { background: #f1f3f5; color: #495057; border: 1px solid #dee2e6; padding: 5px 10px; border-radius: 8px; font-size: 0.7rem; }
-
-        /* Tombol Admin Floating */
-        .btn-admin-floating { position: fixed; bottom: 30px; right: 30px; width: 65px; height: 65px; background: var(--green-main); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(16, 138, 116, 0.4); border: 4px solid white; cursor: pointer; z-index: 9999; }
-        .btn-admin-floating:hover { transform: rotate(15deg) scale(1.1); color: white; }
-
-        footer { background: var(--navy); color: white; padding: 60px 0; margin-top: 50px; }
+        /* Section Control */
+        section { display: none; padding: 40px 0; }
+        .active-section { display: block; animation: fadeInUp 0.5s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
-        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#">
-            <i class="bi bi-houses-fill text-success fs-2"></i>
-            <div>RT 003 / RW 001<small class="text-muted d-block fw-normal" style="font-size: 11px;">Portal Digital Paninggilan</small></div>
+        <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+            <i class="bi bi-houses-fill text-success fs-3"></i>
+            <span class="fw-800" style="letter-spacing: -1px; font-size: 1.2rem;">RT 003 / RW 001</span>
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+        <button class="navbar-toggler border-0" data-bs-toggle="collapse" data-bs-target="#navbarNav"><i class="bi bi-list fs-1"></i></button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link active-nav" onclick="showSection('beranda', this)">Beranda</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showSection('kegiatan', this)">Kegiatan</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showSection('kas', this)">Kas RT</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showSection('inventaris', this)">Inventaris</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showSection('kontak', this)">Kontak</a></li>
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" onclick="showSec('home')">BERANDA</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSec('kegiatan')">KEGIATAN</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSec('kas')">KAS RT</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSec('kontak')">KONTAK</a></li>
+                <li class="nav-item"><a class="nav-link btn-login-nav" href="admin.html"><i class="bi bi-person-fill-lock me-1"></i> ADMIN</a></li>
             </ul>
         </div>
     </div>
 </nav>
 
-<div id="beranda" class="section-content active-section">
-    <div class="hero-section text-center">
+<section id="home" class="active-section">
+    <div class="hero">
         <div class="container">
-            <span class="badge bg-white text-success rounded-pill px-3 py-2 mb-4">● Website Resmi RT 003</span>
-            <h1 class="hero-title">Transparansi Data<br>Wujudkan Kerukunan</h1>
-            <p class="opacity-75 mt-4 mx-auto" style="max-width: 600px;">Informasi kegiatan, keuangan, dan data warga dalam satu genggaman secara akuntabel.</p>
+            <h1 class="fw-800 display-5 mb-3">Portal Digital Warga</h1>
+            <p class="opacity-75">Transparansi, Keamanan, dan Kerukunan Lingkungan</p>
         </div>
     </div>
-    <div class="container mt-5">
-        <div class="row g-4 text-center">
-            <div class="col-6 col-md-3"><div class="card card-custom p-4"><div class="icon-box icon-green mx-auto"><i class="bi bi-people-fill"></i></div><h2 class="fw-bold" id="s-jiwa">0</h2><small class="text-muted">Total Jiwa</small></div></div>
-            <div class="col-6 col-md-3"><div class="card card-custom p-4"><div class="icon-box icon-green mx-auto" style="background:#eef2ff; color:#4361ee;"><i class="bi bi-file-earmark-person"></i></div><h2 class="fw-bold" id="s-kk">0</h2><small class="text-muted">Total KK</small></div></div>
-            <div class="col-6 col-md-3"><div class="card card-custom p-4"><div class="icon-box icon-green mx-auto" style="background:#fff4e6; color:#f76707;"><i class="bi bi-calendar-event"></i></div><h2 class="fw-bold">12</h2><small class="text-muted">Kegiatan</small></div></div>
-            <div class="col-6 col-md-3"><div class="card card-custom p-4"><div class="icon-box icon-green mx-auto"><i class="bi bi-wallet2"></i></div><h2 class="fw-bold" id="s-kas" style="font-size:1.1rem;">Rp 0</h2><small class="text-muted">Saldo Kas</small></div></div>
+    <div class="container stat-box">
+        <div class="row g-4 justify-content-center">
+            <div class="col-6 col-md-3">
+                <div class="card card-stat">
+                    <div class="icon-circle" style="background:#e6f4f1; color:var(--teal);"><i class="bi bi-people-fill"></i></div>
+                    <h3 class="fw-800 mb-0" id="s-jiwa">0</h3><small class="text-muted">Total Jiwa</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card card-stat">
+                    <div class="icon-circle" style="background:#fef4e8; color:#f76707;"><i class="bi bi-wallet2"></i></div>
+                    <h3 class="fw-800 mb-0" id="s-kas" style="font-size: 1.1rem;">Rp 0</h3><small class="text-muted">Saldo Kas</small>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>
 
-<div id="kegiatan" class="section-content">
+<section id="kegiatan">
     <div class="container">
-        <div class="text-center mb-5"><h2 class="fw-bold">Dokumentasi Kegiatan</h2><p class="text-muted">Momen kebersamaan warga RT 003</p></div>
+        <h2 class="fw-800 mb-4 text-center">Foto Kegiatan</h2>
         <div class="row g-4">
-            <div class="col-md-4"><div class="card card-custom p-2"><img src="https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&q=80&w=500" class="img-giat"><div class="p-3"><h6 class="fw-bold mb-1">Kerja Bakti Rutin</h6><small class="text-muted">Minggu, 15 Mar 2026</small></div></div></div>
-            <div class="col-md-4"><div class="card card-custom p-2"><img src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?auto=format&fit=crop&q=80&w=500" class="img-giat"><div class="p-3"><h6 class="fw-bold mb-1">Arisan Bulanan</h6><small class="text-muted">Sabtu, 10 Mar 2026</small></div></div></div>
-            <div class="col-md-4"><div class="card card-custom p-2"><img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&q=80&w=500" class="img-giat"><div class="p-3"><h6 class="fw-bold mb-1">Rapat Pengurus</h6><small class="text-muted">Jumat, 05 Mar 2026</small></div></div></div>
-        </div>
-    </div>
-</div>
-
-<div id="kas" class="section-content">
-    <div class="container">
-        <div class="card p-5 bg-success text-white card-custom text-center mb-5">
-            <small class="opacity-75">SALDO KAS SAAT INI</small>
-            <h1 class="fw-bold display-4 mb-0" id="v-kas-main">Rp 0</h1>
-        </div>
-        <div class="table-responsive"><table class="table table-hover align-middle">
-            <thead class="text-muted small"><tr><th>TANGGAL</th><th>KETERANGAN</th><th>KATEGORI</th><th class="text-end">NOMINAL</th></tr></thead>
-            <tbody id="list-transaksi-warga"></tbody>
-        </table></div>
-    </div>
-</div>
-
-<div id="kontak" class="section-content">
-    <div class="container">
-        <div class="row g-4 align-items-stretch">
-            <div class="col-md-5">
-                <div class="card card-custom p-4 h-100 bg-white">
-                    <h4 class="fw-bold mb-4">Pusat Bantuan</h4>
-                    <div class="d-flex gap-3 mb-4"><div class="icon-box icon-green m-0 px-3 py-3"><i class="bi bi-whatsapp"></i></div><div><b class="d-block">Ketua RT (Bp. Sugeng)</b><p class="text-muted small">0812-3456-7890</p></div></div>
-                    <div class="d-flex gap-3 mb-4"><div class="icon-box icon-green m-0 px-3 py-3" style="background:#eef2ff; color:#4361ee;"><i class="bi bi-geo-alt"></i></div><div><b class="d-block">Lokasi Sekretariat</b><p class="text-muted small">Jl. Sadar No. 03, Paninggilan</p></div></div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card img-card shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1577495508048-b635879837f1?w=600">
+                    <div class="img-overlay">
+                        <h6 class="fw-bold mb-0">Kerja Bakti Rutin</h6>
+                        <small class="opacity-75">Minggu, 15 Mar 2026</small>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-7">
-                <div class="card card-custom p-4 h-100">
-                    <h5 class="fw-bold mb-4">Layanan Pengaduan</h5>
-                    <div class="mb-3"><label class="small fw-bold">Nama Lengkap</label><input type="text" id="a-nama" class="form-control border-0 bg-light py-3 rounded-4"></div>
-                    <div class="mb-4"><label class="small fw-bold">Pesan Aduan</label><textarea id="a-pesan" class="form-control border-0 bg-light rounded-4" rows="4"></textarea></div>
-                    <button class="btn btn-success w-100 py-3 fw-bold rounded-4" onclick="kirimAduan()">KIRIM SEKARANG</button>
+            <div class="col-md-6 col-lg-4">
+                <div class="card img-card shadow-sm">
+                    <img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600">
+                    <div class="img-overlay">
+                        <h6 class="fw-bold mb-0">Rapat Pengurus RT</h6>
+                        <small class="opacity-75">Jumat, 10 Mar 2026</small>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<footer>
-    <div class="container text-center"><h5 class="fw-bold">RT 003 / RW 001</h5><p class="small opacity-50 mb-0">© 2026 Portal Digital Warga. Seluruh data terenkripsi aman.</p></div>
-</footer>
+<section id="kas">
+    <div class="container">
+        <div class="card card-kas text-center shadow-lg">
+            <p class="small fw-bold opacity-75 mb-2">TOTAL KAS RT 003</p>
+            <h1 class="fw-800 display-3 mb-0" id="v-kas-main">Rp 0</h1>
+        </div>
+        <div class="table-custom shadow-sm table-responsive">
+            <table class="table mb-0">
+                <thead><tr><th>TANGGAL</th><th>KETERANGAN</th><th>KATEGORI</th><th class="text-end">NOMINAL</th></tr></thead>
+                <tbody id="list-transaksi"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
-<div class="btn-admin-floating" id="adminTrigger">
-    <i class="bi bi-shield-lock-fill fs-3"></i>
-</div>
+<section id="kontak">
+    <div class="container">
+        <div class="card card-contact shadow-lg">
+            <div>
+                <h2 class="fw-800 mb-2">Hubungi Pengurus</h2>
+                <p class="mb-0 opacity-75">Ada keluhan atau butuh info? Klik tombol di samping.</p>
+            </div>
+            <a href="https://wa.me/628123456789" class="btn-call shadow">
+                <i class="bi bi-whatsapp fs-4"></i> HUBUNGI WA
+            </a>
+        </div>
+    </div>
+</section>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script>
@@ -157,15 +161,14 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    function showSection(id, el) {
-        document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active-section'));
+    function showSec(id) {
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active-section'));
         document.getElementById(id).classList.add('active-section');
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active-nav'));
-        if(el) el.classList.add('active-nav');
+        bootstrap.Collapse.getInstance(document.getElementById('navbarNav'))?.hide();
         window.scrollTo(0,0);
     }
 
-    // Load Data Realtime
+    // Data Realtime
     db.collection("config").doc("kas").onSnapshot(d => {
         const val = d.data()?.total || 0;
         document.getElementById('s-kas').innerText = "Rp " + val.toLocaleString();
@@ -174,37 +177,23 @@
 
     db.collection("warga").onSnapshot(s => {
         document.getElementById('s-jiwa').innerText = s.size;
-        document.getElementById('s-kk').innerText = Math.ceil(s.size/3.5);
     });
 
     db.collection("transaksi").orderBy("tgl", "desc").onSnapshot(s => {
         let h = ""; s.forEach(doc => {
             const t = doc.data();
             const date = t.tgl.toDate().toLocaleDateString('id-ID', {day:'numeric', month:'short'});
-            const col = t.tipe == 'in' ? 'nominal-in' : 'nominal-out';
-            h += `<tr><td>${date}</td><td><b>${t.keterangan}</b></td><td><span class="badge badge-cat">${t.kategori.toUpperCase()}</span></td><td class="text-end ${col}">${t.tipe=='in'?'+':'-'} Rp ${t.nominal.toLocaleString()}</td></tr>`;
+            const style = t.tipe == 'in' ? 'color:#2f9e44; font-weight:800;' : 'color:#e03131; font-weight:800;';
+            h += `<tr>
+                <td class="text-muted small">${date}</td>
+                <td class="fw-700">${t.keterangan}</td>
+                <td><span class="badge-kategori">${t.kategori.toUpperCase()}</span></td>
+                <td class="text-end" style="${style}">${t.tipe=='in'?'+':'-'} Rp ${t.nominal.toLocaleString()}</td>
+            </tr>`;
         });
-        document.getElementById('list-transaksi-warga').innerHTML = h;
+        document.getElementById('list-transaksi').innerHTML = h;
     });
-
-    // Perbaikan Tombol Login Admin (Klik 5x)
-    let count = 0;
-    document.getElementById('adminTrigger').addEventListener('click', () => {
-        count++;
-        if(count >= 5) {
-            count = 0;
-            window.location.href = "admin.html";
-        }
-    });
-
-    async function kirimAduan() {
-        const n = document.getElementById('a-nama').value;
-        const p = document.getElementById('a-pesan').value;
-        if(!n || !p) return alert("Mohon isi nama dan pesan.");
-        await db.collection("pengaduan").add({ nama: n, pesan: p, tgl: firebase.firestore.Timestamp.now() });
-        alert("Laporan berhasil dikirim!");
-        document.getElementById('a-nama').value = ""; document.getElementById('a-pesan').value = "";
-    }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
