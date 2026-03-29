@@ -8,30 +8,41 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
         :root { --primary: #0d6efd; --navy: #1a3a5f; --bg-light: #f8f9fa; }
-        body { background: var(--bg-light); font-family: 'Inter', sans-serif; color: #333; }
+        body { background: var(--bg-light); font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #333; }
         
         /* Header & Banner */
         .header-top { background: var(--navy); color: white; padding: 40px 20px 80px; border-radius: 0 0 40px 40px; }
-        .location-text { font-size: 0.85rem; opacity: 0.8; line-height: 1.4; }
+        .location-text { font-size: 0.8rem; opacity: 0.8; line-height: 1.4; font-weight: 400; }
         
-        /* Saldo Area (Floating) */
+        /* Saldo Area (Floating Card) */
         .saldo-container { margin-top: -60px; padding: 0 15px; }
-        .card-saldo { border: none; border-radius: 20px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 20px; }
-        .val-money { font-weight: 800; font-size: 1.2rem; color: var(--navy); }
+        .card-saldo { border: none; border-radius: 20px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.08); padding: 20px; }
+        .val-money { font-weight: 800; font-size: 1.15rem; color: var(--navy); display: block; }
+        .label-money { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        /* Menu Grid (Mirip contoh base44) */
-        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
-        .menu-item { background: white; padding: 15px 5px; border-radius: 20px; text-align: center; text-decoration: none; color: #444; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        /* Menu Grid (Gaya Base44) */
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 25px; padding: 0 5px; }
+        .menu-item { background: white; padding: 18px 10px; border-radius: 22px; text-align: center; text-decoration: none; color: #444; transition: 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.02); }
+        .menu-item:active { transform: scale(0.95); background: #f0f5ff; }
         .menu-item i { font-size: 1.8rem; margin-bottom: 8px; display: block; }
-        .menu-item span { font-size: 0.75rem; font-weight: 600; }
+        .menu-item span { font-size: 0.7rem; font-weight: 700; color: #555; text-transform: uppercase; }
+        
+        /* Warna Ikon Menu */
+        .i-kas { color: #2ecc71; }      /* Hijau */
+        .i-ronda { color: #3498db; }    /* Biru */
+        .i-warga { color: #9b59b6; }    /* Ungu */
+        .i-aduan { color: #f1c40f; }    /* Kuning */
+        .i-dansos { color: #e74c3c; }   /* Merah */
+        .i-surat { color: #7f8c8d; }    /* Abu-abu */
         
         /* Info Card */
-        .info-card { background: linear-gradient(135deg, #ffffff, #f1f7ff); border-left: 5px solid var(--primary); border-radius: 15px; padding: 15px; margin-top: 25px; }
+        .info-card { background: white; border-radius: 20px; padding: 18px; margin-top: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); position: relative; overflow: hidden; }
+        .info-card::before { content: ""; position: absolute; left: 0; top: 0; height: 100%; width: 5px; background: var(--primary); }
         
-        /* Floating Button Login */
-        .btn-admin-secret { position: fixed; bottom: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); opacity: 0.3; }
+        /* Floating Admin Key */
+        .btn-admin-secret { position: fixed; bottom: 20px; right: 20px; width: 45px; height: 45px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); opacity: 0.4; z-index: 999; border: none; }
 
-        .toast-custom { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; padding: 12px 25px; border-radius: 50px; color: white; display: none; font-weight: bold; }
+        .toast-custom { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; padding: 12px 25px; border-radius: 50px; color: white; display: none; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -39,10 +50,10 @@
 <div id="notif-box" class="toast-custom shadow-lg"></div>
 
 <div class="header-top text-center">
-    <h4 class="fw-bold mb-1">E-Warga RT 003</h4>
+    <h4 class="fw-bold mb-1">E-WARGA RT 003</h4>
     <p class="location-text mb-0">
         Jl. Sadar RT.003 RW.001, Paninggilan<br>
-        Ciledug, Tangerang, Banten
+        Ciledug, Kota Tangerang, Banten
     </p>
 </div>
 
@@ -50,73 +61,76 @@
     <div class="card-saldo">
         <div class="row text-center">
             <div class="col-6 border-end">
-                <small class="text-muted d-block mb-1">Kas Utama</small>
-                <span class="val-money" id="v-kas text-success">Rp 0</span>
+                <span class="label-money">Kas Utama</span>
+                <span class="val-money text-success" id="v-kas">Rp 0</span>
             </div>
             <div class="col-6">
-                <small class="text-muted d-block mb-1">Dana Sosial</small>
+                <span class="label-money">Dana Sosial</span>
                 <span class="val-money text-warning" id="v-dansos">Rp 0</span>
             </div>
         </div>
     </div>
 
     <div class="menu-grid">
-        <a href="#" class="menu-item" onclick="alert('Menu Kas')">
-            <i class="bi bi-wallet2 text-success"></i>
+        <a href="javascript:void(0)" class="menu-item">
+            <i class="bi bi-wallet2 i-kas"></i>
             <span>Kas RT</span>
         </a>
-        <a href="#" class="menu-item" onclick="alert('Menu Ronda')">
-            <i class="bi bi-shield-check text-primary"></i>
-            <span>Jadwal Ronda</span>
+        <a href="javascript:void(0)" class="menu-item">
+            <i class="bi bi-shield-check i-ronda"></i>
+            <span>Ronda</span>
         </a>
-        <a href="#" class="menu-item" onclick="alert('Menu Warga')">
-            <i class="bi bi-people text-info"></i>
-            <span>Data Warga</span>
+        <a href="javascript:void(0)" class="menu-item">
+            <i class="bi bi-people i-warga"></i>
+            <span>Warga</span>
         </a>
-        <a href="#" class="menu-item" onclick="scrollKe('aduan')">
-            <i class="bi bi-chat-left-text text-warning"></i>
+        <a href="javascript:void(0)" class="menu-item" onclick="scrollKe('aduan')">
+            <i class="bi bi-chat-left-dots i-aduan"></i>
             <span>Aduan</span>
         </a>
-        <a href="#" class="menu-item" onclick="alert('Menu Dansos')">
-            <i class="bi bi-heart text-danger"></i>
-            <span>Dana Sosial</span>
+        <a href="javascript:void(0)" class="menu-item">
+            <i class="bi bi-heart-pulse i-dansos"></i>
+            <span>Dansos</span>
         </a>
-        <a href="#" class="menu-item" onclick="alert('Menu Dokumen')">
-            <i class="bi bi-file-earmark-text text-secondary"></i>
+        <a href="javascript:void(0)" class="menu-item">
+            <i class="bi bi-envelope-paper i-surat"></i>
             <span>Surat</span>
         </a>
     </div>
 
-    <div class="info-card shadow-sm">
+    <div class="info-card">
         <div class="d-flex align-items-center gap-2 mb-2">
             <i class="bi bi-megaphone-fill text-danger"></i>
-            <b class="small">PENGUMUMAN TERBARU</b>
+            <b style="font-size: 0.8rem; letter-spacing: 0.5px;">PENGUMUMAN</b>
         </div>
-        <p id="v-info" class="mb-0 small text-muted">Belum ada pengumuman terbaru dari pengurus RT.</p>
+        <p id="v-info" class="mb-0 small text-muted" style="line-height: 1.5;">Memuat informasi terbaru...</p>
     </div>
 
-    <div id="aduan" class="mt-4 mb-5">
-        <h6 class="fw-bold mb-3">Layanan Pengaduan</h6>
+    <div id="aduan" class="mt-4 mb-5 pb-4">
+        <h6 class="fw-bold mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-pencil-square text-primary"></i> Layanan Pengaduan
+        </h6>
         <div class="card p-3 border-0 shadow-sm" style="border-radius: 20px;">
-            <input type="text" id="a-nama" class="form-control mb-2 border-0 bg-light py-2" placeholder="Nama Lengkap" style="border-radius: 12px;">
-            <textarea id="a-pesan" class="form-control mb-3 border-0 bg-light py-2" rows="3" placeholder="Tulis laporan atau saran..." style="border-radius: 12px;"></textarea>
+            <input type="text" id="a-nama" class="form-control mb-2 border-0 bg-light py-2" placeholder="Nama Lengkap" style="border-radius: 12px; font-size: 0.9rem;">
+            <textarea id="a-pesan" class="form-control mb-3 border-0 bg-light py-2" rows="3" placeholder="Sampaikan saran atau laporan warga..." style="border-radius: 12px; font-size: 0.9rem;"></textarea>
             <button class="btn btn-primary w-100 fw-bold py-2 shadow-sm" onclick="kirimAduan()" style="border-radius: 12px;">KIRIM LAPORAN</button>
         </div>
     </div>
 </div>
 
-<div class="btn-admin-secret" onclick="cekLoginClick()">
-    <i class="bi bi-shield-lock"></i>
-</div>
+<button class="btn-admin-secret" onclick="cekLoginClick()">
+    <i class="bi bi-shield-lock-fill text-muted"></i>
+</button>
 
 <div class="modal fade" id="modalLogin" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered px-4">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
             <div class="modal-body p-4 text-center">
-                <h5 class="fw-bold mb-3">Login Admin</h5>
-                <input type="email" id="l-email" class="form-control mb-2" placeholder="Email">
-                <input type="password" id="l-pass" class="form-control mb-3" placeholder="Password">
-                <button class="btn btn-navy bg-primary text-white w-100 fw-bold" onclick="prosesLogin()">MASUK</button>
+                <div class="mb-3 mt-2"><i class="bi bi-person-circle fs-1 text-primary"></i></div>
+                <h5 class="fw-bold mb-3">Login Pengurus</h5>
+                <input type="email" id="l-email" class="form-control mb-2 py-2 rounded-3" placeholder="Email Admin">
+                <input type="password" id="l-pass" class="form-control mb-3 py-2 rounded-3" placeholder="Password">
+                <button class="btn btn-primary w-100 fw-bold py-2 rounded-3" onclick="prosesLogin()">MASUK PANEL</button>
             </div>
         </div>
     </div>
@@ -146,20 +160,22 @@
         setTimeout(() => b.style.display='none', 3000);
     }
 
-    // Sync Data Realtime
+    // Ambil Data dari Firebase
     db.collection("config").doc("kas").onSnapshot(d => { if(d.exists) document.getElementById('v-kas').innerText = "Rp " + d.data().total.toLocaleString(); });
     db.collection("config").doc("dansos").onSnapshot(d => { if(d.exists) document.getElementById('v-dansos').innerText = "Rp " + d.data().total.toLocaleString(); });
     db.collection("config").doc("pengumuman").onSnapshot(d => { if(d.exists) document.getElementById('v-info').innerText = d.data().isi; });
 
+    // Kirim Aduan
     async function kirimAduan() {
         const nama = document.getElementById('a-nama').value;
         const pesan = document.getElementById('a-pesan').value;
-        if(!nama || !pesan) return n("Mohon lengkapi form!", "#e74c3c");
+        if(!nama || !pesan) return n("Mohon isi nama & pesan!", "#e74c3c");
         await db.collection("pengaduan").add({ nama, pesan, tgl: firebase.firestore.Timestamp.now() });
-        n("✅ Laporan terkirim!");
+        n("✅ Terimakasih, laporan terkirim!");
         document.getElementById('a-nama').value=""; document.getElementById('a-pesan').value="";
     }
 
+    // Sistem Login Rahasia (Klik Ikon Kunci 5x)
     let c = 0;
     function cekLoginClick() {
         c++; if (c >= 5) { c = 0; new bootstrap.Modal(document.getElementById('modalLogin')).show(); }
@@ -171,7 +187,7 @@
         try {
             await auth.signInWithEmailAndPassword(email, pass);
             window.location.href = "admin.html";
-        } catch(e) { n("❌ Login Gagal!", "#e74c3c"); }
+        } catch(e) { n("❌ Email/Password Salah!", "#e74c3c"); }
     }
 
     function scrollKe(id) { document.getElementById(id).scrollIntoView({behavior: 'smooth'}); }
