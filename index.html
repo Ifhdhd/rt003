@@ -20,40 +20,34 @@
 
         body { font-family: 'Inter', sans-serif; background-color: var(--light); color: #333; scroll-behavior: smooth; }
         .bg-navy { background-color: var(--navy) !important; }
-        .text-navy { color: var(--navy) !important; }
-
+        
         /* Navbar */
         .navbar { border-bottom: 3px solid var(--orange); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .header-logo { height: 48px; width: auto; border-radius: 50%; margin-right: 12px; border: 2px solid white; cursor: pointer; }
-        .navbar-brand { cursor: pointer; }
 
-        /* Responsive Warga List */
+        /* Responsive Logic */
         .warga-mobile-view { display: none; }
         .warga-desktop-view { display: block; }
-
         @media (max-width: 767.98px) {
             .warga-desktop-view { display: none !important; }
             .warga-mobile-view { display: block !important; }
         }
 
-        /* Cards */
         .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); background: white; margin-bottom: 25px; overflow: hidden; }
         .card-header-custom { background: #fff; padding: 15px 20px; border-bottom: 1px solid #eee; font-weight: 700; color: var(--navy); display: flex; align-items: center; }
 
-        /* Saldo Box */
         .saldo-box { background: linear-gradient(135deg, var(--navy) 0%, #2c5282 100%); color: white; padding: 30px; border-radius: 16px; text-align: center; margin-bottom: 25px; border-bottom: 5px solid var(--orange); }
 
-        /* Button & Badges */
-        .btn-wa { background-color: var(--green); color: white; border-radius: 30px; font-weight: 600; padding: 6px 16px; text-decoration: none; font-size: 13px; transition: 0.3s; border: none; }
-        .btn-wa:hover { background-color: #219150; color: white; transform: translateY(-2px); }
-        .btn-telp { background-color: var(--blue); color: white; border-radius: 30px; font-weight: 600; padding: 6px 16px; text-decoration: none; font-size: 13px; transition: 0.3s; border: none; }
-        .btn-telp:hover { background-color: #2980b9; color: white; transform: translateY(-2px); }
+        /* Tombol & Badge */
+        .btn-wa { background-color: var(--green); color: white; border-radius: 30px; font-weight: 600; padding: 6px 16px; text-decoration: none; font-size: 13px; border: none; }
+        .btn-telp { background-color: var(--blue); color: white; border-radius: 30px; font-weight: 600; padding: 6px 16px; text-decoration: none; font-size: 13px; border: none; }
 
-        .warga-card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--orange); }
+        /* Tombol Darurat */
+        .btn-emergency { background-color: var(--red); color: white; padding: 18px; border-radius: 16px; text-align: center; cursor: pointer; transition: 0.3s; border: none; width: 100%; margin-bottom: 25px; }
+        .btn-emergency:active { transform: scale(0.95); }
 
-        /* Darurat Button */
-        .btn-emergency { background-color: var(--red); color: white; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; transition: 0.3s; border: none; width: 100%; margin-bottom: 20px; }
-        .btn-emergency:hover { background-color: #c0392b; transform: scale(1.02); }
+        /* Hidden Section untuk Kontak */
+        #section-kontak { display: none; transition: 0.5s; border: 2px solid var(--red); }
 
         .ronda-item { padding: 12px; border-radius: 10px; background: #f1f5f9; margin-bottom: 10px; border-left: 4px solid var(--blue); }
         .img-galeri { width: 100%; height: 140px; object-fit: cover; border-radius: 12px; border: 1px solid #ddd; }
@@ -63,14 +57,14 @@
 
     <nav class="navbar navbar-dark bg-navy sticky-top">
         <div class="container">
-            <div class="navbar-brand d-flex align-items-center" onclick="window.location.href='index.html'">
+            <div class="navbar-brand d-flex align-items-center" onclick="window.location.reload()">
                 <img src="logo.png" class="header-logo" alt="Logo RT 003">
                 <div class="d-flex flex-column">
                     <span class="fw-bold lh-1">RT 003 RW 001</span>
                     <small style="font-size: 10px; opacity: 0.8;">Paninggilan, Ciledug</small>
                 </div>
             </div>
-            <a href="admin.html" class="btn btn-outline-light btn-sm rounded-pill px-3 shadow-sm">Admin Panel</a>
+            <a href="admin.html" class="btn btn-outline-light btn-sm rounded-pill px-3">Admin Panel</a>
         </div>
     </nav>
 
@@ -78,22 +72,18 @@
         <div class="row">
             <div class="col-lg-8">
                 <div class="saldo-box shadow">
-                    <small class="text-uppercase fw-bold opacity-75" style="letter-spacing: 1px;">Saldo Kas RT 003</small>
+                    <small class="text-uppercase fw-bold opacity-75">Saldo Kas RT 003</small>
                     <h1 class="display-5 fw-bold mt-2" id="total-saldo">Rp 0</h1>
                     <div class="mt-2 small"><i class="bi bi-clock-history"></i> Update Otomatis via Bendahara</div>
                 </div>
 
                 <div class="card card-custom shadow-sm">
-                    <div class="card-header-custom"><i class="bi bi-people-fill me-2 text-orange"></i> Daftar Warga</div>
+                    <div class="card-header-custom"><i class="bi bi-people-fill me-2"></i> Daftar Warga</div>
                     <div class="p-3">
                         <div class="warga-desktop-view">
                             <table class="table table-hover align-middle">
                                 <thead class="table-light">
-                                    <tr>
-                                        <th>Nama Lengkap</th>
-                                        <th>Status</th>
-                                        <th class="text-center">Hubungi</th>
-                                    </tr>
+                                    <tr><th>Nama Lengkap</th><th>Status</th><th class="text-center">Hubungi</th></tr>
                                 </thead>
                                 <tbody id="warga-list-desktop"></tbody>
                             </table>
@@ -103,7 +93,7 @@
                 </div>
 
                 <div class="card card-custom shadow-sm">
-                    <div class="card-header-custom"><i class="bi bi-camera-fill me-2 text-orange"></i> Dokumentasi Kegiatan</div>
+                    <div class="card-header-custom"><i class="bi bi-camera-fill me-2"></i> Dokumentasi Kegiatan</div>
                     <div class="p-3">
                         <div class="row g-2" id="galeri-display"></div>
                     </div>
@@ -111,37 +101,38 @@
             </div>
 
             <div class="col-lg-4">
-                <button class="btn-emergency shadow" onclick="scrollToEmergency()">
+                <div class="card card-custom shadow-sm">
+                    <div class="card-header-custom"><i class="bi bi-shield-shaded me-2"></i> Jadwal Ronda</div>
+                    <div class="p-3" id="ronda-display"></div>
+                </div>
+
+                <button class="btn-emergency shadow" onclick="toggleEmergency()">
                     <h4 class="fw-bold mb-1"><i class="bi bi-megaphone-fill"></i> DARURAT</h4>
                     <small>Klik untuk Hubungi Keamanan / RT</small>
                 </button>
 
-                <div class="card card-custom shadow-sm">
-                    <div class="card-header-custom"><i class="bi bi-shield-shaded me-2 text-blue"></i> Jadwal Ronda</div>
-                    <div class="p-3" id="ronda-display"></div>
-                </div>
-
-                <div id="section-kontak" class="card card-custom border-2 border-danger shadow-sm">
-                    <div class="card-header-custom bg-light text-danger fw-bold">
-                        <i class="bi bi-telephone-fill me-2"></i> Kontak Pengurus & Keamanan
+                <div id="section-kontak" class="card card-custom shadow-lg">
+                    <div class="card-header-custom bg-danger text-white">
+                        <i class="bi bi-telephone-fill me-2"></i> KONTAK DARURAT
                     </div>
                     <div class="p-3">
                         <div class="mb-4 border-bottom pb-3">
-                            <div class="fw-bold text-navy">Bpk. Abdul Mukhid</div>
+                            <div class="fw-bold">Bpk. Abdul Mukhid</div>
                             <small class="text-muted d-block mb-2">Ketua RT 003</small>
                             <div class="d-flex gap-2">
-                                <a href="https://wa.me/6281234567890" class="btn btn-wa btn-sm"><i class="bi bi-whatsapp"></i> WA</a>
-                                <a href="tel:081234567890" class="btn btn-telp btn-sm"><i class="bi bi-telephone"></i> Telp</a>
+                                <a href="https://wa.me/6281234567890" class="btn btn-wa btn-sm">WhatsApp</a>
+                                <a href="tel:081234567890" class="btn btn-telp btn-sm">Telepon</a>
                             </div>
                         </div>
-                        <div class="mb-2 pb-2">
-                            <div class="fw-bold text-navy">Pos Keamanan / Sekuriti</div>
-                            <small class="text-muted d-block mb-2">Darurat 24 Jam</small>
+                        <div>
+                            <div class="fw-bold">Pos Keamanan / Sekuriti</div>
+                            <small class="text-muted d-block mb-2">Siaga 24 Jam</small>
                             <div class="d-flex gap-2">
-                                <a href="https://wa.me/6285712345678" class="btn btn-wa btn-sm"><i class="bi bi-whatsapp"></i> WA</a>
-                                <a href="tel:085712345678" class="btn btn-telp btn-sm"><i class="bi bi-telephone"></i> Telp</a>
+                                <a href="https://wa.me/6285712345678" class="btn btn-wa btn-sm">WhatsApp</a>
+                                <a href="tel:085712345678" class="btn btn-telp btn-sm">Telepon</a>
                             </div>
                         </div>
+                        <button class="btn btn-sm btn-outline-secondary w-100 mt-3" onclick="toggleEmergency()">Tutup</button>
                     </div>
                 </div>
             </div>
@@ -163,14 +154,18 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        function scrollToEmergency() {
-            const el = document.getElementById('section-kontak');
-            el.scrollIntoView({ behavior: 'smooth' });
-            el.classList.add('border-danger');
-            setTimeout(() => { el.classList.remove('border-danger'); }, 2000);
+        // FUNGSI POP-UP DARURAT
+        function toggleEmergency() {
+            const kontakSection = document.getElementById('section-kontak');
+            if (kontakSection.style.display === "none" || kontakSection.style.display === "") {
+                kontakSection.style.display = "block";
+                kontakSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                kontakSection.style.display = "none";
+            }
         }
 
-        // 1. Data Warga (Responsive)
+        // Data Realtime
         db.collection("warga").orderBy("nama").onSnapshot(s => {
             let dHTML = ""; let mHTML = "";
             s.forEach(doc => {
@@ -178,31 +173,25 @@
                 const cleanHP = w.hp.replace(/[^0-9]/g, '');
                 const wa = `https://wa.me/62${cleanHP.startsWith('0') ? cleanHP.substring(1) : cleanHP}`;
                 const telp = `tel:${cleanHP.startsWith('0') ? cleanHP : '0' + cleanHP}`;
-                
                 dHTML += `<tr><td><strong>${w.nama}</strong></td><td><span class="badge bg-light text-navy border">${w.status}</span></td><td class="text-center"><div class="d-flex gap-2 justify-content-center"><a href="${wa}" class="btn btn-wa btn-sm">WA</a><a href="${telp}" class="btn btn-telp btn-sm">Telp</a></div></td></tr>`;
-                mHTML += `<div class="warga-card"><div><div class="fw-bold text-navy">${w.nama}</div><small class="text-muted">${w.status}</small></div><div class="d-flex gap-2"><a href="${wa}" class="btn btn-wa btn-sm">WA</a><a href="${telp}" class="btn btn-telp btn-sm">Telp</a></div></div>`;
+                mHTML += `<div class="warga-card"><div><strong>${w.nama}</strong><br><small>${w.status}</small></div><div class="d-flex gap-2"><a href="${wa}" class="btn btn-wa btn-sm">WA</a><a href="${telp}" class="btn btn-telp btn-sm">Telp</a></div></div>`;
             });
             document.getElementById('warga-list-desktop').innerHTML = dHTML || "<tr><td colspan='3'>Kosong</td></tr>";
             document.getElementById('warga-list-mobile').innerHTML = mHTML || "Kosong";
         });
 
-        // 2. Total Kas
         db.collection("config").doc("kas").onSnapshot(doc => {
             if(doc.exists) document.getElementById('total-saldo').innerText = `Rp ${Number(doc.data().total).toLocaleString('id-ID')}`;
         });
 
-        // 3. Ronda (Urut Hari)
         const hariUrut = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
         db.collection("ronda").onSnapshot(s => {
             let hHTML = ""; const rData = {};
             s.forEach(d => { rData[d.id] = d.data().petugas; });
-            hariUrut.forEach(h => {
-                if(rData[h]) hHTML += `<div class="ronda-item"><strong>${h}</strong><br><small class="text-muted">${rData[h]}</small></div>`;
-            });
+            hariUrut.forEach(h => { if(rData[h]) hHTML += `<div class="ronda-item"><strong>${h}</strong><br><small>${rData[h]}</small></div>`; });
             document.getElementById('ronda-display').innerHTML = hHTML || "Belum ada jadwal.";
         });
 
-        // 4. Galeri
         db.collection("kegiatan").orderBy("tanggal", "desc").limit(4).onSnapshot(s => {
             let gHTML = "";
             s.forEach(d => { gHTML += `<div class="col-6"><img src="${d.data().url}" class="img-galeri shadow-sm"></div>`; });
