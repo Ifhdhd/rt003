@@ -10,36 +10,37 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --main-teal: #108a74; --bg-soft: #f4f7f6; --text-dark: #1a1a1a; }
-        body { background-color: var(--bg-soft); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); overflow-x: hidden; }
+        body { background-color: var(--bg-soft); font-family: 'Plus Jakarta Sans', sans-serif; color: var(--text-dark); }
         
-        /* Navbar */
+        /* Navbar ala Dashboard Modern */
         .navbar { background: white; border-bottom: 1px solid #eee; padding: 15px 0; }
-        .navbar-brand { font-weight: 800; font-size: 1.25rem; letter-spacing: -0.5px; color: var(--text-dark) !important; }
+        .navbar-brand { font-weight: 800; font-size: 1.3rem; color: var(--text-dark) !important; letter-spacing: -0.5px; }
         .nav-link { font-weight: 700; color: #666 !important; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 15px !important; cursor: pointer; }
-        .nav-link:hover, .active-nav { color: var(--main-teal) !important; }
-        .btn-admin-custom { background: var(--main-teal); color: white !important; border-radius: 12px; padding: 10px 20px !important; font-weight: 700; border: none; transition: 0.3s; text-decoration: none; }
-
-        /* Sections Control */
-        section { display: none; padding: 30px 0 100px; min-height: 80vh; }
-        .section-active { display: block; animation: pageFade 0.4s ease-in-out; }
-        @keyframes pageFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Hero Banner */
-        .hero-banner { background: var(--main-teal); color: white; padding: 50px 0 120px; border-radius: 0 0 50px 50px; text-align: center; }
-        .stat-container { margin-top: -80px; }
+        .nav-link:hover { color: var(--main-teal) !important; }
         
-        /* Card Styles */
-        .card-base { border: none; border-radius: 28px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.04); padding: 25px; height: 100%; }
-        .icon-circle { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; font-size: 1.4rem; }
-        
-        /* Table Styles */
-        .table-container { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.02); }
-        .table thead th { background: #fafafa; border: none; padding: 20px; font-size: 0.75rem; color: #888; font-weight: 700; text-transform: uppercase; }
-        .table td { padding: 20px; border-top: 1px solid #f8f8f8; font-size: 0.9rem; vertical-align: middle; }
+        /* Tombol Admin - Dipisahkan dari sistem JS agar tidak error */
+        .btn-admin-fix { background: var(--main-teal); color: white !important; border-radius: 14px; padding: 10px 25px !important; font-weight: 700; text-decoration: none; display: inline-block; transition: 0.3s; }
+        .btn-admin-fix:hover { background: #0b6b5a; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(16,138,116,0.3); }
 
-        /* Floating UI */
-        .badge-tag { padding: 6px 14px; border-radius: 10px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
-        .btn-wa-action { background: #e7f5f2; color: var(--main-teal); text-decoration: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 8px; }
+        /* Struktur Konten */
+        section { display: none; padding: 30px 0 100px; }
+        .active-section { display: block; animation: fadeInUp 0.4s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Hero & Statistik */
+        .hero-top { background: var(--main-teal); color: white; padding: 60px 0 120px; border-radius: 0 0 60px 60px; text-align: center; }
+        .stat-grid { margin-top: -90px; }
+        .card-stat { border: none; border-radius: 30px; background: white; box-shadow: 0 15px 35px rgba(0,0,0,0.05); padding: 30px; text-align: center; height: 100%; border: 1px solid rgba(0,0,0,0.02); }
+        .icon-box { width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 1.3rem; }
+
+        /* Desain Kartu & Tabel */
+        .card-custom { border: none; border-radius: 30px; background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.03); padding: 30px; margin-bottom: 30px; }
+        .table-custom thead th { background: #fcfcfc; border: none; padding: 18px; font-size: 0.75rem; color: #999; text-transform: uppercase; font-weight: 700; }
+        .table-custom td { padding: 18px; border-top: 1px solid #f8f8f8; vertical-align: middle; font-size: 0.95rem; }
+        
+        /* Elemen Tambahan */
+        .btn-wa { background: #e7f5f2; color: var(--main-teal); text-decoration: none; padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; }
+        .badge-status { padding: 6px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; background: #f0f0f0; }
         .fw-800 { font-weight: 800; }
     </style>
 </head>
@@ -47,64 +48,76 @@
 
 <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
-            <i class="bi bi-houses-fill text-success fs-2"></i>
+        <a class="navbar-brand d-flex align-items-center gap-2" href="#" onclick="showSection('beranda')">
+            <i class="bi bi-houses-fill text-success fs-3"></i>
             <span>RT 003 / RW 001</span>
         </a>
-        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#rtNav">
-            <i class="bi bi-grid-3x3-gap-fill fs-2"></i>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <i class="bi bi-list fs-1"></i>
         </button>
-        <div class="collapse navbar-collapse" id="rtNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" onclick="showPage('home')">Beranda</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showPage('profil')">Profil RT</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showPage('warga')">Data Warga</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showPage('kegiatan')">Kegiatan</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showPage('tertib')">Tata Tertib</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showPage('ronda')">Jadwal Ronda</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showPage('kas')">Transparansi Kas</a></li>
-                <li class="nav-item"><a class="nav-link" onclick="showPage('kontak')">Kontak</a></li>
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto gap-1 align-items-center">
+                <li class="nav-item"><a class="nav-link" onclick="showSection('beranda')">Beranda</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('profil')">Profil RT</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('warga')">Data Warga</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('kegiatan')">Kegiatan</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('tertib')">Tata Tertib</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('ronda')">Jadwal Ronda</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('kas')">Transparansi Kas</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showSection('kontak')">Kontak</a></li>
                 <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
-                    <a class="btn-admin-custom" href="admin.html">ADMIN</a>
+                    <a class="btn-admin-fix" href="admin.html">LOGIN ADMIN</a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
 
-<section id="home" class="section-active">
-    <div class="hero-banner">
+<section id="beranda" class="active-section">
+    <div class="hero-top">
         <div class="container">
-            <h1 class="fw-800 display-5 mb-2">Portal Digital Warga</h1>
-            <p class="opacity-75">Transparansi Data dan Informasi RT 003 Paninggilan</p>
+            <h1 class="fw-800 display-6">Dashboard RT 003</h1>
+            <p class="opacity-75">Sistem Informasi Transparansi Warga Paninggilan</p>
         </div>
     </div>
-    <div class="container stat-container">
-        <div class="row g-4 text-center">
-            <div class="col-6 col-md-3"><div class="card-base"><div class="icon-circle mx-auto text-primary" style="background:#eef2ff;"><i class="bi bi-people-fill"></i></div><h3 class="fw-800" id="dash-kk">0</h3><small class="text-muted">Total KK</small></div></div>
-            <div class="col-6 col-md-3"><div class="card-base"><div class="icon-circle mx-auto text-success" style="background:#e7f5f2;"><i class="bi bi-person-check-fill"></i></div><h3 class="fw-800" id="dash-jiwa">0</h3><small class="text-muted">Total Jiwa</small></div></div>
-            <div class="col-6 col-md-3"><div class="card-base"><div class="icon-circle mx-auto text-warning" style="background:#fff4e6;"><i class="bi bi-calendar-event-fill"></i></div><h3 class="fw-800">12</h3><small class="text-muted">Kegiatan</small></div></div>
-            <div class="col-6 col-md-3"><div class="card-base"><div class="icon-circle mx-auto text-danger" style="background:#fff0f0;"><i class="bi bi-wallet2"></i></div><h3 class="fw-800" id="dash-kas" style="font-size:1.1rem">Rp 0</h3><small class="text-muted">Saldo Kas</small></div></div>
+    <div class="container stat-grid">
+        <div class="row g-4">
+            <div class="col-6 col-md-3"><div class="card-stat"><div class="icon-box text-primary" style="background:#eef2ff;"><i class="bi bi-people"></i></div><h3 class="fw-800" id="stat-kk">0</h3><small class="text-muted">Total KK</small></div></div>
+            <div class="col-6 col-md-3"><div class="card-stat"><div class="icon-box text-success" style="background:#e7f5f2;"><i class="bi bi-person-check"></i></div><h3 class="fw-800" id="stat-jiwa">0</h3><small class="text-muted">Total Jiwa</small></div></div>
+            <div class="col-6 col-md-3"><div class="card-stat"><div class="icon-box text-warning" style="background:#fff4e6;"><i class="bi bi-calendar3"></i></div><h3 class="fw-800">12</h3><small class="text-muted">Kegiatan</small></div></div>
+            <div class="col-6 col-md-3"><div class="card-stat"><div class="icon-box text-danger" style="background:#fff0f0;"><i class="bi bi-wallet2"></i></div><h3 class="fw-800" id="stat-kas" style="font-size:1.1rem">Rp 0</h3><small class="text-muted">Saldo Kas</small></div></div>
         </div>
+
         <div class="row g-4 mt-4">
-            <div class="col-md-8"><div class="card-base"><h6 class="fw-800 mb-4">Grafik Transparansi Kas</h6><canvas id="chartDash" height="150"></canvas></div></div>
-            <div class="col-md-4"><div class="card-base bg-dark text-white p-4"><h5>Aduan Warga</h5><p class="small opacity-75">Laporkan kendala di sini.</p><button class="btn btn-warning w-100 fw-bold py-3 mt-3 rounded-4" onclick="showPage('kontak')">TULIS PENGADUAN</button></div></div>
+            <div class="col-md-8">
+                <div class="card-custom">
+                    <h6 class="fw-800 mb-4">Grafik Transparansi Kas</h6>
+                    <canvas id="mainChart" height="150"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-custom bg-dark text-white text-center py-5">
+                    <h5 class="fw-800 text-warning mb-3">Layanan Pengaduan</h5>
+                    <p class="small opacity-75 mb-4 px-3">Laporkan kendala lingkungan atau berikan saran untuk kemajuan RT.</p>
+                    <button class="btn btn-warning w-75 fw-bold py-3 rounded-4" onclick="showSection('kontak')">BUAT LAPORAN</button>
+                </div>
+            </div>
         </div>
     </div>
 </section>
 
 <section id="warga">
     <div class="container">
-        <h3 class="fw-800 mb-4">Data Warga RT 003</h3>
-        <div class="card-base">
+        <h3 class="fw-800 mb-4">Data Warga Paninggilan</h3>
+        <div class="card-custom">
             <div class="row g-3 mb-4">
-                <div class="col-md-6"><input type="text" id="cariWarga" class="form-control bg-light border-0 py-3" placeholder="Pencarian Nama..." onkeyup="filterWarga()"></div>
-                <div class="col-md-6"><select id="f-warga" class="form-select bg-light border-0 py-3" onchange="filterWarga()"><option value="">Semua Status</option><option value="Tetap">Tetap</option><option value="Kontrak">Kontrak</option></select></div>
+                <div class="col-md-8"><input type="text" id="in-warga" class="form-control bg-light border-0 py-3 rounded-4" placeholder="Cari Nama Warga..." onkeyup="fWarga()"></div>
+                <div class="col-md-4"><select id="in-stat" class="form-select bg-light border-0 py-3 rounded-4" onchange="fWarga()"><option value="">Semua Status</option><option value="Tetap">Tetap</option><option value="Kontrak">Kontrak</option></select></div>
             </div>
-            <div class="table-container">
-                <table class="table mb-0">
-                    <thead><tr><th>NAMA LENGKAP</th><th>WHATSAPP</th><th>STATUS</th></tr></thead>
-                    <tbody id="listWarga"></tbody>
+            <div class="table-responsive">
+                <table class="table table-custom">
+                    <thead><tr><th>NAMA LENGKAP</th><th>NO WHATSAPP</th><th>STATUS</th></tr></thead>
+                    <tbody id="res-warga"></tbody>
                 </table>
             </div>
         </div>
@@ -113,17 +126,21 @@
 
 <section id="kas">
     <div class="container">
-        <h3 class="fw-800 mb-4">Transparansi Kas</h3>
-        <div class="card-base">
+        <h3 class="fw-800 mb-4">Transparansi Dana Kas</h3>
+        <div class="row g-4 mb-4">
+            <div class="col-md-4"><div class="card-custom border-start border-success border-5"><h6>Pemasukan</h6><h4 class="text-success fw-800" id="kas-in">Rp 0</h4></div></div>
+            <div class="col-md-4"><div class="card-custom border-start border-danger border-5"><h6>Pengeluaran</h6><h4 class="text-danger fw-800" id="kas-out">Rp 0</h4></div></div>
+            <div class="col-md-4"><div class="card-custom bg-success text-white"><h6>Saldo Saat Ini</h6><h4 class="fw-800" id="kas-total">Rp 0</h4></div></div>
+        </div>
+        <div class="card-custom">
             <div class="row g-3 mb-4">
-                <div class="col-md-4"><input type="text" id="cariKas" class="form-control bg-light border-0 py-3" placeholder="Cari Transaksi..." onkeyup="filterKas()"></div>
-                <div class="col-md-4"><select id="f-jenis" class="form-select bg-light border-0 py-3" onchange="filterKas()"><option value="">Semua Jenis</option><option value="in">Masuk</option><option value="out">Keluar</option></select></div>
-                <div class="col-md-4"><select id="f-bulan" class="form-select bg-light border-0 py-3" onchange="filterKas()"><option value="">Semua Bulan</option><option value="01">Januari</option><option value="02">Februari</option></select></div>
+                <div class="col-md-6"><input type="text" id="in-kas" class="form-control bg-light border-0 py-3 rounded-4" placeholder="Cari Transaksi..." onkeyup="fKas()"></div>
+                <div class="col-md-6"><select id="in-bln" class="form-select bg-light border-0 py-3 rounded-4" onchange="fKas()"><option value="">Semua Bulan</option><option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option></select></div>
             </div>
-            <div class="table-container">
-                <table class="table mb-0">
-                    <thead><tr><th>TGL</th><th>KETERANGAN</th><th>KAT</th><th class="text-end">NOMINAL</th></tr></thead>
-                    <tbody id="listKas"></tbody>
+            <div class="table-responsive">
+                <table class="table table-custom">
+                    <thead><tr><th>TANGGAL</th><th>KETERANGAN</th><th>KAT</th><th class="text-end">NOMINAL</th></tr></thead>
+                    <tbody id="res-kas"></tbody>
                 </table>
             </div>
         </div>
@@ -132,32 +149,34 @@
 
 <section id="kontak">
     <div class="container">
-        <h3 class="fw-800 mb-4">Kontak Pengurus</h3>
+        <h3 class="fw-800 mb-4">Kontak Pengurus RT 003</h3>
         <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card-base">
-                    <h6 class="fw-800 mb-4">Struktur RT 003</h6>
-                    <div class="d-flex justify-content-between border-bottom pb-2 mb-3"><div><b>Abdul mukhid</b><br><small>Ketua RT</small></div><a href="https://wa.me/6287774188870" class="btn-wa-action">Chat</a></div>
-                    <div class="d-flex justify-content-between border-bottom pb-2 mb-3"><div><b>Lucky Mardiansyah</b><br><small>Wakil RT</small></div><a href="https://wa.me/6281298349222" class="btn-wa-action">Chat</a></div>
-                    <div class="d-flex justify-content-between"><div><b>Toto Sulistyo</b><br><small>Bendahara</small></div><a href="https://wa.me/628568121707" class="btn-wa-action">Chat</a></div>
+            <div class="col-md-7">
+                <div class="card-custom">
+                    <h6 class="fw-800 mb-4">Daftar Pengurus Aktif</h6>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3"><div><b>Abdul mukhid</b><br><small class="text-muted">Ketua RT</small></div><a href="https://wa.me/6287774188870" class="btn-wa">Chat WA</a></div>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3"><div><b>Lucky Mardiansyah</b><br><small class="text-muted">Wakil RT</small></div><a href="https://wa.me/6281298349222" class="btn-wa">Chat WA</a></div>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3"><div><b>Toto Sulistyo</b><br><small class="text-muted">Bendahara</small></div><a href="https://wa.me/628568121707" class="btn-wa">Chat WA</a></div>
+                    <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3"><div><b>Bayu Aditya P</b><br><small class="text-muted">Sekertaris</small></div><a href="https://wa.me/6282298983714" class="btn-wa">Chat WA</a></div>
+                    <div class="d-flex justify-content-between align-items-center"><div><b>Gunawan</b><br><small class="text-muted">Keamanan</small></div><a href="https://wa.me/62895331784458" class="btn-wa">Chat WA</a></div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card-base">
-                    <h6 class="fw-800 mb-4">Form Laporan</h6>
-                    <input type="text" class="form-control mb-3" placeholder="Nama">
-                    <textarea class="form-control mb-3" rows="4" placeholder="Pesan"></textarea>
-                    <button class="btn btn-success w-100 py-3 fw-bold rounded-4">Kirim</button>
+            <div class="col-md-5">
+                <div class="card-custom">
+                    <h6 class="fw-800 mb-4">Form Pengaduan</h6>
+                    <input type="text" class="form-control mb-3 py-3 border-0 bg-light rounded-4" placeholder="Nama Lengkap">
+                    <textarea class="form-control mb-4 py-3 border-0 bg-light rounded-4" rows="5" placeholder="Tulis aduan Anda..."></textarea>
+                    <button class="btn btn-success w-100 py-3 fw-bold rounded-4 shadow-sm" onclick="alert('Laporan terkirim ke pengurus!')">KIRIM ADUAN</button>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section id="profil"><div class="container"><h3>Profil RT 003</h3></div></section>
-<section id="kegiatan"><div class="container"><h3>Galeri Kegiatan</h3></div></section>
-<section id="tertib"><div class="container"><h3>Tata Tertib</h3></div></section>
-<section id="ronda"><div class="container"><h3>Jadwal Ronda</h3></div></section>
+<section id="profil"><div class="container"><div class="card-custom text-center py-5"><h3>Profil RT 003</h3><p class="text-muted">Melayani warga dengan sepenuh hati dan transparan.</p></div></div></section>
+<section id="kegiatan"><div class="container"><h3>Galeri Kegiatan</h3><div class="row g-4" id="galeri-res"></div></div></section>
+<section id="tertib"><div class="container"><h3>Tata Tertib</h3><div class="card-custom"><ul><li>Tamu 24 jam wajib lapor</li><li>Menjaga keamanan bersama</li></ul></div></div></section>
+<section id="ronda"><div class="container"><h3>Jadwal Ronda</h3><div class="card-custom text-center">Tabel Jadwal Ronda</div></div></section>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -175,56 +194,63 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    function showPage(id) {
-        document.querySelectorAll('section').forEach(s => s.classList.remove('section-active'));
-        document.getElementById(id).classList.add('section-active');
-        const navCollapse = document.getElementById('rtNav');
-        const bsCollapse = bootstrap.Collapse.getInstance(navCollapse);
+    function showSection(id) {
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active-section'));
+        const target = document.getElementById(id);
+        if(target) target.classList.add('active-section');
+        
+        const menu = document.getElementById('mainNav');
+        const bsCollapse = bootstrap.Collapse.getInstance(menu);
         if (bsCollapse) bsCollapse.hide();
         window.scrollTo(0,0);
     }
 
+    // FIREBASE LISTENERS
     db.collection("config").doc("kas").onSnapshot(d => {
         const v = d.data()?.total || 0;
-        document.getElementById('dash-kas').innerText = "Rp " + v.toLocaleString();
+        document.getElementById('stat-kas').innerText = "Rp " + v.toLocaleString();
+        document.getElementById('kas-total').innerText = "Rp " + v.toLocaleString();
     });
 
     db.collection("warga").onSnapshot(s => {
-        document.getElementById('dash-jiwa').innerText = s.size;
-        document.getElementById('dash-kk').innerText = Math.ceil(s.size/3);
+        document.getElementById('stat-jiwa').innerText = s.size;
+        document.getElementById('stat-kk').innerText = Math.ceil(s.size/3);
         let h = "";
         s.forEach(doc => {
             const w = doc.data();
-            h += `<tr><td><b>${w.nama}</b></td><td><a href="https://wa.me/${w.hp}" class="btn-wa-action">${w.hp}</a></td><td><span class="badge-tag bg-light">${w.status || 'TETAP'}</span></td></tr>`;
+            h += `<tr><td><b>${w.nama}</b></td><td><a href="https://wa.me/${w.hp}" class="btn-wa">${w.hp}</a></td><td><span class="badge-status">${w.status || 'TETAP'}</span></td></tr>`;
         });
-        document.getElementById('listWarga').innerHTML = h;
+        document.getElementById('res-warga').innerHTML = h;
     });
 
     db.collection("transaksi").orderBy("tgl", "desc").onSnapshot(s => {
-        let h = "";
+        let h = ""; let tin = 0; let tout = 0;
         s.forEach(doc => {
             const t = doc.data();
-            const color = t.tipe == 'in' ? 'text-success' : 'text-danger';
-            h += `<tr><td>${t.tgl.toDate().toLocaleDateString('id-ID')}</td><td><b>${t.keterangan}</b></td><td>${t.kategori}</td><td class="text-end fw-bold ${color}">${t.tipe=='in'?'+':'-'} ${t.nominal.toLocaleString()}</td></tr>`;
+            if(t.tipe == 'in') tin += t.nominal; else tout += t.nominal;
+            const style = t.tipe == 'in' ? 'text-success' : 'text-danger';
+            h += `<tr><td>${t.tgl.toDate().toLocaleDateString('id-ID')}</td><td><b>${t.keterangan}</b></td><td><span class="badge-status">${t.kategori}</span></td><td class="text-end fw-bold ${style}">${t.tipe=='in'?'+':'-'} ${t.nominal.toLocaleString()}</td></tr>`;
         });
-        document.getElementById('listKas').innerHTML = h;
+        document.getElementById('res-kas').innerHTML = h;
+        document.getElementById('kas-in').innerText = "Rp " + tin.toLocaleString();
+        document.getElementById('kas-out').innerText = "Rp " + tout.toLocaleString();
     });
 
-    function filterWarga() {
-        const k = document.getElementById('cariWarga').value.toLowerCase();
-        document.querySelectorAll('#listWarga tr').forEach(r => {
+    function fWarga() {
+        const k = document.getElementById('in-warga').value.toLowerCase();
+        document.querySelectorAll('#res-warga tr').forEach(r => {
             r.style.display = r.innerText.toLowerCase().includes(k) ? "" : "none";
         });
     }
 
-    function filterKas() {
-        const k = document.getElementById('cariKas').value.toLowerCase();
-        document.querySelectorAll('#listKas tr').forEach(r => {
+    function fKas() {
+        const k = document.getElementById('in-kas').value.toLowerCase();
+        document.querySelectorAll('#res-kas tr').forEach(r => {
             r.style.display = r.innerText.toLowerCase().includes(k) ? "" : "none";
         });
     }
 
-    new Chart(document.getElementById('chartDash'), {
+    new Chart(document.getElementById('mainChart'), {
         type: 'line',
         data: { labels: ['Jan','Feb','Mar'], datasets: [{ label: 'Saldo', data: [1500000, 2800000, 2400000], borderColor: '#108a74', tension: 0.4 }] }
     });
