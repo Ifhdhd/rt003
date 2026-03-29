@@ -6,35 +6,37 @@
     --light: #f4f7f6;
 }
 
-body { font-family: 'Segoe UI', sans-serif; background-color: var(--light); color: #333; margin: 0; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light); margin: 0; }
+
+/* Navbar Custom */
 .bg-navy { background-color: var(--navy) !important; }
-.text-navy { color: var(--navy); }
+.header-logo { height: 45px; width: auto; border-radius: 50%; margin-right: 10px; border: 2px solid white; }
 
-/* Sidebar Admin */
-.sidebar { width: 240px; height: 100vh; position: fixed; background: var(--navy); color: white; padding: 20px; transition: 0.3s; z-index: 1000; }
-.sidebar a { color: rgba(255,255,255,0.8); text-decoration: none; display: block; padding: 12px; border-radius: 8px; margin-bottom: 5px; }
-.sidebar a:hover, .sidebar a.active { background: var(--orange); color: white; }
-.main-content { margin-left: 240px; padding: 30px; transition: 0.3s; }
+/* Desktop View (Default: Sembunyikan Mobile Card) */
+.mobile-card-view { display: none; }
+.desktop-table-view { display: block; }
 
-/* Dashboard Cards */
-.card-custom { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; background: white; }
-.card-header-custom { background: none; border-bottom: 1px solid #eee; padding: 15px 20px; font-weight: 700; color: var(--navy); }
-
-/* Ronda Grid */
-.ronda-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-.ronda-day { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 10px; text-align: center; }
-.ronda-day.active { border-color: var(--orange); background: #fff9f0; }
-
-/* Responsive Mobile */
-@media (max-width: 768px) {
-    .sidebar { width: 0; padding: 0; overflow: hidden; }
-    .main-content { margin-left: 0; padding: 15px; }
-    .display-desktop { display: none !important; }
-    .display-mobile { display: block !important; }
-}
-@media (min-width: 769px) {
-    .display-desktop { display: block !important; }
-    .display-mobile { display: none !important; }
+/* Mobile View (Layar di bawah 768px) */
+@media (max-width: 767.98px) {
+    .desktop-table-view { display: none !important; }
+    .mobile-card-view { display: block !important; }
+    
+    .main-content { margin-left: 0 !important; padding: 15px !important; }
+    .sidebar { width: 0; padding: 0; overflow: hidden; position: absolute; }
 }
 
-.header-logo { height: 50px; border-radius: 50%; margin-right: 10px; }
+/* KARTU WARGA (Khusus Mobile) */
+.warga-card {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-left: 5px solid var(--orange);
+}
+
+/* Sidebar Admin (Desktop) */
+.sidebar { width: 250px; height: 100vh; position: fixed; background: var(--navy); color: white; padding: 20px; z-index: 1000; }
+.main-content { margin-left: 250px; padding: 30px; min-height: 100vh; }
+
+.card-custom { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); background: white; margin-bottom: 20px; }
