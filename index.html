@@ -1,317 +1,82 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Warga Digital RT 003</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-body{
-margin:0;
-font-family:Inter,system-ui;
-background:#f1f5f9;
-color:#0f172a;
-}
-
-/* HEADER */
-.header{
-padding:16px 20px;
-font-weight:600;
-font-size:18px;
-background:white;
-box-shadow:0 2px 8px rgba(0,0,0,.05);
-}
-
-/* MENU */
-.menu{
-display:flex;
-gap:15px;
-padding:10px 20px;
-background:white;
-border-bottom:1px solid #e2e8f0;
-}
-.menu button{
-background:none;
-border:none;
-font-size:14px;
-color:#64748b;
-cursor:pointer;
-}
-.menu button.active{
-color:#0f172a;
-font-weight:600;
-}
-
-/* CONTAINER */
-.container{
-padding:20px;
-max-width:1000px;
-margin:auto;
-}
-
-/* CARD */
-.card{
-background:white;
-border-radius:16px;
-padding:18px;
-margin-bottom:15px;
-box-shadow:0 4px 15px rgba(0,0,0,.05);
-}
-
-/* GRID */
-.grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
-}
-
-/* STAT */
-.stat{
-font-size:26px;
-font-weight:bold;
-}
-
-/* TABLE */
-table{
-width:100%;
-border-collapse:collapse;
-}
-th,td{
-padding:10px;
-border-bottom:1px solid #eee;
-text-align:left;
-}
-
-/* INPUT */
-input,select{
-width:100%;
-padding:10px;
-margin:6px 0;
-border-radius:10px;
-border:1px solid #e2e8f0;
-}
-
-/* BUTTON */
-.btn{
-background:#0ea5e9;
-color:white;
-border:none;
-padding:10px;
-border-radius:10px;
-cursor:pointer;
-}
-
-.wa{
-background:#22c55e;
-color:white;
-padding:4px 8px;
-border-radius:6px;
-text-decoration:none;
-}
-
-.hidden{display:none;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Resmi RT 003</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
-
 <body>
+    <nav class="navbar navbar-dark bg-navy sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="logo.png" alt="Logo" height="40" class="me-2">
+                <strong>RT 003 Online</strong>
+            </a>
+            <a href="admin.html" class="btn btn-outline-light btn-sm">Login Admin</a>
+        </div>
+    </nav>
 
-<div class="header">Warga Digital RT 003 RW 001</div>
+    <div class="container my-5">
+        <div class="text-center mb-5">
+            <h1 class="text-navy fw-bold">Selamat Datang Warga RT 003</h1>
+            <p class="text-muted">Informasi Transparansi Lingkungan & Kegiatan Warga</p>
+        </div>
 
-<div class="menu">
-<button onclick="show('home',this)" class="active">Dashboard</button>
-<button onclick="show('warga',this)">Warga</button>
-<button onclick="show('kas',this)">Kas</button>
-<button onclick="show('ronda',this)">Ronda</button>
-<button onclick="show('kontak',this)">Kontak</button>
-<button onclick="show('admin',this)">Admin</button>
-</div>
+        <div class="row g-4">
+            <div class="col-lg-7">
+                <div class="card p-4 shadow-sm mb-4">
+                    <h4 class="text-navy border-bottom pb-2 mb-3">👥 Daftar Warga</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead><tr><th>Nama</th><th>Blok</th><th>Status</th></tr></thead>
+                            <tbody id="list-warga"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card p-4 shadow-sm">
+                    <h4 class="text-navy border-bottom pb-2 mb-3">💰 Laporan Kas Terakhir</h4>
+                    <div id="display-kas" class="fs-5 fw-bold text-success">Memuat saldo...</div>
+                </div>
+            </div>
 
-<div class="container">
+            <div class="col-lg-5">
+                <div class="card p-4 shadow-sm">
+                    <h4 class="text-navy border-bottom pb-2 mb-3">📸 Galeri Kegiatan</h4>
+                    <div class="row g-2" id="galeri-warga"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<!-- DASHBOARD -->
-<div id="home">
-<div class="grid">
-<div class="card">
-<div>Total Warga</div>
-<div class="stat" id="totalWarga">0</div>
-</div>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
+            authDomain: "rt003-a6d85.firebaseapp.com",
+            projectId: "rt003-a6d85",
+            storageBucket: "rt003-a6d85.firebasestorage.app",
+            messagingSenderId: "342671500828",
+            appId: "1:342671500828:web:338c075feed136c803a1d9"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-<div class="card">
-<div>Saldo Kas</div>
-<div class="stat">Rp <span id="saldo">0</span></div>
-</div>
-</div>
+        // Ambil Data Warga
+        db.collection("warga").orderBy("nama").onSnapshot(s => {
+            let h = "";
+            s.forEach(d => { h += `<tr><td>${d.data().nama}</td><td>${d.data().blok}</td><td><span class="badge bg-info">${d.data().status}</span></td></tr>`; });
+            document.getElementById('list-warga').innerHTML = h || "<tr><td colspan='3'>Belum ada data</td></tr>";
+        });
 
-<div class="card">
-<canvas id="chartKas"></canvas>
-</div>
-</div>
-
-<!-- WARGA -->
-<div id="warga" class="hidden">
-<div class="card">
-<h3>Data Warga</h3>
-<div id="listWarga"></div>
-</div>
-</div>
-
-<!-- KAS -->
-<div id="kas" class="hidden">
-<div class="card">
-<h3>Kas Warga</h3>
-<table>
-<thead>
-<tr><th>Keterangan</th><th>Masuk</th><th>Keluar</th></tr>
-</thead>
-<tbody id="listKas"></tbody>
-</table>
-</div>
-</div>
-
-<!-- RONDA -->
-<div id="ronda" class="hidden">
-<div class="card">
-<h3>Jadwal Ronda</h3>
-<table>
-<tr>
-<th>Senin</th><th>Selasa</th><th>Rabu</th>
-<th>Kamis</th><th>Jumat</th><th>Sabtu</th><th>Minggu</th>
-</tr>
-<tr id="jadwalRonda"></tr>
-</table>
-</div>
-</div>
-
-<!-- KONTAK -->
-<div id="kontak" class="hidden">
-<div class="card">
-<h3>Kontak Pengurus</h3>
-<p>Ketua - Abdul <a class="wa" href="https://wa.me/6287774188870">WA</a></p>
-<p>Wakil - Lucky <a class="wa" href="https://wa.me/6281298349222">WA</a></p>
-<p>Bendahara - Toto <a class="wa" href="https://wa.me/628568121707">WA</a></p>
-<p>Sekretaris - Bayu <a class="wa" href="https://wa.me/6282298983714">WA</a></p>
-<p>Humas - Pursanto <a class="wa" href="https://wa.me/6281371121986">WA</a></p>
-<p>Keamanan - Gunawan <a class="wa" href="https://wa.me/62895331784458">WA</a></p>
-</div>
-</div>
-
-<!-- ADMIN -->
-<div id="admin" class="hidden">
-<div class="card">
-<h3>Login Admin</h3>
-<input id="email" placeholder="email">
-<input id="password" type="password" placeholder="password">
-<button class="btn" onclick="login()">Login</button>
-<button onclick="logout()">Logout</button>
-</div>
-
-<div class="card">
-<h3>Input Data</h3>
-
-<h4>Warga</h4>
-<input id="namaWarga" placeholder="nama">
-<input id="hpWarga" placeholder="no hp">
-<button class="btn" onclick="tambahWarga()">Tambah</button>
-
-<h4>Kas</h4>
-<input id="ketKas" placeholder="keterangan">
-<input id="jumlahKas" placeholder="jumlah">
-<select id="tipeKas">
-<option value="masuk">Masuk</option>
-<option value="keluar">Keluar</option>
-</select>
-<button class="btn" onclick="tambahKas()">Tambah</button>
-
-<h4>Ronda</h4>
-<select id="hariRonda">
-<option>Senin</option><option>Selasa</option><option>Rabu</option>
-<option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option>
-</select>
-<input id="namaRonda" placeholder="nama">
-<button class="btn" onclick="tambahRonda()">Tambah</button>
-
-</div>
-</div>
-
-</div>
-
-<script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,addDoc,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const app=initializeApp({
-apiKey:"AIzaSyBt...",
-authDomain:"rt003-a6d85.firebaseapp.com",
-projectId:"rt003-a6d85"
-});
-
-const auth=getAuth(app);
-const db=getFirestore(app);
-
-let chart;
-
-// NAV
-window.show=(id,btn)=>{
-document.querySelectorAll('.container > div').forEach(x=>x.classList.add('hidden'));
-document.getElementById(id).classList.remove('hidden');
-document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
-btn.classList.add('active');
-};
-
-// LOGIN
-window.login=()=>signInWithEmailAndPassword(auth,email.value,password.value);
-window.logout=()=>signOut(auth);
-
-// CRUD
-window.tambahWarga=()=>addDoc(collection(db,"warga"),{nama:namaWarga.value,hp:hpWarga.value});
-window.tambahKas=()=>addDoc(collection(db,"kas"),{ket:ketKas.value,jumlah:+jumlahKas.value,tipe:tipeKas.value});
-window.tambahRonda=()=>addDoc(collection(db,"ronda"),{hari:hariRonda.value,nama:namaRonda.value});
-
-// LOAD
-async function load(){
-let w=await getDocs(collection(db,"warga"));
-totalWarga.innerText=w.size;
-listWarga.innerHTML="";
-w.forEach(d=>listWarga.innerHTML+=`<div>${d.data().nama} - ${d.data().hp}</div>`);
-
-let saldo=0,masuk=0,keluar=0;
-let k=await getDocs(collection(db,"kas"));
-listKas.innerHTML="";
-k.forEach(d=>{
-let x=d.data();
-if(x.tipe=="masuk"){masuk+=x.jumlah;saldo+=x.jumlah;}
-else{keluar+=x.jumlah;saldo-=x.jumlah;}
-listKas.innerHTML+=`<tr><td>${x.ket}</td><td>${x.tipe=="masuk"?x.jumlah:""}</td><td>${x.tipe=="keluar"?x.jumlah:""}</td></tr>`;
-});
-document.getElementById("saldo").innerText=saldo;
-
-if(chart) chart.destroy();
-chart=new Chart(chartKas,{
-type:"doughnut",
-data:{labels:["Masuk","Keluar"],datasets:[{data:[masuk,keluar]}]}
-});
-
-let r=await getDocs(collection(db,"ronda"));
-let map={};
-r.forEach(d=>map[d.data().hari]=d.data().nama);
-
-jadwalRonda.innerHTML=`
-<td>${map["Senin"]||""}</td>
-<td>${map["Selasa"]||""}</td>
-<td>${map["Rabu"]||""}</td>
-<td>${map["Kamis"]||""}</td>
-<td>${map["Jumat"]||""}</td>
-<td>${map["Sabtu"]||""}</td>
-<td>${map["Minggu"]||""}</td>
-`;
-}
-
-onAuthStateChanged(auth,load);
-</script>
-
+        // Ambil Galeri
+        db.collection("kegiatan").orderBy("tanggal", "desc").onSnapshot(s => {
+            let h = "";
+            s.forEach(d => { h += `<div class="col-6"><img src="${d.data().url}" class="img-fluid rounded mb-1 shadow-sm"><p class="small text-center">${d.data().judul}</p></div>`; });
+            document.getElementById('galeri-warga').innerHTML = h || "Belum ada foto";
+        });
+    </script>
 </body>
 </html>

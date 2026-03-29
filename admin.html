@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login & Panel - RT 003</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-light">
+
+    <div id="login-section" class="container mt-5" style="max-width: 400px;">
+        <div class="card p-4 shadow border-0">
+            <h4 class="text-center text-navy fw-bold mb-4">Login Pengurus RT 003</h4>
+            <input type="email" id="email" class="form-control mb-2" placeholder="Email Admin">
+            <input type="password" id="password" class="form-control mb-3" placeholder="Password">
+            <button class="btn btn-primary w-100" onclick="login()">Masuk ke Panel</button>
+            <p id="login-error" class="text-danger small mt-2 text-center"></p>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="d-none">
+        <nav class="navbar navbar-dark bg-navy px-4 shadow-sm">
+            <span class="navbar-brand mb-0 h1">Panel Admin RT 003</span>
+            <div>
+                <span id="user-display" class="text-white me-3 small"></span>
+                <button class="btn btn-outline-light btn-sm" onclick="logout()">Logout</button>
+            </div>
+        </nav>
+
+        <div class="container-fluid py-4">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card p-4 shadow-sm h-100">
+                        <h5 class="text-navy mb-3 fw-bold border-bottom pb-2">📸 Kelola Galeri</h5>
+                        <div class="mb-3">
+                            <input type="text" id="foto-judul" class="form-control mb-2" placeholder="Judul Kegiatan">
+                            <input type="file" id="foto-file" class="form-control mb-2">
+                            <button class="btn btn-primary w-100" onclick="uploadFoto()">Unggah ke ImgBB</button>
+                        </div>
+                        <div id="admin-galeri" class="row g-2"></div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card p-4 shadow-sm h-100">
+                        <h5 class="text-navy mb-3 fw-bold border-bottom pb-2">👥 Kelola Warga</h5>
+                        <div class="d-flex gap-2 mb-3">
+                            <input type="text" id="w-nama" class="form-control" placeholder="Nama">
+                            <input type="text" id="w-blok" class="form-control" placeholder="Blok" style="width: 80px;">
+                            <button class="btn btn-success" onclick="simpanWarga()">Tambah</button>
+                        </div>
+                        <table class="table table-sm">
+                            <tbody id="admin-list-warga"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
+            authDomain: "rt003-a6d85.firebaseapp.com",
+            projectId: "rt003-a6d85",
+            storageBucket: "rt003-a6d85.firebasestorage.app",
+            messagingSenderId: "342671500828",
+            appId: "1:342671500828:web:338c075feed136c803a1d9"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const IMGBB_API = "6bfd8efeb32a8bebf742a71cb0a8a04a";
+
+        // Cek Status Login
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('login-section').classList.add('d-none');
+                document.getElementById('admin-panel').classList.remove('d-none');
+                document.getElementById('user-display').innerText = user.email;
+                loadData();
+            } else {
+                document.getElementById('login-section').classList.remove('d-none');
+                document.getElementById('admin-panel').classList.add('d-none');
+            }
+        });
+
+        async function login() {
+            const e = document.getElementById('email').value;
+            const p = document.getElementById('password').value;
+            try { await auth.signInWithEmailAndPassword(e, p); } 
+            catch (err) { document.getElementById('login-error').innerText = "Gagal login. Periksa email/password."; }
+        }
+
+        function logout() { auth.signOut(); }
+
+        function loadData() {
+            db.collection("warga").onSnapshot(s => {
+                let h = "";
+                s.forEach(d => { h += `<tr><td>${d.data().nama}</td><td>${d.data().blok}</td><td><button class="btn btn-danger btn-sm" onclick="hapus('warga','${d.id}')">X</button></td></tr>`; });
+                document.getElementById('admin-list-warga').innerHTML = h;
+            });
+
+            db.collection("kegiatan").onSnapshot(s => {
+                let h = "";
+                s.forEach(d => { h += `<div class="col-4"><img src="${d.data().url}" class="img-fluid rounded shadow-sm mb-1"><button class="btn btn-dark btn-sm w-100" onclick="hapus('kegiatan','${d.id}')">Hapus</button></div>`; });
+                document.getElementById('admin-galeri').innerHTML = h;
+            });
+        }
+
+        async function simpanWarga() {
+            const nama = document.getElementById('w-nama').value;
+            const blok = document.getElementById('w-blok').value;
+            await db.collection("warga").add({ nama, blok, status: "Tetap" });
+            alert("Berhasil!");
+        }
+
+        async function uploadFoto() {
+            const file = document.getElementById('foto-file').files[0];
+            const judul = document.getElementById('foto-judul').value;
+            if(!file || !judul) return;
+            const fd = new FormData(); fd.append("image", file);
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API}`, { method: "POST", body: fd });
+            const result = await res.json();
+            await db.collection("kegiatan").add({ judul, url: result.data.url, tanggal: new Date() });
+            alert("Foto terunggah!");
+        }
+
+        function hapus(kol, id) { if(confirm("Hapus?")) db.collection(kol).doc(id).delete(); }
+    </script>
+</body>
+</html>

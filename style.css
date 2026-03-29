@@ -1,0 +1,20 @@
+:root {
+    --navy: #1a3a5f;
+    --green: #2ecc71;
+}
+
+.bg-navy { background-color: var(--navy) !important; }
+.btn-navy { background-color: var(--navy); border: none; }
+.btn-navy:hover { background-color: #122a44; }
+.text-navy { color: var(--navy); }
+
+body { background-color: #f4f7f6; }
+.card { border: none; border-radius: 15px; }
+
+h4, h5 { font-weight: 700; }
+.table thead th { background-color: var(--navy); color: white; border: none; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container { padding: 15px; }
+}
