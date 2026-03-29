@@ -4,37 +4,121 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>RT 003 RW 001</title>
+<title>Warga Digital RT 003</title>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{margin:0;font-family:Inter,system-ui;background:#f4f6f8;}
-.header{padding:20px;font-weight:bold;font-size:18px;}
-.menu{display:flex;gap:10px;padding:10px 20px;}
-.menu button{background:none;border:none;font-size:14px;color:#64748b;}
-.menu button.active{color:#0f172a;font-weight:bold;}
-.container{padding:15px;}
-.card{
+body{
+margin:0;
+font-family:Inter,system-ui;
+background:#f1f5f9;
+color:#0f172a;
+}
+
+/* HEADER */
+.header{
+padding:16px 20px;
+font-weight:600;
+font-size:18px;
 background:white;
-border-radius:14px;
-padding:16px;
-margin-bottom:15px;
 box-shadow:0 2px 8px rgba(0,0,0,.05);
 }
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.stat{font-size:22px;font-weight:bold;}
-table{width:100%;border-collapse:collapse;}
-td,th{padding:10px;border-bottom:1px solid #eee;text-align:left;}
+
+/* MENU */
+.menu{
+display:flex;
+gap:15px;
+padding:10px 20px;
+background:white;
+border-bottom:1px solid #e2e8f0;
+}
+.menu button{
+background:none;
+border:none;
+font-size:14px;
+color:#64748b;
+cursor:pointer;
+}
+.menu button.active{
+color:#0f172a;
+font-weight:600;
+}
+
+/* CONTAINER */
+.container{
+padding:20px;
+max-width:1000px;
+margin:auto;
+}
+
+/* CARD */
+.card{
+background:white;
+border-radius:16px;
+padding:18px;
+margin-bottom:15px;
+box-shadow:0 4px 15px rgba(0,0,0,.05);
+}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+}
+
+/* STAT */
+.stat{
+font-size:26px;
+font-weight:bold;
+}
+
+/* TABLE */
+table{
+width:100%;
+border-collapse:collapse;
+}
+th,td{
+padding:10px;
+border-bottom:1px solid #eee;
+text-align:left;
+}
+
+/* INPUT */
+input,select{
+width:100%;
+padding:10px;
+margin:6px 0;
+border-radius:10px;
+border:1px solid #e2e8f0;
+}
+
+/* BUTTON */
+.btn{
+background:#0ea5e9;
+color:white;
+border:none;
+padding:10px;
+border-radius:10px;
+cursor:pointer;
+}
+
+.wa{
+background:#22c55e;
+color:white;
+padding:4px 8px;
+border-radius:6px;
+text-decoration:none;
+}
+
 .hidden{display:none;}
-.wa{background:#22c55e;color:white;padding:4px 8px;border-radius:6px;text-decoration:none;}
-input,select{width:100%;padding:8px;margin:5px 0;border:1px solid #ddd;border-radius:8px;}
-button.primary{background:#0ea5e9;color:white;border:none;padding:8px;border-radius:8px;}
 </style>
 </head>
 
 <body>
 
-<div class="header">RT 003 RW 001</div>
+<div class="header">Warga Digital RT 003 RW 001</div>
 
 <div class="menu">
 <button onclick="show('home',this)" class="active">Dashboard</button>
@@ -49,12 +133,13 @@ button.primary{background:#0ea5e9;color:white;border:none;padding:8px;border-rad
 
 <!-- DASHBOARD -->
 <div id="home">
-<div class="card grid">
-<div>
+<div class="grid">
+<div class="card">
 <div>Total Warga</div>
 <div class="stat" id="totalWarga">0</div>
 </div>
-<div>
+
+<div class="card">
 <div>Saldo Kas</div>
 <div class="stat">Rp <span id="saldo">0</span></div>
 </div>
@@ -76,7 +161,7 @@ button.primary{background:#0ea5e9;color:white;border:none;padding:8px;border-rad
 <!-- KAS -->
 <div id="kas" class="hidden">
 <div class="card">
-<h3>Kas</h3>
+<h3>Kas Warga</h3>
 <table>
 <thead>
 <tr><th>Keterangan</th><th>Masuk</th><th>Keluar</th></tr>
@@ -103,7 +188,7 @@ button.primary{background:#0ea5e9;color:white;border:none;padding:8px;border-rad
 <!-- KONTAK -->
 <div id="kontak" class="hidden">
 <div class="card">
-<h3>Kontak</h3>
+<h3>Kontak Pengurus</h3>
 <p>Ketua - Abdul <a class="wa" href="https://wa.me/6287774188870">WA</a></p>
 <p>Wakil - Lucky <a class="wa" href="https://wa.me/6281298349222">WA</a></p>
 <p>Bendahara - Toto <a class="wa" href="https://wa.me/628568121707">WA</a></p>
@@ -119,7 +204,7 @@ button.primary{background:#0ea5e9;color:white;border:none;padding:8px;border-rad
 <h3>Login Admin</h3>
 <input id="email" placeholder="email">
 <input id="password" type="password" placeholder="password">
-<button class="primary" onclick="login()">Login</button>
+<button class="btn" onclick="login()">Login</button>
 <button onclick="logout()">Logout</button>
 </div>
 
@@ -129,7 +214,7 @@ button.primary{background:#0ea5e9;color:white;border:none;padding:8px;border-rad
 <h4>Warga</h4>
 <input id="namaWarga" placeholder="nama">
 <input id="hpWarga" placeholder="no hp">
-<button class="primary" onclick="tambahWarga()">Tambah</button>
+<button class="btn" onclick="tambahWarga()">Tambah</button>
 
 <h4>Kas</h4>
 <input id="ketKas" placeholder="keterangan">
@@ -138,7 +223,7 @@ button.primary{background:#0ea5e9;color:white;border:none;padding:8px;border-rad
 <option value="masuk">Masuk</option>
 <option value="keluar">Keluar</option>
 </select>
-<button class="primary" onclick="tambahKas()">Tambah</button>
+<button class="btn" onclick="tambahKas()">Tambah</button>
 
 <h4>Ronda</h4>
 <select id="hariRonda">
@@ -146,7 +231,7 @@ button.primary{background:#0ea5e9;color:white;border:none;padding:8px;border-rad
 <option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option>
 </select>
 <input id="namaRonda" placeholder="nama">
-<button class="primary" onclick="tambahRonda()">Tambah</button>
+<button class="btn" onclick="tambahRonda()">Tambah</button>
 
 </div>
 </div>
@@ -169,6 +254,7 @@ const db=getFirestore(app);
 
 let chart;
 
+// NAV
 window.show=(id,btn)=>{
 document.querySelectorAll('.container > div').forEach(x=>x.classList.add('hidden'));
 document.getElementById(id).classList.remove('hidden');
@@ -176,13 +262,16 @@ document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'
 btn.classList.add('active');
 };
 
+// LOGIN
 window.login=()=>signInWithEmailAndPassword(auth,email.value,password.value);
 window.logout=()=>signOut(auth);
 
+// CRUD
 window.tambahWarga=()=>addDoc(collection(db,"warga"),{nama:namaWarga.value,hp:hpWarga.value});
 window.tambahKas=()=>addDoc(collection(db,"kas"),{ket:ketKas.value,jumlah:+jumlahKas.value,tipe:tipeKas.value});
 window.tambahRonda=()=>addDoc(collection(db,"ronda"),{hari:hariRonda.value,nama:namaRonda.value});
 
+// LOAD
 async function load(){
 let w=await getDocs(collection(db,"warga"));
 totalWarga.innerText=w.size;
@@ -198,14 +287,18 @@ if(x.tipe=="masuk"){masuk+=x.jumlah;saldo+=x.jumlah;}
 else{keluar+=x.jumlah;saldo-=x.jumlah;}
 listKas.innerHTML+=`<tr><td>${x.ket}</td><td>${x.tipe=="masuk"?x.jumlah:""}</td><td>${x.tipe=="keluar"?x.jumlah:""}</td></tr>`;
 });
-saldo.innerText=saldo;
+document.getElementById("saldo").innerText=saldo;
 
 if(chart) chart.destroy();
-chart=new Chart(chartKas,{type:"pie",data:{labels:["Masuk","Keluar"],datasets:[{data:[masuk,keluar]}]}});
+chart=new Chart(chartKas,{
+type:"doughnut",
+data:{labels:["Masuk","Keluar"],datasets:[{data:[masuk,keluar]}]}
+});
 
 let r=await getDocs(collection(db,"ronda"));
 let map={};
 r.forEach(d=>map[d.data().hari]=d.data().nama);
+
 jadwalRonda.innerHTML=`
 <td>${map["Senin"]||""}</td>
 <td>${map["Selasa"]||""}</td>
