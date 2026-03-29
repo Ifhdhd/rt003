@@ -59,32 +59,29 @@
         <div class="card p-3 shadow-sm mb-3">
             <input type="text" id="f-judul" class="form-control mb-2" placeholder="Nama Kegiatan">
             <input type="file" id="f-file" class="form-control mb-2">
-            <button class="btn btn-primary w-100 fw-bold" id="btn-up" onclick="uploadFoto()">MULAI UPLOAD</button>
+            <button class="btn btn-primary w-100 fw-bold" id="btn-up" onclick="uploadFoto()">UPLOAD FOTO</button>
         </div>
         <div class="row g-2" id="adm-list-foto"></div>
     </div>
 
     <div id="s-info" class="admin-section">
         <h4 class="fw-bold mb-3">Update Pengumuman</h4>
-        <div class="card p-3 shadow-sm"><textarea id="adm-p" class="form-control mb-2" rows="3" placeholder="Tulis info di sini..."></textarea><button class="btn btn-danger fw-bold" onclick="saveP()">KIRIM KE WARGA</button></div>
+        <div class="card p-3 shadow-sm"><textarea id="adm-p" class="form-control mb-2" rows="3"></textarea><button class="btn btn-danger fw-bold" onclick="saveP()">KIRIM</button></div>
     </div>
 
     <div id="s-warga" class="admin-section">
         <h4 class="fw-bold mb-3">Database Warga</h4>
         <div class="card p-3 shadow-sm mb-3">
-            <input type="text" id="w-nama" class="form-control mb-2" placeholder="Nama Lengkap">
-            <select id="w-status" class="form-select mb-2"><option>Tetap</option><option>Kontrak</option></select>
-            <button class="btn btn-success w-100 fw-bold" onclick="saveWarga()">TAMBAH WARGA</button>
+            <input type="text" id="w-nama" class="form-control mb-2" placeholder="Nama"><select id="w-status" class="form-select mb-2"><option>Tetap</option><option>Kontrak</option></select><button class="btn btn-success w-100 fw-bold" onclick="saveWarga()">TAMBAH</button>
         </div>
         <table class="table bg-white"><tbody id="list-warga"></tbody></table>
     </div>
 
     <div id="s-ronda" class="admin-section">
-        <h4 class="fw-bold mb-3">Jadwal Ronda Malam</h4>
+        <h4 class="fw-bold mb-3">Jadwal Ronda</h4>
         <div class="card p-3 shadow-sm mb-3">
             <select id="r-hari" class="form-select mb-2"><option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option></select>
-            <input type="text" id="r-nama" class="form-control mb-2" placeholder="Daftar Nama Petugas">
-            <button class="btn btn-warning w-100 fw-bold" onclick="saveRonda()">SIMPAN JADWAL</button>
+            <input type="text" id="r-nama" class="form-control mb-2" placeholder="Petugas"><button class="btn btn-warning w-100 fw-bold" onclick="saveRonda()">SIMPAN</button>
         </div>
         <div id="list-ronda"></div>
     </div>
@@ -104,80 +101,90 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    function showSec(id) {
-        document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(window.innerWidth < 992) document.getElementById('sidebar').classList.remove('show');
-    }
-
     function n(msg, col="#2ecc71") {
         const b = document.getElementById('notif-box');
         b.innerText = msg; b.style.backgroundColor = col; b.style.display = 'block';
         setTimeout(() => b.style.display='none', 2500);
     }
 
+    function showSec(id) {
+        document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(window.innerWidth < 992) document.getElementById('sidebar').classList.remove('show');
+    }
+
+    // --- FUNGSI FIX SIMPAN KAS ---
     async function saveKas() {
         const amt = parseInt(document.getElementById('k-amt').value);
         const nm = document.getElementById('k-nama').value;
         const ket = document.getElementById('k-note').value;
         const tp = document.getElementById('k-type').value;
-        if(!amt || !nm || !ket) return n("Data Belum Lengkap!", "#e74c3c");
-        
-        await db.collection("transaksi").add({ jumlah: amt, nama: nm, keterangan: ket, tipe: tp, tanggal: new Date() });
-        const ref = db.collection("config").doc("kas");
-        const snap = await ref.get();
-        let total = snap.exists ? snap.data().total : 0;
-        total = (tp === 'in') ? total + amt : total - amt;
-        await ref.set({ total });
-        n("Kas Berhasil Disimpan!");
-        document.getElementById('k-amt').value=""; document.getElementById('k-nama').value=""; document.getElementById('k-note').value="";
+
+        if(!amt || !nm || !ket) return n("Lengkapi Data!", "#e74c3c");
+
+        try {
+            // 1. Simpan Transaksi
+            await db.collection("transaksi").add({
+                jumlah: amt, nama: nm, keterangan: ket, tipe: tp, 
+                tanggal: firebase.firestore.Timestamp.now() 
+            });
+
+            // 2. Update Saldo (Logic yang diperbaiki)
+            const ref = db.collection("config").doc("kas");
+            const snap = await ref.get();
+            let totalSkrg = 0;
+            if(snap.exists) totalSkrg = snap.data().total || 0;
+
+            let totalBaru = (tp === 'in') ? totalSkrg + amt : totalSkrg - amt;
+            await ref.set({ total: totalBaru }, { merge: true });
+
+            n("✅ Data Tersimpan!");
+            document.getElementById('k-amt').value=""; document.getElementById('k-nama').value=""; document.getElementById('k-note').value="";
+        } catch(e) {
+            console.error(e);
+            n("Gagal: " + e.message, "#e74c3c");
+        }
     }
 
+    // --- TAMPILKAN LIST KAS ---
+    db.collection("transaksi").orderBy("tanggal","desc").limit(15).onSnapshot(s => {
+        let h = "";
+        s.forEach(d => {
+            const t = d.data();
+            const tgl = t.tanggal ? t.tanggal.toDate().toLocaleDateString('id-ID') : '-';
+            h += `<tr><td>${tgl}</td><td>${t.nama}</td><td>${t.keterangan}</td><td class="fw-bold ${t.tipe=='in'?'text-success':'text-danger'}">${t.jumlah.toLocaleString()}</td><td><button class="btn btn-sm" onclick="delT('${d.id}',${t.jumlah},'${t.tipe}')">❌</button></td></tr>`;
+        });
+        document.getElementById('list-kas').innerHTML = h;
+    });
+
+    // --- FUNGSI LAIN ---
     async function uploadFoto() {
         const f = document.getElementById('f-file').files[0];
         const j = document.getElementById('f-judul').value;
-        const b = document.getElementById('btn-up');
-        if(!f || !j) return n("Isi Judul & Pilih File!", "#e74c3c");
-        b.disabled = true; b.innerText = "Processing...";
+        if(!f || !j) return n("Isi Judul & File!", "#e74c3c");
         const fd = new FormData(); fd.append("image", f);
         try {
             const r = await fetch("https://api.imgbb.com/1/upload?key=6bfd8efeb32a8bebf742a71cb0a8a04a", { method: "POST", body: fd });
             const res = await r.json();
             await db.collection("kegiatan").add({ url: res.data.url, judul: j, tanggal: new Date() });
             n("Foto Terupload!");
-            document.getElementById('f-file').value=""; document.getElementById('f-judul').value="";
-        } catch(e) { n("Gagal Upload!", "red"); } finally { b.disabled = false; b.innerText = "MULAI UPLOAD"; }
+        } catch(e) { n("Gagal!", "red"); }
     }
 
-    // List Realtime Kas Admin
-    db.collection("transaksi").orderBy("tanggal","desc").limit(15).onSnapshot(s => {
-        let h = "";
-        s.forEach(d => {
-            const t = d.data();
-            h += `<tr><td>${t.tanggal.toDate().toLocaleDateString('id-ID')}</td><td>${t.nama}</td><td>${t.keterangan}</td><td class="fw-bold ${t.tipe=='in'?'text-success':'text-danger'}">${t.jumlah.toLocaleString()}</td><td><button class="btn btn-sm" onclick="delT('${d.id}',${t.jumlah},'${t.tipe}')">❌</button></td></tr>`;
-        });
-        document.getElementById('list-kas').innerHTML = h;
-    });
-
-    // List Foto
-    db.collection("kegiatan").orderBy("tanggal","desc").onSnapshot(s => {
-        let h = ""; s.forEach(d => h += `<div class="col-6 col-md-4 position-relative mb-3"><img src="${d.data().url}" class="img-fluid rounded border shadow-sm"><small class="d-block text-truncate fw-bold">${d.data().judul}</small><button class="btn btn-sm btn-danger position-absolute top-0 end-0" onclick="db.collection('kegiatan').doc('${d.id}').delete()">X</button></div>`);
-        document.getElementById('adm-list-foto').innerHTML = h;
-    });
-
     async function delT(id, jml, tp) {
-        if(!confirm("Hapus transaksi ini?")) return;
+        if(!confirm("Hapus?")) return;
         const ref = db.collection("config").doc("kas");
-        const s = await ref.get(); let t = s.data().total;
+        const s = await ref.get();
+        let t = s.data().total;
         t = (tp === 'in') ? t - jml : t + jml;
         await ref.set({ total: t });
         await db.collection("transaksi").doc(id).delete();
-        n("Data Terhapus!", "#3498db");
+        n("Dihapus!", "#3498db");
     }
 
-    async function saveP() { await db.collection("config").doc("pengumuman").set({ isi: document.getElementById('adm-p').value }); n("Pengumuman Terkirim!"); }
-    async function saveWarga() { await db.collection("warga").add({ nama: document.getElementById('w-nama').value, status: document.getElementById('w-status').value }); n("Warga Ditambah!"); }
-    async function saveRonda() { await db.collection("ronda").doc(document.getElementById('r-hari').value).set({ petugas: document.getElementById('r-nama').value }); n("Jadwal Diperbarui!"); }
+    async function saveP() { await db.collection("config").doc("pengumuman").set({ isi: document.getElementById('adm-p').value }); n("OK!"); }
+    async function saveWarga() { await db.collection("warga").add({ nama: document.getElementById('w-nama').value, status: document.getElementById('w-status').value }); n("OK!"); }
+    async function saveRonda() { await db.collection("ronda").doc(document.getElementById('r-hari').value).set({ petugas: document.getElementById('r-nama').value }); n("OK!"); }
     
     db.collection("warga").orderBy("nama").onSnapshot(s => {
         let h = ""; s.forEach(d => h += `<tr><td>${d.data().nama}</td><td class="text-end"><button class="btn btn-sm text-danger" onclick="db.collection('warga').doc('${d.id}').delete()">Hapus</button></td></tr>`);
@@ -185,7 +192,7 @@
     });
 
     db.collection("ronda").onSnapshot(s => {
-        let h = ""; s.forEach(d => h += `<div class="p-2 mb-1 bg-white shadow-sm rounded d-flex justify-content-between"><span><b>${d.id}</b>: ${d.data().petugas}</span><button class="btn btn-sm text-danger" onclick="db.collection('ronda').doc('${d.id}').delete()">X</button></div>`);
+        let h = ""; s.forEach(d => h += `<div class="p-2 mb-1 bg-white shadow d-flex justify-content-between"><span><b>${d.id}</b>: ${d.data().petugas}</span><button class="btn btn-sm text-danger" onclick="db.collection('ronda').doc('${d.id}').delete()">X</button></div>`);
         document.getElementById('list-ronda').innerHTML = h;
     });
 </script>
