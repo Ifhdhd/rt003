@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Resmi RT 003 RW 001 Online</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -13,113 +14,45 @@
             --orange: #f39c12;
             --blue: #3498db;
             --green: #2ecc71;
+            --red: #e74c3c;
             --light: #f8f9fa;
         }
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: var(--light); 
-            color: #333; 
-            margin: 0; 
-        }
-
+        body { font-family: 'Inter', sans-serif; background-color: var(--light); color: #333; scroll-behavior: smooth; }
         .bg-navy { background-color: var(--navy) !important; }
         .text-navy { color: var(--navy) !important; }
 
-        /* Navbar & Logo */
-        .navbar { border-bottom: 3px solid var(--orange); }
-        .header-logo { 
-            height: 45px; 
-            width: auto; 
-            border-radius: 50%; 
-            margin-right: 12px; 
-            border: 2px solid white; 
-        }
+        /* Navbar */
+        .navbar { border-bottom: 3px solid var(--orange); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header-logo { height: 48px; width: auto; border-radius: 50%; margin-right: 12px; border: 2px solid white; }
 
-        /* Container Card */
-        .card-custom { 
-            border: none; 
-            border-radius: 16px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-            background: white; 
-            margin-bottom: 25px; 
-            overflow: hidden;
-        }
-
-        .card-header-custom {
-            background-color: #fff;
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            font-weight: 700;
-            color: var(--navy);
-            display: flex;
-            align-items: center;
-        }
-
-        /* --- SISTEM RESPONSIF DAFTAR WARGA --- */
-        /* Default: Sembunyikan Versi Mobile di Desktop */
+        /* Responsive Warga List */
         .warga-mobile-view { display: none; }
         .warga-desktop-view { display: block; }
 
-        /* Jika layar di bawah 768px (Mobile) */
         @media (max-width: 767.98px) {
             .warga-desktop-view { display: none !important; }
             .warga-mobile-view { display: block !important; }
-            .main-title { font-size: 1.5rem; text-align: center; }
         }
 
-        /* Styling Kartu Warga Mobile */
-        .warga-card {
-            background: #fff;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 5px solid var(--orange);
-        }
+        /* Cards */
+        .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); background: white; margin-bottom: 25px; overflow: hidden; }
+        .card-header-custom { background: #fff; padding: 15px 20px; border-bottom: 1px solid #eee; font-weight: 700; color: var(--navy); display: flex; align-items: center; }
 
         /* Saldo Box */
-        .saldo-box {
-            background: linear-gradient(135deg, var(--navy) 0%, #2c5282 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 16px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
+        .saldo-box { background: linear-gradient(135deg, var(--navy) 0%, #2c5282 100%); color: white; padding: 30px; border-radius: 16px; text-align: center; margin-bottom: 25px; border-bottom: 5px solid var(--orange); }
 
-        /* Ronda Item */
-        .ronda-item {
-            padding: 12px;
-            border-radius: 10px;
-            background: #f1f5f9;
-            margin-bottom: 10px;
-            border-left: 4px solid var(--blue);
-        }
+        /* Button & Badges */
+        .btn-wa { background-color: var(--green); color: white; border-radius: 30px; font-weight: 600; padding: 6px 16px; text-decoration: none; font-size: 13px; transition: 0.3s; }
+        .btn-wa:hover { background-color: #219150; color: white; transform: translateY(-2px); }
+        .warga-card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--orange); }
 
-        /* Galeri */
-        .img-galeri {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 12px;
-            transition: 0.3s;
-        }
-        .img-galeri:hover { transform: scale(1.05); }
+        /* Darurat Button */
+        .btn-emergency { background-color: var(--red); color: white; padding: 20px; border-radius: 16px; text-align: center; cursor: pointer; transition: 0.3s; border: none; width: 100%; margin-bottom: 20px; }
+        .btn-emergency:hover { background-color: #c0392b; transform: scale(1.02); }
 
-        .btn-wa {
-            background-color: var(--green);
-            color: white;
-            border-radius: 30px;
-            font-weight: 600;
-            padding: 5px 15px;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .btn-wa:hover { background-color: #219150; color: white; }
+        .ronda-item { padding: 12px; border-radius: 10px; background: #f1f5f9; margin-bottom: 10px; border-left: 4px solid var(--blue); }
+        .img-galeri { width: 100%; height: 140px; object-fit: cover; border-radius: 12px; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
@@ -133,69 +66,71 @@
                     <small style="font-size: 10px; opacity: 0.8;">Paninggilan, Ciledug</small>
                 </div>
             </a>
-            <a href="admin.html" class="btn btn-outline-light btn-sm rounded-pill px-3">Admin Login</a>
+            <a href="admin.html" class="btn btn-outline-light btn-sm rounded-pill px-3 shadow-sm">Admin Panel</a>
         </div>
     </nav>
 
     <div class="container my-4">
         <div class="row">
             <div class="col-lg-8">
-                
-                <div class="saldo-box shadow-sm">
-                    <small class="text-uppercase opacity-75 fw-bold" style="letter-spacing: 1px;">Total Saldo Kas RT</small>
+                <div class="saldo-box shadow">
+                    <small class="text-uppercase fw-bold opacity-75" style="letter-spacing: 1px;">Saldo Kas RT 003</small>
                     <h1 class="display-5 fw-bold mt-2" id="total-saldo">Rp 0</h1>
-                    <div class="mt-2 small opacity-75">Update otomatis via Bendahara</div>
+                    <div class="mt-2 small"><i class="bi bi-clock-history"></i> Update Otomatis via Bendahara</div>
                 </div>
 
-                <div class="card card-custom">
-                    <div class="card-header-custom">
-                        <span class="me-2">👥</span> Daftar Warga RT 003
-                    </div>
+                <div class="card card-custom shadow-sm">
+                    <div class="card-header-custom"><i class="bi bi-people-fill me-2 text-orange"></i> Daftar Warga</div>
                     <div class="p-3">
-                        
                         <div class="warga-desktop-view">
                             <table class="table table-hover align-middle">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Nama Lengkap</th>
                                         <th>Status</th>
-                                        <th class="text-center">Aksi</th>
+                                        <th class="text-center">WhatsApp</th>
                                     </tr>
                                 </thead>
-                                <tbody id="warga-list-desktop">
-                                    </tbody>
+                                <tbody id="warga-list-desktop"></tbody>
                             </table>
                         </div>
-
-                        <div class="warga-mobile-view" id="warga-list-mobile">
-                            </div>
-
+                        <div class="warga-mobile-view" id="warga-list-mobile"></div>
                     </div>
                 </div>
 
-                <div class="card card-custom">
-                    <div class="card-header-custom">
-                        <span class="me-2">📸</span> Galeri Kegiatan Terkini
-                    </div>
+                <div class="card card-custom shadow-sm">
+                    <div class="card-header-custom"><i class="bi bi-camera-fill me-2 text-orange"></i> Dokumentasi Kegiatan</div>
                     <div class="p-3">
-                        <div class="row g-2" id="galeri-display">
-                            </div>
+                        <div class="row g-2" id="galeri-display"></div>
                     </div>
                 </div>
             </div>
 
             <div class="col-lg-4">
-                <div class="card card-custom">
-                    <div class="card-header-custom">
-                        <span class="me-2">👮</span> Jadwal Ronda Mingguan
-                    </div>
-                    <div class="p-3" id="ronda-display">
-                        </div>
+                <button class="btn-emergency shadow" onclick="scrollToEmergency()">
+                    <h4 class="fw-bold mb-1"><i class="bi bi- megaphone-fill"></i> DARURAT</h4>
+                    <small>Klik untuk Hubungi Keamanan / RT</small>
+                </button>
+
+                <div class="card card-custom shadow-sm">
+                    <div class="card-header-custom"><i class="bi bi-shield-shaded me-2 text-blue"></i> Jadwal Ronda</div>
+                    <div class="p-3" id="ronda-display"></div>
                 </div>
 
-                <div class="card card-custom bg-navy text-white p-3 text-center">
-                    <h6 class="mb-0">Darurat Keamanan?</h6>
-                    <small class="opacity-75">Hubungi Sekuriti / Ketua RT segera</small>
+                <div id="section-kontak" class="card card-custom border-2 border-danger shadow-sm">
+                    <div class="card-header-custom bg-light text-danger fw-bold">
+                        <i class="bi bi-telephone-fill me-2"></i> Kontak Penting
+                    </div>
+                    <div class="p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                            <div><div class="fw-bold">Bpk. Mukhid</div><small class="text-muted">Ketua RT 003</small></div>
+                            <a href="https://wa.me/62812XXXX" class="btn btn-sm btn-success rounded-pill px-3">WhatsApp</a>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div><div class="fw-bold">Pos Keamanan</div><small class="text-muted">Darurat 24 Jam</small></div>
+                            <a href="tel:0812XXXX" class="btn btn-sm btn-danger rounded-pill px-3">Telepon</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -216,76 +151,48 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // 1. Load Data Warga (Responsive)
-        db.collection("warga").orderBy("nama").onSnapshot(snapshot => {
-            let desktopHTML = "";
-            let mobileHTML = "";
-            
-            snapshot.forEach(doc => {
+        // Scroll to Emergency Section
+        function scrollToEmergency() {
+            const el = document.getElementById('section-kontak');
+            el.scrollIntoView({ behavior: 'smooth' });
+            el.style.backgroundColor = "#fff5f5";
+            setTimeout(() => { el.style.backgroundColor = "#fff"; }, 2000);
+        }
+
+        // 1. Data Warga (Responsive)
+        db.collection("warga").orderBy("nama").onSnapshot(s => {
+            let dHTML = ""; let mHTML = "";
+            s.forEach(doc => {
                 const w = doc.data();
-                const cleanHP = w.hp.replace(/[^0-9]/g, '');
-                const waLink = `https://wa.me/62${cleanHP.startsWith('0') ? cleanHP.substring(1) : cleanHP}`;
-                
-                // Isi Tabel Desktop
-                desktopHTML += `
-                    <tr>
-                        <td><strong>${w.nama}</strong></td>
-                        <td><span class="badge bg-light text-navy border">${w.status}</span></td>
-                        <td class="text-center"><a href="${waLink}" target="_blank" class="btn-wa">WhatsApp</a></td>
-                    </tr>`;
-
-                // Isi Kartu Mobile
-                mobileHTML += `
-                    <div class="warga-card shadow-sm">
-                        <div>
-                            <div class="fw-bold text-navy">${w.nama}</div>
-                            <small class="text-muted">${w.status}</small>
-                        </div>
-                        <a href="${waLink}" target="_blank" class="btn-wa">Chat</a>
-                    </div>`;
+                const wa = `https://wa.me/62${w.hp.replace(/[^0-9]/g, '').startsWith('0') ? w.hp.replace(/[^0-9]/g, '').substring(1) : w.hp.replace(/[^0-9]/g, '')}`;
+                dHTML += `<tr><td><strong>${w.nama}</strong></td><td><span class="badge bg-light text-navy border">${w.status}</span></td><td class="text-center"><a href="${wa}" target="_blank" class="btn-wa">Chat</a></td></tr>`;
+                mHTML += `<div class="warga-card"><div><div class="fw-bold text-navy">${w.nama}</div><small class="text-muted">${w.status}</small></div><a href="${wa}" class="btn-wa">Chat</a></div>`;
             });
-            document.getElementById('warga-list-desktop').innerHTML = desktopHTML || "<tr><td colspan='3' class='text-center'>Data Kosong</td></tr>";
-            document.getElementById('warga-list-mobile').innerHTML = mobileHTML || "<div class='text-center py-3'>Data Kosong</div>";
+            document.getElementById('warga-list-desktop').innerHTML = dHTML || "<tr><td colspan='3'>Kosong</td></tr>";
+            document.getElementById('warga-list-mobile').innerHTML = mHTML || "Kosong";
         });
 
-        // 2. Load Total Kas
+        // 2. Total Kas
         db.collection("config").doc("kas").onSnapshot(doc => {
-            if(doc.exists) {
-                const total = doc.data().total;
-                document.getElementById('total-saldo').innerText = `Rp ${Number(total).toLocaleString('id-ID')}`;
-            }
+            if(doc.exists) document.getElementById('total-saldo').innerText = `Rp ${Number(doc.data().total).toLocaleString('id-ID')}`;
         });
 
-        // 3. Load Jadwal Ronda
+        // 3. Ronda (Urut Hari)
         const hariUrut = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
-        db.collection("ronda").onSnapshot(snapshot => {
-            let rondaHTML = "";
-            // Sortir berdasarkan urutan hari
-            const dataRonda = {};
-            snapshot.forEach(d => { dataRonda[d.id] = d.data().petugas; });
-
-            hariUrut.forEach(hari => {
-                if(dataRonda[hari]) {
-                    rondaHTML += `
-                        <div class="ronda-item shadow-sm">
-                            <div class="fw-bold text-navy">${hari}</div>
-                            <div class="small text-muted">${dataRonda[hari]}</div>
-                        </div>`;
-                }
+        db.collection("ronda").onSnapshot(s => {
+            let hHTML = ""; const rData = {};
+            s.forEach(d => { rData[d.id] = d.data().petugas; });
+            hariUrut.forEach(h => {
+                if(rData[h]) hHTML += `<div class="ronda-item"><strong>${h}</strong><br><small class="text-muted">${rData[h]}</small></div>`;
             });
-            document.getElementById('ronda-display').innerHTML = rondaHTML || "Belum ada jadwal.";
+            document.getElementById('ronda-display').innerHTML = hHTML || "Belum ada jadwal.";
         });
 
-        // 4. Load Galeri (Limit 4 Foto Terbaru)
-        db.collection("kegiatan").orderBy("tanggal", "desc").limit(4).onSnapshot(snapshot => {
-            let galeriHTML = "";
-            snapshot.forEach(doc => {
-                galeriHTML += `
-                    <div class="col-6">
-                        <img src="${doc.data().url}" class="img-galeri shadow-sm border" alt="Kegiatan">
-                    </div>`;
-            });
-            document.getElementById('galeri-display').innerHTML = galeriHTML || "Belum ada foto kegiatan.";
+        // 4. Galeri
+        db.collection("kegiatan").orderBy("tanggal", "desc").limit(4).onSnapshot(s => {
+            let gHTML = "";
+            s.forEach(d => { gHTML += `<div class="col-6"><img src="${d.data().url}" class="img-galeri shadow-sm"></div>`; });
+            document.getElementById('galeri-display').innerHTML = gHTML || "Belum ada foto.";
         });
     </script>
 </body>
