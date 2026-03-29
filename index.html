@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-app-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-auth-compat.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config={theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','sans-serif']},colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d',950:'#052e16'}}}}}
@@ -30,20 +31,114 @@
         .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
         .mobile-menu{transform:translateX(100%);transition:transform .3s ease}.mobile-menu.open{transform:translateX(0)}
         ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#f1f5f9}::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px}
-        .tab-btn{transition:all .2s}.tab-btn.active{background:#16a34a;color:white;box-shadow:0 4px 12px rgba(22,163,74,.3)}
         .badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:6px}
         table th{position:sticky;top:0;z-index:2}
+        .auth-bg{background:linear-gradient(135deg,#052e16 0%,#14532d 40%,#166534 70%,#15803d 100%)}
+        .lock-overlay{position:relative}.lock-overlay::after{content:'';position:absolute;inset:0;background:rgba(248,250,252,0.4);backdrop-filter:blur(2px);border-radius:inherit;z-index:1;pointer-events:none}
+        .protected-btn{transition:all .2s}
     </style>
 </head>
 <body>
-<!-- Top Bar -->
+
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div id="loginScreen" class="fixed inset-0 z-[100] auth-bg flex items-center justify-center p-4 hidden">
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute top-20 left-20 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+    </div>
+    <div class="relative z-10 w-full max-w-md">
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-primary-600/40">
+                <span class="text-white font-bold text-xl">RT3</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-2">RT 003 RW 001</h1>
+            <p class="text-green-200/70 text-sm">Kelurahan Paninggilan, Ciledug, Tangerang</p>
+        </div>
+        <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8">
+            <!-- Tab Login/Register -->
+            <div class="flex bg-gray-100 rounded-xl p-1 mb-6">
+                <button id="tabLogin" onclick="switchAuthTab('login')" class="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-white shadow text-primary-700 transition-all">Masuk</button>
+                <button id="tabRegister" onclick="switchAuthTab('register')" class="flex-1 py-2.5 text-sm font-semibold rounded-lg text-gray-500 transition-all">Daftar</button>
+            </div>
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Email</label>
+                        <div class="relative">
+                            <i data-lucide="mail" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="email" id="loginEmail" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="email@contoh.com">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Password</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="password" id="loginPass" class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Masukkan password" onkeydown="if(event.key==='Enter')doLogin()">
+                            <button onclick="togglePass('loginPass',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><i data-lucide="eye-off" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                    <div id="loginErr" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl px-3 py-2.5 flex items-center gap-2">
+                        <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i><span id="loginErrText"></span>
+                    </div>
+                    <button id="loginBtn" onclick="doLogin()" class="w-full bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-3 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center justify-center gap-2">
+                        <i data-lucide="log-in" class="w-4 h-4"></i>Masuk
+                    </button>
+                </div>
+            </div>
+            <!-- Register Form -->
+            <div id="registerForm" class="hidden">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Nama Lengkap</label>
+                        <div class="relative">
+                            <i data-lucide="user" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" id="regName" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Nama lengkap">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Email</label>
+                        <div class="relative">
+                            <i data-lucide="mail" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="email" id="regEmail" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="email@contoh.com">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Password</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="password" id="regPass" class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Min. 6 karakter">
+                            <button onclick="togglePass('regPass',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><i data-lucide="eye-off" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Konfirmasi Password</label>
+                        <div class="relative">
+                            <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="password" id="regPass2" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Ulangi password" onkeydown="if(event.key==='Enter')doRegister()">
+                        </div>
+                    </div>
+                    <div id="regErr" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl px-3 py-2.5 flex items-center gap-2">
+                        <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i><span id="regErrText"></span>
+                    </div>
+                    <button id="regBtn" onclick="doRegister()" class="w-full bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-3 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center justify-center gap-2">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i>Daftar Akun
+                    </button>
+                </div>
+            </div>
+            <p class="text-center text-[11px] text-gray-400 mt-5">© 2025 RT 003 RW 001 Paninggilan</p>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== TOP BAR ==================== -->
 <div class="bg-primary-950 text-white text-xs">
 <div class="max-w-7xl mx-auto px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-1">
 <div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3 text-primary-400"></i><span>Jl. Sadar RT.003 RW.001, Paninggilan, Ciledug, Tangerang</span></div>
 <a href="https://wa.me/6287774188870" class="flex items-center gap-1 hover:text-primary-300 transition-colors"><i data-lucide="phone" class="w-3 h-3"></i><span>Hubungi Kami</span></a>
 </div></div>
 
-<!-- Navbar -->
+<!-- ==================== NAVBAR ==================== -->
 <nav id="navbar" class="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 transition-shadow duration-300">
 <div class="max-w-7xl mx-auto px-4">
 <div class="flex items-center justify-between h-14">
@@ -63,7 +158,20 @@
 <a href="#kegiatan" class="nav-link text-[11px] font-semibold text-gray-600">Kegiatan</a>
 <a href="#kontak" class="nav-link text-[11px] font-semibold text-gray-600">Kontak</a>
 </div>
+<div class="flex items-center gap-2">
+<!-- Auth buttons in navbar -->
+<div id="navAuthLoggedOut" class="hidden lg:flex items-center gap-2">
+<button onclick="showLogin()" class="flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-primary-600 px-3 py-2 rounded-lg hover:bg-primary-50 transition-all"><i data-lucide="log-in" class="w-4 h-4"></i>Masuk</button>
+</div>
+<div id="navAuthLoggedIn" class="hidden items-center gap-2">
+<div class="hidden sm:flex items-center gap-2 bg-primary-50 rounded-xl px-3 py-1.5">
+<div class="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center"><span id="navAvatar" class="text-white text-[10px] font-bold">A</span></div>
+<span id="navUserName" class="text-xs font-semibold text-primary-800 max-w-[120px] truncate">Admin</span>
+</div>
+<button onclick="doLogout()" class="flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-600 px-3 py-2 rounded-lg hover:bg-red-50 transition-all" title="Keluar"><i data-lucide="log-out" class="w-4 h-4"></i><span class="hidden sm:inline">Keluar</span></button>
+</div>
 <button onclick="toggleMobile()" class="lg:hidden p-2 rounded-lg hover:bg-gray-100"><i data-lucide="menu" class="w-5 h-5 text-gray-700"></i></button>
+</div>
 </div>
 </div>
 </nav>
@@ -82,11 +190,12 @@
 <a href="#dana-sosial" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="heart-handshake" class="w-4 h-4"></i>Dana Sosial</a>
 <a href="#kegiatan" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="calendar" class="w-4 h-4"></i>Kegiatan</a>
 <a href="#kontak" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="phone" class="w-4 h-4"></i>Kontak</a>
+<div class="mt-3 pt-3 border-t border-gray-100" id="mobileAuthArea"></div>
 </div>
 </div>
 <div id="mobileOverlay" class="fixed inset-0 bg-black/40 z-[55] hidden" onclick="toggleMobile()"></div>
 
-<!-- Hero -->
+<!-- ==================== HERO ==================== -->
 <section id="beranda" class="hero-bg text-white relative">
 <div class="relative z-10 max-w-6xl mx-auto px-4 pt-20 pb-32 sm:pt-28 sm:pb-36">
 <div class="text-center max-w-3xl mx-auto">
@@ -101,51 +210,29 @@
 </div>
 </section>
 
-<!-- Dashboard Stats -->
+<!-- ==================== DASHBOARD STATS ==================== -->
 <section class="relative z-10 -mt-16">
 <div class="max-w-6xl mx-auto px-4">
 <div class="bg-white rounded-2xl shadow-xl shadow-gray-200/60 border border-gray-100 p-5 sm:p-6 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-<div class="text-center p-3">
-<div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-2.5"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i></div>
-<div class="text-2xl font-bold text-gray-900" id="statWarga">-</div>
-<div class="text-[11px] text-gray-500 mt-0.5">Total Warga</div>
-</div>
-<div class="text-center p-3">
-<div class="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center mx-auto mb-2.5"><i data-lucide="home" class="w-5 h-5 text-amber-600"></i></div>
-<div class="text-2xl font-bold text-gray-900" id="statKK">-</div>
-<div class="text-[11px] text-gray-500 mt-0.5">Kepala Keluarga</div>
-</div>
-<div class="text-center p-3">
-<div class="w-11 h-11 bg-primary-50 rounded-xl flex items-center justify-center mx-auto mb-2.5"><i data-lucide="wallet" class="w-5 h-5 text-primary-600"></i></div>
-<div class="text-2xl font-bold text-gray-900" id="statKas">-</div>
-<div class="text-[11px] text-gray-500 mt-0.5">Saldo Kas RT</div>
-</div>
-<div class="text-center p-3">
-<div class="w-11 h-11 bg-rose-50 rounded-xl flex items-center justify-center mx-auto mb-2.5"><i data-lucide="heart-handshake" class="w-5 h-5 text-rose-500"></i></div>
-<div class="text-2xl font-bold text-gray-900" id="statDS">-</div>
-<div class="text-[11px] text-gray-500 mt-0.5">Saldo Dana Sosial</div>
-</div>
+<div class="text-center p-3"><div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-2.5"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i></div><div class="text-2xl font-bold text-gray-900" id="statWarga">-</div><div class="text-[11px] text-gray-500 mt-0.5">Total Warga</div></div>
+<div class="text-center p-3"><div class="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center mx-auto mb-2.5"><i data-lucide="home" class="w-5 h-5 text-amber-600"></i></div><div class="text-2xl font-bold text-gray-900" id="statKK">-</div><div class="text-[11px] text-gray-500 mt-0.5">Kepala Keluarga</div></div>
+<div class="text-center p-3"><div class="w-11 h-11 bg-primary-50 rounded-xl flex items-center justify-center mx-auto mb-2.5"><i data-lucide="wallet" class="w-5 h-5 text-primary-600"></i></div><div class="text-2xl font-bold text-gray-900" id="statKas">-</div><div class="text-[11px] text-gray-500 mt-0.5">Saldo Kas RT</div></div>
+<div class="text-center p-3"><div class="w-11 h-11 bg-rose-50 rounded-xl flex items-center justify-center mx-auto mb-2.5"><i data-lucide="heart-handshake" class="w-5 h-5 text-rose-500"></i></div><div class="text-2xl font-bold text-gray-900" id="statDS">-</div><div class="text-[11px] text-gray-500 mt-0.5">Saldo Dana Sosial</div></div>
 </div>
 </div>
 </section>
 
-<!-- Grafik Overview -->
+<!-- ==================== GRAFIK OVERVIEW ==================== -->
 <section class="py-12">
 <div class="max-w-6xl mx-auto px-4">
 <div class="grid md:grid-cols-2 gap-6">
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg shadow-gray-100/50 p-5">
-<h3 class="font-bold text-gray-900 text-sm mb-4 flex items-center gap-2"><i data-lucide="trending-up" class="w-4 h-4 text-primary-600"></i>Grafik Kas RT</h3>
-<div style="height:220px"><canvas id="chartKasOverview"></canvas></div>
-</div>
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg shadow-gray-100/50 p-5">
-<h3 class="font-bold text-gray-900 text-sm mb-4 flex items-center gap-2"><i data-lucide="heart" class="w-4 h-4 text-rose-500"></i>Grafik Dana Sosial</h3>
-<div style="height:220px"><canvas id="chartDSOverview"></canvas></div>
-</div>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg shadow-gray-100/50 p-5"><h3 class="font-bold text-gray-900 text-sm mb-4 flex items-center gap-2"><i data-lucide="trending-up" class="w-4 h-4 text-primary-600"></i>Grafik Kas RT</h3><div style="height:220px"><canvas id="chartKasOV"></canvas></div></div>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg shadow-gray-100/50 p-5"><h3 class="font-bold text-gray-900 text-sm mb-4 flex items-center gap-2"><i data-lucide="heart" class="w-4 h-4 text-rose-500"></i>Grafik Dana Sosial</h3><div style="height:220px"><canvas id="chartDSOV"></canvas></div></div>
 </div>
 </div>
 </section>
 
-<!-- Profil -->
+<!-- ==================== PROFIL ==================== -->
 <section id="profil" class="py-16 sm:py-20">
 <div class="max-w-6xl mx-auto px-4">
 <div class="text-center mb-12"><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Profil RT</h2><p class="text-gray-500 mt-6 max-w-xl mx-auto text-sm">Informasi mengenai Rukun Tetangga 003 Rukun Warga 001</p></div>
@@ -161,7 +248,7 @@
 </div>
 </section>
 
-<!-- Pengurus -->
+<!-- ==================== PENGURUS ==================== -->
 <section id="pengurus" class="py-16 sm:py-20 bg-white">
 <div class="max-w-6xl mx-auto px-4">
 <div class="text-center mb-12"><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Struktur Pengurus</h2><p class="text-gray-500 mt-6 max-w-xl mx-auto text-sm">Pengurus RT 003 RW 001 Kelurahan Paninggilan</p></div>
@@ -169,30 +256,30 @@
 </div>
 </section>
 
-<!-- Warga -->
+<!-- ==================== WARGA ==================== -->
 <section id="warga" class="py-16 sm:py-20">
 <div class="max-w-6xl mx-auto px-4">
 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
 <div><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Data Warga</h2><p class="text-gray-500 mt-6 text-sm">Data penduduk RT 003 RW 001</p></div>
-<button onclick="openWargaModal()" class="bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i>Tambah Warga</button>
+<button onclick="authGuard('openWargaModal')" class="protected-btn bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i>Tambah Warga</button>
 </div>
 <div id="wargaLoading" class="flex items-center justify-center py-16"><div class="loading-spinner"></div></div>
-<div id="wargaEmpty" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="users" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Data Warga</h3><p class="text-gray-500 text-xs mb-4">Klik tombol untuk menambahkan data warga</p></div>
+<div id="wargaEmpty" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="users" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Data Warga</h3><p class="text-gray-500 text-xs">Klik tombol untuk menambahkan data warga</p></div>
 <div id="wargaContent" class="hidden">
 <div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
-<div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3"><div class="relative flex-1"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="searchWarga" oninput="filterWarga()" placeholder="Cari nama, no KK, alamat..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"></div></div>
-<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Nama KK</th><th class="text-left px-4 py-3 font-semibold text-xs">No. KK</th><th class="text-left px-4 py-3 font-semibold text-xs">Alamat</th><th class="text-center px-4 py-3 font-semibold text-xs">Anggota</th><th class="text-center px-4 py-3 font-semibold text-xs">Aksi</th></tr></thead><tbody id="wargaBody"></tbody></table></div>
+<div class="p-4 border-b border-gray-100"><div class="relative"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="searchWarga" oninput="filterWarga()" placeholder="Cari nama, no KK, alamat..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"></div></div>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Nama KK</th><th class="text-left px-4 py-3 font-semibold text-xs">No. KK</th><th class="text-left px-4 py-3 font-semibold text-xs">Alamat</th><th class="text-center px-4 py-3 font-semibold text-xs">Anggota</th><th class="text-center px-4 py-3 font-semibold text-xs auth-action-col">Aksi</th></tr></thead><tbody id="wargaBody"></tbody></table></div>
 </div>
 </div>
 </div>
 </section>
 
-<!-- Kas RT -->
+<!-- ==================== KAS RT ==================== -->
 <section id="kas" class="py-16 sm:py-20 bg-white">
 <div class="max-w-6xl mx-auto px-4">
 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
 <div><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Kas RT</h2><p class="text-gray-500 mt-6 text-sm">Transparansi keuangan RT 003</p></div>
-<button onclick="openKasModal()" class="bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Transaksi</button>
+<button onclick="authGuard('openKasModal')" class="protected-btn bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Transaksi</button>
 </div>
 <div id="kasLoading" class="flex items-center justify-center py-16"><div class="loading-spinner"></div></div>
 <div id="kasContent" class="hidden space-y-6">
@@ -201,60 +288,60 @@
 <div class="bg-red-50 border border-red-100 rounded-xl p-4 text-center"><p class="text-xs text-red-600 font-semibold mb-1">Total Pengeluaran</p><p class="text-xl font-bold text-red-700" id="kasKeluar">Rp 0</p></div>
 <div class="bg-primary-50 border border-primary-100 rounded-xl p-4 text-center"><p class="text-xs text-primary-600 font-semibold mb-1">Saldo</p><p class="text-xl font-bold text-primary-700" id="kasSaldo">Rp 0</p></div>
 </div>
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg p-5"><h3 class="font-bold text-gray-900 text-sm mb-3">Grafik Kas Bulanan</h3><div style="height:250px"><canvas id="chartKasDetail"></canvas></div></div>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg p-5"><h3 class="font-bold text-gray-900 text-sm mb-3">Grafik Kas Bulanan</h3><div style="height:250px"><canvas id="chartKasDT"></canvas></div></div>
 <div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
 <div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
-<div class="relative flex-1"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="searchKas" oninput="filterKas()" placeholder="Cari keterangan transaksi..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"></div>
+<div class="relative flex-1"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="searchKas" oninput="filterKas()" placeholder="Cari keterangan..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"></div>
 <select id="filterKasJenis" onchange="filterKas()" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"><option value="all">Semua Jenis</option><option value="masuk">Pemasukan</option><option value="keluar">Pengeluaran</option></select>
 <select id="filterKasBulan" onchange="filterKas()" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"><option value="all">Semua Bulan</option></select>
 </div>
-<div class="overflow-x-auto max-h-96 overflow-y-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Kategori</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-center px-4 py-3 font-semibold text-xs">Jenis</th><th class="text-right px-4 py-3 font-semibold text-xs">Jumlah</th><th class="text-center px-4 py-3 font-semibold text-xs">Aksi</th></tr></thead><tbody id="kasBody"></tbody></table></div>
+<div class="overflow-x-auto max-h-96 overflow-y-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Kategori</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-center px-4 py-3 font-semibold text-xs">Jenis</th><th class="text-right px-4 py-3 font-semibold text-xs">Jumlah</th><th class="text-center px-4 py-3 font-semibold text-xs auth-action-col">Aksi</th></tr></thead><tbody id="kasBody"></tbody></table></div>
 </div>
 </div>
 </div>
 </section>
 
-<!-- Piket Malam -->
+<!-- ==================== PIKET MALAM ==================== -->
 <section id="piket" class="py-16 sm:py-20">
 <div class="max-w-6xl mx-auto px-4">
 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
 <div><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Jadwal Piket Malam</h2><p class="text-gray-500 mt-6 text-sm">Jadwal piket keamanan RT 003</p></div>
-<button onclick="openPiketModal()" class="bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Jadwal</button>
+<button onclick="authGuard('openPiketModal')" class="protected-btn bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Jadwal</button>
 </div>
 <div id="piketLoading" class="flex items-center justify-center py-16"><div class="loading-spinner"></div></div>
 <div id="piketEmpty" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="moon" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Jadwal</h3><p class="text-gray-500 text-xs">Tambahkan jadwal piket malam</p></div>
 <div id="piketContent" class="hidden">
 <div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
-<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Petugas</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-center px-4 py-3 font-semibold text-xs">Aksi</th></tr></thead><tbody id="piketBody"></tbody></table></div>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Petugas</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-center px-4 py-3 font-semibold text-xs auth-action-col">Aksi</th></tr></thead><tbody id="piketBody"></tbody></table></div>
 </div>
 </div>
 </div>
 </section>
 
-<!-- Inventaris -->
+<!-- ==================== INVENTARIS ==================== -->
 <section id="inventaris" class="py-16 sm:py-20 bg-white">
 <div class="max-w-6xl mx-auto px-4">
 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
 <div><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Inventaris RT</h2><p class="text-gray-500 mt-6 text-sm">Data barang inventaris RT 003</p></div>
-<button onclick="openInventarisModal()" class="bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Inventaris</button>
+<button onclick="authGuard('openInventarisModal')" class="protected-btn bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Inventaris</button>
 </div>
 <div id="invLoading" class="flex items-center justify-center py-16"><div class="loading-spinner"></div></div>
 <div id="invEmpty" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="box" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Inventaris</h3><p class="text-gray-500 text-xs">Tambahkan data inventaris</p></div>
 <div id="invContent" class="hidden">
 <div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
 <div class="p-4 border-b border-gray-100"><div class="relative"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="searchInv" oninput="filterInventaris()" placeholder="Cari barang..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"></div></div>
-<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Nama Barang</th><th class="text-center px-4 py-3 font-semibold text-xs">Jumlah</th><th class="text-center px-4 py-3 font-semibold text-xs">Kondisi</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-center px-4 py-3 font-semibold text-xs">Aksi</th></tr></thead><tbody id="invBody"></tbody></table></div>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Nama Barang</th><th class="text-center px-4 py-3 font-semibold text-xs">Jumlah</th><th class="text-center px-4 py-3 font-semibold text-xs">Kondisi</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-center px-4 py-3 font-semibold text-xs auth-action-col">Aksi</th></tr></thead><tbody id="invBody"></tbody></table></div>
 </div>
 </div>
 </div>
 </section>
 
-<!-- Dana Sosial -->
+<!-- ==================== DANA SOSIAL ==================== -->
 <section id="dana-sosial" class="py-16 sm:py-20">
 <div class="max-w-6xl mx-auto px-4">
 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
 <div><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Dana Sosial</h2><p class="text-gray-500 mt-6 text-sm">Transparansi dana sosial RT 003</p></div>
-<button onclick="openDSModal()" class="bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Transaksi</button>
+<button onclick="authGuard('openDSModal')" class="protected-btn bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Transaksi</button>
 </div>
 <div id="dsLoading" class="flex items-center justify-center py-16"><div class="loading-spinner"></div></div>
 <div id="dsContent" class="hidden space-y-6">
@@ -263,24 +350,24 @@
 <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 text-center"><p class="text-xs text-orange-600 font-semibold mb-1">Total Keluar</p><p class="text-xl font-bold text-orange-700" id="dsKeluar">Rp 0</p></div>
 <div class="bg-primary-50 border border-primary-100 rounded-xl p-4 text-center"><p class="text-xs text-primary-600 font-semibold mb-1">Saldo</p><p class="text-xl font-bold text-primary-700" id="dsSaldo">Rp 0</p></div>
 </div>
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg p-5"><h3 class="font-bold text-gray-900 text-sm mb-3">Grafik Dana Sosial Bulanan</h3><div style="height:250px"><canvas id="chartDSDetail"></canvas></div></div>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg p-5"><h3 class="font-bold text-gray-900 text-sm mb-3">Grafik Dana Sosial Bulanan</h3><div style="height:250px"><canvas id="chartDSDT"></canvas></div></div>
 <div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
 <div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
 <div class="relative flex-1"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="searchDS" oninput="filterDS()" placeholder="Cari keterangan..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"></div>
 <select id="filterDSJenis" onchange="filterDS()" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"><option value="all">Semua Jenis</option><option value="masuk">Masuk</option><option value="keluar">Keluar</option></select>
 </div>
-<div class="overflow-x-auto max-h-96 overflow-y-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Kategori</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-left px-4 py-3 font-semibold text-xs">Penerima</th><th class="text-center px-4 py-3 font-semibold text-xs">Jenis</th><th class="text-right px-4 py-3 font-semibold text-xs">Jumlah</th><th class="text-center px-4 py-3 font-semibold text-xs">Aksi</th></tr></thead><tbody id="dsBody"></tbody></table></div>
+<div class="overflow-x-auto max-h-96 overflow-y-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Kategori</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-left px-4 py-3 font-semibold text-xs">Penerima</th><th class="text-center px-4 py-3 font-semibold text-xs">Jenis</th><th class="text-right px-4 py-3 font-semibold text-xs">Jumlah</th><th class="text-center px-4 py-3 font-semibold text-xs auth-action-col">Aksi</th></tr></thead><tbody id="dsBody"></tbody></table></div>
 </div>
 </div>
 </div>
 </section>
 
-<!-- Kegiatan -->
+<!-- ==================== KEGIATAN ==================== -->
 <section id="kegiatan" class="py-16 sm:py-20 bg-white">
 <div class="max-w-6xl mx-auto px-4">
 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
 <div><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Kegiatan RT</h2><p class="text-gray-500 mt-6 text-sm">Dokumentasi kegiatan RT 003</p></div>
-<button onclick="openKegiatanModal()" class="bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Kegiatan</button>
+<button onclick="authGuard('openKegiatanModal')" class="protected-btn bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Kegiatan</button>
 </div>
 <div id="kegLoading" class="flex items-center justify-center py-16"><div class="loading-spinner"></div></div>
 <div id="kegEmpty" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="calendar-x" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Kegiatan</h3><p class="text-gray-500 text-xs mb-4">Tambahkan kegiatan baru</p></div>
@@ -288,7 +375,7 @@
 </div>
 </section>
 
-<!-- Kontak -->
+<!-- ==================== KONTAK ==================== -->
 <section id="kontak" class="py-16 sm:py-20">
 <div class="max-w-6xl mx-auto px-4">
 <div class="text-center mb-12"><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Hubungi Kami</h2><p class="text-gray-500 mt-6 max-w-xl mx-auto text-sm">Jangan ragu menghubungi pengurus RT 003</p></div>
@@ -301,7 +388,7 @@
 </div>
 </section>
 
-<!-- Footer -->
+<!-- ==================== FOOTER ==================== -->
 <footer class="bg-primary-950 text-white">
 <div class="max-w-6xl mx-auto px-4 py-10">
 <div class="grid md:grid-cols-3 gap-8">
@@ -313,7 +400,7 @@
 </div>
 </footer>
 
-<!-- Dynamic Modal -->
+<!-- ==================== DYNAMIC MODAL ==================== -->
 <div id="dynModal" class="fixed inset-0 z-[70] hidden">
 <div class="modal-overlay absolute inset-0" onclick="closeDynModal()"></div>
 <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
@@ -327,14 +414,14 @@
 </div>
 </div>
 
-<!-- Detail Modal (Kegiatan) -->
+<!-- ==================== DETAIL MODAL (KEGIATAN) ==================== -->
 <div id="detModal" class="fixed inset-0 z-[70] hidden">
 <div class="modal-overlay absolute inset-0" onclick="closeDetModal()"></div>
 <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
 <div class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
 <div class="sticky top-0 bg-white rounded-t-2xl border-b border-gray-100 px-5 py-3.5 flex items-center justify-between z-10">
 <h3 class="text-base font-bold text-gray-900">Detail Kegiatan</h3>
-<div class="flex items-center gap-1"><button id="btnDelKeg" onclick="deleteKegiatan()" class="p-1.5 rounded-lg hover:bg-red-50 text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button><button onclick="closeDetModal()" class="p-1.5 rounded-lg hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button></div>
+<div class="flex items-center gap-1"><button id="btnDelKeg" onclick="deleteKegiatan()" class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 auth-action-btn"><i data-lucide="trash-2" class="w-4 h-4"></i></button><button onclick="closeDetModal()" class="p-1.5 rounded-lg hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button></div>
 </div>
 <div id="detModalBody" class="p-5"></div>
 </div>
@@ -342,41 +429,54 @@
 </div>
 
 <!-- Toast -->
-<div id="toastBox" class="fixed top-16 right-4 z-[80] flex flex-col gap-2"></div>
+<div id="toastBox" class="fixed top-16 right-4 z-[90] flex flex-col gap-2"></div>
 
 <script>
-// ============ FIREBASE ============
-firebase.initializeApp({apiKey:"AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",authDomain:"rt003-a6d85.firebaseapp.com",projectId:"rt003-a6d85",storageBucket:"rt003-a6d85.firebasestorage.app",messagingSenderId:"342671500828",appId:"1:342671500828:web:338c075feed136c803a1d9",measurementId:"G-X44MV0236P"});
+// ============ FIREBASE INIT ============
+firebase.initializeApp({
+    apiKey:"AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
+    authDomain:"rt003-a6d85.firebaseapp.com",
+    projectId:"rt003-a6d85",
+    storageBucket:"rt003-a6d85.firebasestorage.app",
+    messagingSenderId:"342671500828",
+    appId:"1:342671500828:web:338c075feed136c803a1d9",
+    measurementId:"G-X44MV0236P"
+});
 const db=firebase.firestore();
+const auth=firebase.auth();
 
 // ============ CONSTANTS ============
-const KAS_MASUK=['Iuran Bulanan','Iuran Kegiatan','Sumbangan','Lainnya'];
-const KAS_KELUAR=['Operasional','Kegiatan','Pembelian Barang','ATK','Listrik/Air','Sedekah','Lainnya'];
-const DS_KATEGORI=['Zakat','Infaq','Sedekah','Bantuan Warga','Bencana Alam','Lainnya'];
+const KAS_MASUK_CAT=['Iuran Bulanan','Iuran Kegiatan','Sumbangan','Lainnya'];
+const KAS_KELUAR_CAT=['Operasional','Kegiatan','Pembelian Barang','ATK','Listrik/Air','Sedekah','Lainnya'];
+const DS_CAT=['Zakat','Infaq','Sedekah','Bantuan Warga','Bencana Alam','Lainnya'];
 const KONDISI=['Baik','Rusak Ringan','Rusak Berat'];
-const IMGBB_KEY='6bfd8efeb32a8bebf742a71cb0a8a04a';
-
+const IMGBB='6bfd8efeb32a8bebf742a71cb0a8a04a';
 const PENGURUS=[
-{jabatan:'Ketua',nama:'Abdul Mukhid',wa:'6287774188870',color:'green'},
-{jabatan:'Wakil',nama:'Lucky Mardiansyah',wa:'6281298349222',color:'blue'},
-{jabatan:'Bendahara',nama:'Toto Sulistyo',wa:'628568121707',color:'amber'},
-{jabatan:'Sekretaris',nama:'Bayu Aditya P',wa:'6282298983714',color:'purple'},
-{jabatan:'Humas',nama:'Pursanto',wa:'6281371121986',color:'rose'},
-{jabatan:'Keamanan',nama:'Gunawan',wa:'62895331784458',color:'teal'}
+    {j:'Ketua',n:'Abdul Mukhid',wa:'6287774188870',c:'green'},
+    {j:'Wakil',n:'Lucky Mardiansyah',wa:'6281298349222',c:'blue'},
+    {j:'Bendahara',n:'Toto Sulistyo',wa:'628568121707',c:'amber'},
+    {j:'Sekretaris',n:'Bayu Aditya P',wa:'6282298983714',c:'purple'},
+    {j:'Humas',n:'Pursanto',wa:'6281371121986',c:'rose'},
+    {j:'Keamanan',n:'Gunawan',wa:'62895331784458',c:'teal'}
 ];
 
-// ============ GLOBAL STATE ============
+// ============ STATE ============
 let allWarga=[],allKas=[],allPiket=[],allInv=[],allDS=[],allKeg=[];
 let kasChartOV=null,dsChartOV=null,kasChartDT=null,dsChartDT=null;
-let currentKegId=null,selectedFile=null;
+let currentKegId=null,selectedFile=null,isLoggedIn=false;
 
 // ============ UTILS ============
 const $=id=>document.getElementById(id);
 const fRp=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
-const fTgl=d=>{if(!d)return'';const o={day:'numeric',month:'long',year:'numeric'};return new Date(d+'T00:00:00').toLocaleDateString('id-ID',o)};
-const fBulan=d=>{if(!d)return'';const o={month:'long',year:'numeric'};return new Date(d+'T00:00:00').toLocaleDateString('id-ID',o)};
-const monthKey=d=>d?d.substring(0,7):'';
+const fTgl=d=>{if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});};
+const fBulan=d=>{if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('id-ID',{month:'long',year:'numeric'});};
+const mKey=d=>d?d.substring(0,7):'';
 const today=()=>new Date().toISOString().split('T')[0];
+const IC=()=>'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent';
+const LC=()=>'block text-xs font-semibold text-gray-700 mb-1.5';
+const ED=id=>`<div id="${id}" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl px-3 py-2 mt-2"></div>`;
+const sE=(id,m)=>{const e=$(id);if(e){e.textContent=m;e.classList.remove('hidden');}};
+const hE=id=>{const e=$(id);if(e)e.classList.add('hidden');};
 
 function toast(msg,type='success'){
     const c=$('toastBox'),t=document.createElement('div');
@@ -391,537 +491,306 @@ function toggleMobile(){
     const m=$('mobileMenu'),o=$('mobileOverlay');
     m.classList.toggle('open');o.classList.toggle('hidden');
     document.body.style.overflow=m.classList.contains('open')?'hidden':'';
+    updateMobileAuth();
 }
-
 function closeDynModal(){$('dynModal').classList.add('hidden');document.body.style.overflow='';}
 function closeDetModal(){$('detModal').classList.add('hidden');document.body.style.overflow='';currentKegId=null;}
-
 function openDyn(title,html){
-    $('dynModalTitle').textContent=title;
-    $('dynModalBody').innerHTML=html;
-    $('dynModal').classList.remove('hidden');
-    document.body.style.overflow='hidden';
-    lucide.createIcons();
+    $('dynModalTitle').textContent=title;$('dynModalBody').innerHTML=html;
+    $('dynModal').classList.remove('hidden');document.body.style.overflow='hidden';lucide.createIcons();
 }
-
-function inputCls(){return 'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent';}
-function labelCls(){return 'block text-xs font-semibold text-gray-700 mb-1.5';}
-function errDiv(id){return `<div id="${id}" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl px-3 py-2 mt-2"></div>`;}
-function showErr(id,msg){const e=$(id);if(e){e.textContent=msg;e.classList.remove('hidden');}}
-function hideErr(id){const e=$(id);if(e)e.classList.add('hidden');}
 
 async function uploadImgBB(file){
     const fd=new FormData();fd.append('image',file);
-    const r=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`,{method:'POST',body:fd});
-    if(!r.ok)throw new Error('Upload gagal');
-    return (await r.json()).data.display_url;
+    const r=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB}`,{method:'POST',body:fd});
+    if(!r.ok)throw new Error('Upload gagal');return(await r.json()).data.display_url;
 }
 
-function aggregateMonthly(data,jenisField='jenis'){
+function aggMonthly(data,jf='jenis'){
     const m={};
-    data.forEach(d=>{
-        const k=monthKey(d.tanggal);if(!k)return;
-        if(!m[k])m[k]={masuk:0,keluar:0};
-        m[k][d[jenisField]]=(m[k][d[jenisField]]||0)+(Number(d.jumlah)||0);
-    });
+    data.forEach(d=>{const k=mKey(d.tanggal);if(!k)return;if(!m[k])m[k]={masuk:0,keluar:0};m[k][d[jf]]=(m[k][d[jf]]||0)+(Number(d.jumlah)||0);});
     return Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0]));
 }
-
-function getMonthLabels(aggregated){
-    return aggregated.map(([k])=>{const[y,m]=k.split('-');return new Date(y,m-1).toLocaleDateString('id-ID',{month:'short',year:'2-digit'});});
+function mLabels(a){return a.map(([k])=>{const[y,m]=k.split('-');return new Date(y,m-1).toLocaleDateString('id-ID',{month:'short',year:'2-digit'});});}
+function populateBulan(sel,data){
+    const s=$(sel);s.innerHTML='<option value="all">Semua Bulan</option>';
+    [...new Set(data.map(d=>mKey(d.tanggal)).filter(Boolean))].sort().reverse().forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=fBulan(m+'-01');s.appendChild(o);});
 }
 
-function populateBulanFilter(selectId,data){
-    const s=$(selectId);s.innerHTML='<option value="all">Semua Bulan</option>';
-    const months=[...new Set(data.map(d=>monthKey(d.tanggal)).filter(Boolean))].sort().reverse();
-    months.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=fBulan(m+'-01');s.appendChild(o);});
+// ============ AUTH ============
+let currentUser=null;
+
+function togglePass(id,btn){
+    const inp=$(id);const isP=inp.type==='password';inp.type=isP?'text':'password';
+    btn.innerHTML=isP?'<i data-lucide="eye" class="w-4 h-4"></i>':'<i data-lucide="eye-off" class="w-4 h-4"></i>';
+    lucide.createIcons();
+}
+
+function switchAuthTab(tab){
+    $('loginForm').classList.toggle('hidden',tab!=='login');
+    $('registerForm').classList.toggle('hidden',tab!=='register');
+    $('tabLogin').className=`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${tab==='login'?'bg-white shadow text-primary-700':'text-gray-500'}`;
+    $('tabRegister').className=`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${tab==='register'?'bg-white shadow text-primary-700':'text-gray-500'}`;
+    hE('loginErr');hE('regErr');
+}
+
+function showLogin(){
+    $('loginScreen').classList.remove('hidden');
+    document.body.style.overflow='hidden';
+    switchAuthTab('login');
+    $('loginEmail').value='';$('loginPass').value='';hE('loginErr');
+    setTimeout(()=>$('loginEmail').focus(),300);
+}
+
+async function doLogin(){
+    const email=$('loginEmail').value.trim(),pass=$('loginPass').value;
+    if(!email||!pass){sE('loginErr','Email dan password wajib diisi');$('loginErr').classList.remove('hidden');$('loginErr').classList.add('flex');return;}
+    hE('loginErr');
+    const btn=$('loginBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div> Masuk...';
+    try{
+        await auth.signInWithEmailAndPassword(email,pass);
+        toast('Berhasil masuk!');$('loginScreen').classList.add('hidden');document.body.style.overflow='';
+    }catch(e){
+        const msg=e.code==='auth/user-not-found'?'Akun tidak ditemukan':e.code==='auth/wrong-password'?'Password salah':e.code==='auth/invalid-email'?'Format email tidak valid':e.code==='auth/invalid-credential'?'Email atau password salah':'Gagal masuk. Coba lagi.';
+        sE('loginErr',msg);$('loginErr').classList.remove('hidden');$('loginErr').classList.add('flex');
+    }
+    btn.disabled=false;btn.innerHTML='<i data-lucide="log-in" class="w-4 h-4"></i> Masuk';lucide.createIcons();
+}
+
+async function doRegister(){
+    const name=$('regName').value.trim(),email=$('regEmail').value.trim(),pass=$('regPass').value,pass2=$('regPass2').value;
+    if(!name||!email||!pass){sE('regErr','Semua field wajib diisi');$('regErr').classList.remove('hidden');$('regErr').classList.add('flex');return;}
+    if(pass.length<6){sE('regErr','Password minimal 6 karakter');$('regErr').classList.remove('hidden');$('regErr').classList.add('flex');return;}
+    if(pass!==pass2){sE('regErr','Konfirmasi password tidak cocok');$('regErr').classList.remove('hidden');$('regErr').classList.add('flex');return;}
+    hE('regErr');
+    const btn=$('regBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div> Mendaftar...';
+    try{
+        const cred=await auth.createUserWithEmailAndPassword(email,pass);
+        await cred.user.updateProfile({displayName:name});
+        toast('Akun berhasil dibuat!');$('loginScreen').classList.add('hidden');document.body.style.overflow='';
+    }catch(e){
+        const msg=e.code==='auth/email-already-in-use'?'Email sudah terdaftar':e.code==='auth/weak-password'?'Password terlalu lemah':e.code==='auth/invalid-email'?'Format email tidak valid':'Gagal mendaftar. Coba lagi.';
+        sE('regErr',msg);$('regErr').classList.remove('hidden');$('regErr').classList.add('flex');
+    }
+    btn.disabled=false;btn.innerHTML='<i data-lucide="user-plus" class="w-4 h-4"></i> Daftar Akun';lucide.createIcons();
+}
+
+async function doLogout(){
+    try{await auth.signOut();toast('Berhasil keluar');}catch(e){toast('Gagal keluar','error');}
+}
+
+function authGuard(fn){
+    if(isLoggedIn){window[fn]();}else{showLogin();}
+}
+
+function updateAuthUI(user){
+    isLoggedIn=!!user;currentUser=user;
+    // Navbar
+    $('navAuthLoggedOut').style.display=isLoggedIn?'none':'flex';
+    $('navAuthLoggedIn').style.display=isLoggedIn?'flex':'none';
+    $('navAuthLoggedIn').classList.toggle('hidden',!isLoggedIn);
+    if(user){
+        const name=user.displayName||user.email||'User';
+        $('navUserName').textContent=name;
+        $('navAvatar').textContent=(name[0]||'U').toUpperCase();
+    }
+    // Protected buttons
+    document.querySelectorAll('.protected-btn').forEach(b=>{
+        b.disabled=!isLoggedIn;
+        b.classList.toggle('opacity-40',!isLoggedIn);
+        b.classList.toggle('cursor-not-allowed',!isLoggedIn);
+    });
+    // Delete buttons in tables
+    document.querySelectorAll('.auth-action-col').forEach(c=>{
+        c.style.display=isLoggedIn?'':'none';
+    });
+    document.querySelectorAll('.auth-action-btn').forEach(b=>{
+        b.style.display=isLoggedIn?'':'none';
+    });
+    updateMobileAuth();
+}
+
+function updateMobileAuth(){
+    const area=$('mobileAuthArea');
+    if(!area)return;
+    if(isLoggedIn){
+        const name=currentUser?.displayName||currentUser?.email||'User';
+        area.innerHTML=`<button onclick="doLogout();toggleMobile();" class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-red-50 text-red-600 text-sm font-medium w-full"><i data-lucide="log-out" class="w-4 h-4"></i>Keluar (${name.split(' ')[0]})</button>`;
+    }else{
+        area.innerHTML=`<button onclick="showLogin()" class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-primary-700 text-sm font-medium w-full"><i data-lucide="log-in" class="w-4 h-4"></i>Masuk Admin</button>`;
+    }
+    lucide.createIcons();
 }
 
 // ============ CHARTS ============
-const chartDefaults={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:15,font:{size:11,family:'Plus Jakarta Sans'}}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'Rp '+v.toLocaleString('id-ID')},grid:{color:'#f1f5f9'}}}};
-
-function makeKasChart(canvasId,aggregated){
-    const ctx=$(canvasId);
-    if(!ctx)return null;
-    return new Chart(ctx,{type:'bar',data:{labels:getMonthLabels(aggregated),datasets:[
-        {label:'Pemasukan',data:aggregated.map(([,v])=>v.masuk),backgroundColor:'rgba(34,197,94,0.7)',borderRadius:6,barPercentage:0.6},
-        {label:'Pengeluaran',data:aggregated.map(([,v])=>v.keluar),backgroundColor:'rgba(239,68,68,0.7)',borderRadius:6,barPercentage:0.6}
-    ]},options:{...chartDefaults}});
-}
-
-function makeDSChart(canvasId,aggregated){
-    const ctx=$(canvasId);
-    if(!ctx)return null;
-    return new Chart(ctx,{type:'bar',data:{labels:getMonthLabels(aggregated),datasets:[
-        {label:'Masuk',data:aggregated.map(([,v])=>v.masuk),backgroundColor:'rgba(139,92,246,0.7)',borderRadius:6,barPercentage:0.6},
-        {label:'Keluar',data:aggregated.map(([,v])=>v.keluar),backgroundColor:'rgba(249,115,22,0.7)',borderRadius:6,barPercentage:0.6}
-    ]},options:{...chartDefaults}});
-}
+const cDef={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:15,font:{size:11,family:'Plus Jakarta Sans'}}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>v>=1e6?(v/1e6)+'jt':v>=1e3?(v/1e3)+'rb':v},grid:{color:'#f1f5f9'}}}};
+function mkKasC(cid,ag){const c=$(cid);if(!c)return null;return new Chart(c,{type:'bar',data:{labels:mLabels(ag),datasets:[{label:'Pemasukan',data:ag.map(([,v])=>v.masuk),backgroundColor:'rgba(34,197,94,0.7)',borderRadius:6,barPercentage:.6},{label:'Pengeluaran',data:ag.map(([,v])=>v.keluar),backgroundColor:'rgba(239,68,68,0.7)',borderRadius:6,barPercentage:.6}]},options:{...cDef}});}
+function mkDSC(cid,ag){const c=$(cid);if(!c)return null;return new Chart(c,{type:'bar',data:{labels:mLabels(ag),datasets:[{label:'Masuk',data:ag.map(([,v])=>v.masuk),backgroundColor:'rgba(139,92,246,0.7)',borderRadius:6,barPercentage:.6},{label:'Keluar',data:ag.map(([,v])=>v.keluar),backgroundColor:'rgba(249,115,22,0.7)',borderRadius:6,barPercentage:.6}]},options:{...cDef}});}
 
 // ============ DASHBOARD ============
 async function loadDashboard(){
     try{
-        const[wSnap,kSnap,dSnap]=await Promise.all([
-            db.collection('warga').get(),
-            db.collection('kas').get(),
-            db.collection('danaSosial').get()
-        ]);
-        let totalW=0,totalKK=wSnap.size;
-        wSnap.docs.forEach(d=>totalW+=(Number(d.data().jumlahAnggota)||0));
-        $('statWarga').textContent=totalW;
-        $('statKK').textContent=totalKK;
-
-        let kasM=0,kasK=0;
-        kSnap.docs.forEach(d=>{const v=d.data();if(v.jenis==='masuk')kasM+=Number(v.jumlah)||0;else kasK+=Number(v.jumlah)||0;});
-        $('statKas').textContent=fRp(kasM-kasK);
-
-        let dsM=0,dsK=0;
-        dSnap.docs.forEach(d=>{const v=d.data();if(v.jenis==='masuk')dsM+=Number(v.jumlah)||0;else dsK+=Number(v.jumlah)||0;});
-        $('statDS').textContent=fRp(dsM-dsK);
-
-        // Overview charts
-        const kasAgg=aggregateMonthly(kSnap.docs.map(d=>d.data()));
-        const dsAgg=aggregateMonthly(dSnap.docs.map(d=>d.data()));
-        if(kasChartOV)kasChartOV.destroy();
-        if(dsChartOV)dsChartOV.destroy();
-        kasChartOV=makeKasChart('chartKasOverview',kasAgg);
-        dsChartOV=makeDSChart('chartDSOverview',dsAgg);
-    }catch(e){console.error('Dashboard error:',e);}
+        const[w,k,d]=await Promise.all([db.collection('warga').get(),db.collection('kas').get(),db.collection('danaSosial').get()]);
+        let tw=0;w.docs.forEach(d=>tw+=(Number(d.data().jumlahAnggota)||0));
+        $('statWarga').textContent=tw;$('statKK').textContent=w.size;
+        let km=0,kk=0;k.docs.forEach(d=>{const v=d.data();if(v.jenis==='masuk')km+=Number(v.jumlah)||0;else kk+=Number(v.jumlah)||0;});
+        $('statKas').textContent=fRp(km-kk);
+        let dm=0,dk=0;d.docs.forEach(d=>{const v=d.data();if(v.jenis==='masuk')dm+=Number(v.jumlah)||0;else dk+=Number(v.jumlah)||0;});
+        $('statDS').textContent=fRp(dm-dk);
+        const ka=aggMonthly(k.docs.map(d=>d.data())),da=aggMonthly(d.docs.map(d=>d.data()));
+        if(kasChartOV)kasChartOV.destroy();if(dsChartOV)dsChartOV.destroy();
+        kasChartOV=mkKasC('chartKasOV',ka);dsChartOV=mkDSC('chartDSOV',da);
+    }catch(e){console.error('Dash:',e);}
 }
 
 // ============ PENGURUS ============
 function renderPengurus(){
     $('pengurusGrid').innerHTML=PENGURUS.map(p=>{
-        const colors={green:'primary',blue:'blue',amber:'amber',purple:'purple',rose:'rose',teal:'teal'};
-        const c=colors[p.color]||'primary';
-        const phone=p.wa.replace(/^62/,'0');
+        const cm={green:'primary',blue:'blue',amber:'amber',purple:'purple',rose:'rose',teal:'teal'};
+        const c=cm[p.c]||'primary';const ph=p.wa.replace(/^62/,'0');
         return `<div class="card-hover bg-gradient-to-br from-${c}-50 to-white rounded-2xl border border-${c}-100 p-6 text-center relative overflow-hidden">
-            <div class="absolute top-3 right-3 bg-${c}-600 text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">${p.jabatan}</div>
-            <div class="w-20 h-20 mx-auto mb-4 mt-1 bg-${c}-100 rounded-full p-[3px]"><div class="w-full h-full bg-${c}-50 rounded-full flex items-center justify-center"><i data-lucide="${p.jabatan==='Keamanan'?'shield':'user'}" class="w-8 h-8 text-${c}-600"></i></div></div>
-            <h3 class="font-bold text-gray-900 mb-0.5">${p.nama}</h3>
-            <p class="text-xs text-${c}-600 font-semibold mb-3">${p.jabatan} RT</p>
-            <a href="https://wa.me/${p.wa}" class="inline-flex items-center gap-1.5 bg-${c}-600 hover:bg-${c}-700 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition-all shadow-lg shadow-${c}-600/20"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i>${phone}</a>
-        </div>`;
-    }).join('');
-    lucide.createIcons();
+            <div class="absolute top-3 right-3 bg-${c}-600 text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">${p.j}</div>
+            <div class="w-20 h-20 mx-auto mb-4 mt-1 bg-${c}-100 rounded-full p-[3px]"><div class="w-full h-full bg-${c}-50 rounded-full flex items-center justify-center"><i data-lucide="${p.j==='Keamanan'?'shield':'user'}" class="w-8 h-8 text-${c}-600"></i></div></div>
+            <h3 class="font-bold text-gray-900 mb-0.5">${p.n}</h3>
+            <p class="text-xs text-${c}-600 font-semibold mb-3">${p.j} RT</p>
+            <a href="https://wa.me/${p.wa}" class="inline-flex items-center gap-1.5 bg-${c}-600 hover:bg-${c}-700 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition-all shadow-lg shadow-${c}-600/20"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i>${ph}</a></div>`;
+    }).join('');lucide.createIcons();
 }
 
 // ============ WARGA ============
-function openWargaModal(){
-    openDyn('Tambah Data Warga',`
-        <div class="space-y-4">
-            <div><label class="${labelCls()}">Nama Kepala Keluarga *</label><input id="wNama" class="${inputCls()}" placeholder="Nama lengkap KK"></div>
-            <div><label class="${labelCls()}">No. KK *</label><input id="wKK" class="${inputCls()}" placeholder="16 digit no KK" maxlength="16"></div>
-            <div><label class="${labelCls()}">Alamat *</label><input id="wAlamat" class="${inputCls()}" placeholder="Alamat rumah"></div>
-            <div class="grid grid-cols-2 gap-3">
-                <div><label class="${labelCls()}">No. HP</label><input id="wHP" class="${inputCls()}" placeholder="08xxx"></div>
-                <div><label class="${labelCls()}">Jumlah Anggota *</label><input type="number" id="wAnggota" class="${inputCls()}" placeholder="0" min="1"></div>
-            </div>
-            <div><label class="${labelCls()}">Pekerjaan KK</label><input id="wPekerjaan" class="${inputCls()}" placeholder="Pekerjaan"></div>
-            ${errDiv('wErr')}
-            <div class="flex gap-3 pt-1">
-                <button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl transition-all">Batal</button>
-                <button id="wBtn" onclick="submitWarga()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button>
-            </div>
-        </div>`);
-}
+function openWargaModal(){openDyn('Tambah Data Warga',`<div class="space-y-4"><div><label class="${LC()}">Nama Kepala Keluarga *</label><input id="wNama" class="${IC()}" placeholder="Nama lengkap KK"></div><div><label class="${LC()}">No. KK *</label><input id="wKK" class="${IC()}" placeholder="16 digit" maxlength="16"></div><div><label class="${LC()}">Alamat *</label><input id="wAlamat" class="${IC()}" placeholder="Alamat rumah"></div><div class="grid grid-cols-2 gap-3"><div><label class="${LC()}">No. HP</label><input id="wHP" class="${IC()}" placeholder="08xxx"></div><div><label class="${LC()}">Jumlah Anggota *</label><input type="number" id="wAnggota" class="${IC()}" placeholder="0" min="1"></div></div><div><label class="${LC()}">Pekerjaan KK</label><input id="wPekerjaan" class="${IC()}" placeholder="Pekerjaan"></div>${ED('wErr')}<div class="flex gap-3 pt-1"><button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="wBtn" onclick="submitWarga()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);}
 async function submitWarga(){
-    const nama=$('wNama').value.trim(),kk=$('wKK').value.trim(),alamat=$('wAlamat').value.trim(),
-          hp=$('wHP').value.trim(),anggota=$('wAnggota').value,pekerjaan=$('wPekerjaan').value.trim();
-    if(!nama){showErr('wErr','Nama KK wajib diisi');return;}
-    if(!kk||kk.length<10){showErr('wErr','No. KK tidak valid');return;}
-    if(!alamat){showErr('wErr','Alamat wajib diisi');return;}
-    if(!anggota||Number(anggota)<1){showErr('wErr','Jumlah anggota minimal 1');return;}
-    hideErr('wErr');
-    const btn=$('wBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
-    try{
-        await db.collection('warga').add({nama,kk,alamat,hp,anggota:Number(anggota),pekerjaan,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-        toast('Data warga berhasil ditambahkan');closeDynModal();loadWarga();loadDashboard();
-    }catch(e){showErr('wErr','Gagal menyimpan. Coba lagi.');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
+    const nm=$('wNama').value.trim(),kk=$('wKK').value.trim(),al=$('wAlamat').value.trim(),hp=$('wHP').value.trim(),ag=$('wAnggota').value,pk=$('wPekerjaan').value.trim();
+    if(!nm){sE('wErr','Nama KK wajib diisi');return;}if(!kk||kk.length<10){sE('wErr','No. KK tidak valid');return;}if(!al){sE('wErr','Alamat wajib diisi');return;}if(!ag||Number(ag)<1){sE('wErr','Jumlah anggota minimal 1');return;}
+    hE('wErr');const btn=$('wBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
+    try{await db.collection('warga').add({nama:nm,kk,alamat:al,hp,anggota:Number(ag),pekerjaan:pk,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Data warga ditambahkan');closeDynModal();loadWarga();loadDashboard();}
+    catch(e){sE('wErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
 }
 async function loadWarga(){
     $('wargaLoading').classList.remove('hidden');$('wargaEmpty').classList.add('hidden');$('wargaContent').classList.add('hidden');
-    try{
-        const snap=await db.collection('warga').orderBy('createdAt','desc').get();
-        allWarga=snap.docs.map(d=>({id:d.id,...d.data()}));
-        $('wargaLoading').classList.add('hidden');
-        if(!allWarga.length){$('wargaEmpty').classList.remove('hidden');return;}
-        $('wargaContent').classList.remove('hidden');renderWarga(allWarga);
-    }catch(e){$('wargaLoading').classList.add('hidden');$('wargaEmpty').classList.remove('hidden');}
+    try{const s=await db.collection('warga').orderBy('createdAt','desc').get();allWarga=s.docs.map(d=>({id:d.id,...d.data()}));$('wargaLoading').classList.add('hidden');
+    if(!allWarga.length){$('wargaEmpty').classList.remove('hidden');return;}$('wargaContent').classList.remove('hidden');renderWarga(allWarga);}catch(e){$('wargaLoading').classList.add('hidden');$('wargaEmpty').classList.remove('hidden');}
 }
-function renderWarga(data){
-    $('wargaBody').innerHTML=data.map((w,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-        <td class="px-4 py-3 text-xs text-gray-500">${i+1}</td>
-        <td class="px-4 py-3 text-xs font-semibold text-gray-900">${w.nama}</td>
-        <td class="px-4 py-3 text-xs text-gray-600 font-mono">${w.kk}</td>
-        <td class="px-4 py-3 text-xs text-gray-600">${w.alamat}</td>
-        <td class="px-4 py-3 text-xs text-center font-semibold text-gray-900">${w.anggota}</td>
-        <td class="px-4 py-3 text-center"><button onclick="deleteWarga('${w.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td>
-    </tr>`).join('');
-    lucide.createIcons();
-}
+function renderWarga(d){$('wargaBody').innerHTML=d.map((w,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs font-semibold text-gray-900">${w.nama}</td><td class="px-4 py-3 text-xs text-gray-600 font-mono">${w.kk}</td><td class="px-4 py-3 text-xs text-gray-600">${w.alamat}</td><td class="px-4 py-3 text-xs text-center font-semibold text-gray-900">${w.anggota}</td><td class="px-4 py-3 text-center auth-action-col"><button onclick="deleteWarga('${w.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();updateAuthUI(currentUser);}
 function filterWarga(){const q=$('searchWarga').value.toLowerCase();renderWarga(allWarga.filter(w=>w.nama.toLowerCase().includes(q)||w.kk.includes(q)||w.alamat.toLowerCase().includes(q)));}
 async function deleteWarga(id){if(!confirm('Hapus data warga ini?'))return;try{await db.collection('warga').doc(id).delete();toast('Data warga dihapus');loadWarga();loadDashboard();}catch(e){toast('Gagal menghapus','error');}}
 
 // ============ KAS ============
-function openKasModal(){
-    openDyn('Tambah Transaksi Kas',`
-        <div class="space-y-4">
-            <div><label class="${labelCls()}">Jenis Transaksi *</label>
-                <div class="flex gap-3">
-                    <label class="flex-1 cursor-pointer"><input type="radio" name="kJenis" value="masuk" checked class="hidden peer"><div class="peer-checked:bg-green-50 peer-checked:border-green-500 peer-checked:text-green-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Pemasukan</div></label>
-                    <label class="flex-1 cursor-pointer"><input type="radio" name="kJenis" value="keluar" class="hidden peer"><div class="peer-checked:bg-red-50 peer-checked:border-red-500 peer-checked:text-red-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Pengeluaran</div></label>
-                </div>
-            </div>
-            <div><label class="${labelCls()}">Kategori *</label><select id="kKategori" class="${inputCls()}"><option value="">Pilih kategori</option></select></div>
-            <div><label class="${labelCls()}">Keterangan *</label><textarea id="kKet" rows="2" class="${inputCls()} resize-none" placeholder="Keterangan transaksi"></textarea></div>
-            <div class="grid grid-cols-2 gap-3">
-                <div><label class="${labelCls()}">Jumlah (Rp) *</label><input type="number" id="kJumlah" class="${inputCls()}" placeholder="0" min="0"></div>
-                <div><label class="${labelCls()}">Tanggal *</label><input type="date" id="kTgl" class="${inputCls()}" value="${today()}"></div>
-            </div>
-            ${errDiv('kErr')}
-            <div class="flex gap-3 pt-1">
-                <button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button>
-                <button id="kBtn" onclick="submitKas()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button>
-            </div>
-        </div>`);
-    updateKasKategori();
-    document.querySelectorAll('input[name="kJenis"]').forEach(r=>r.addEventListener('change',updateKasKategori));
-}
-function updateKasKategori(){
-    const j=document.querySelector('input[name="kJenis"]:checked')?.value||'masuk';
-    const cats=j==='masuk'?KAS_MASUK:KAS_KELUAR;
-    $('kKategori').innerHTML='<option value="">Pilih kategori</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');
-}
+function openKasModal(){openDyn('Tambah Transaksi Kas',`<div class="space-y-4"><div><label class="${LC()}">Jenis Transaksi *</label><div class="flex gap-3"><label class="flex-1 cursor-pointer"><input type="radio" name="kJenis" value="masuk" checked class="hidden peer"><div class="peer-checked:bg-green-50 peer-checked:border-green-500 peer-checked:text-green-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Pemasukan</div></label><label class="flex-1 cursor-pointer"><input type="radio" name="kJenis" value="keluar" class="hidden peer"><div class="peer-checked:bg-red-50 peer-checked:border-red-500 peer-checked:text-red-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Pengeluaran</div></label></div></div><div><label class="${LC()}">Kategori *</label><select id="kKat" class="${IC()}"><option value="">Pilih kategori</option></select></div><div><label class="${LC()}">Keterangan *</label><textarea id="kKet" rows="2" class="${IC()} resize-none" placeholder="Keterangan transaksi"></textarea></div><div class="grid grid-cols-2 gap-3"><div><label class="${LC()}">Jumlah (Rp) *</label><input type="number" id="kJml" class="${IC()}" placeholder="0" min="0"></div><div><label class="${LC()}">Tanggal *</label><input type="date" id="kTgl" class="${IC()}" value="${today()}"></div></div>${ED('kErr')}<div class="flex gap-3 pt-1"><button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="kBtn" onclick="submitKas()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);updKasKat();document.querySelectorAll('input[name="kJenis"]').forEach(r=>r.addEventListener('change',updKasKat));}
+function updKasKat(){const j=document.querySelector('input[name="kJenis"]:checked')?.value||'masuk';const cats=j==='masuk'?KAS_MASUK_CAT:KAS_KELUAR_CAT;$('kKat').innerHTML='<option value="">Pilih kategori</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');}
 async function submitKas(){
-    const jenis=document.querySelector('input[name="kJenis"]:checked')?.value;
-    const kat=$('kKategori').value,ket=$('kKet').value.trim(),jumlah=$('kJumlah').value,tgl=$('kTgl').value;
-    if(!jenis){showErr('kErr','Pilih jenis transaksi');return;}
-    if(!kat){showErr('kErr','Pilih kategori');return;}
-    if(!ket){showErr('kErr','Keterangan wajib diisi');return;}
-    if(!jumlah||Number(jumlah)<=0){showErr('kErr','Jumlah harus lebih dari 0');return;}
-    if(!tgl){showErr('kErr','Tanggal wajib diisi');return;}
-    hideErr('kErr');
-    const btn=$('kBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
-    try{
-        await db.collection('kas').add({jenis,kategori:kat,keterangan:ket,jumlah:Number(jumlah),tanggal:tgl,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-        toast('Transaksi kas berhasil ditambahkan');closeDynModal();loadKas();loadDashboard();
-    }catch(e){showErr('kErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
+    const j=document.querySelector('input[name="kJenis"]:checked')?.value,kat=$('kKat').value,ket=$('kKet').value.trim(),jml=$('kJml').value,tgl=$('kTgl').value;
+    if(!j){sE('kErr','Pilih jenis transaksi');return;}if(!kat){sE('kErr','Pilih kategori');return;}if(!ket){sE('kErr','Keterangan wajib diisi');return;}if(!jml||Number(jml)<=0){sE('kErr','Jumlah harus lebih dari 0');return;}if(!tgl){sE('kErr','Tanggal wajib diisi');return;}
+    hE('kErr');const btn=$('kBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
+    try{await db.collection('kas').add({jenis:j,kategori:kat,keterangan:ket,jumlah:Number(jml),tanggal:tgl,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Transaksi kas ditambahkan');closeDynModal();loadKas();loadDashboard();}
+    catch(e){sE('kErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
 }
 async function loadKas(){
     $('kasLoading').classList.remove('hidden');$('kasContent').classList.add('hidden');
-    try{
-        const snap=await db.collection('kas').orderBy('tanggal','desc').get();
-        allKas=snap.docs.map(d=>({id:d.id,...d.data()}));
-        $('kasLoading').classList.add('hidden');$('kasContent').classList.remove('hidden');
-        let m=0,k=0;allKas.forEach(d=>{if(d.jenis==='masuk')m+=Number(d.jumlah)||0;else k+=Number(d.jumlah)||0;});
-        $('kasMasuk').textContent=fRp(m);$('kasKeluar').textContent=fRp(k);$('kasSaldo').textContent=fRp(m-k);
-        const agg=aggregateMonthly(allKas);
-        if(kasChartDT)kasChartDT.destroy();
-        kasChartDT=makeKasChart('chartKasDetail',agg);
-        populateBulanFilter('filterKasBulan',allKas);
-        renderKas(allKas);
-    }catch(e){$('kasLoading').classList.add('hidden');}
+    try{const s=await db.collection('kas').orderBy('tanggal','desc').get();allKas=s.docs.map(d=>({id:d.id,...d.data()}));$('kasLoading').classList.add('hidden');$('kasContent').classList.remove('hidden');
+    let m=0,k=0;allKas.forEach(d=>{if(d.jenis==='masuk')m+=Number(d.jumlah)||0;else k+=Number(d.jumlah)||0;});
+    $('kasMasuk').textContent=fRp(m);$('kasKeluar').textContent=fRp(k);$('kasSaldo').textContent=fRp(m-k);
+    const ag=aggMonthly(allKas);if(kasChartDT)kasChartDT.destroy();kasChartDT=mkKasC('chartKasDT',ag);
+    populateBulan('filterKasBulan',allKas);renderKas(allKas);}catch(e){$('kasLoading').classList.add('hidden');}
 }
-function renderKas(data){
-    $('kasBody').innerHTML=data.map((k,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-        <td class="px-4 py-3 text-xs text-gray-500">${i+1}</td>
-        <td class="px-4 py-3 text-xs text-gray-600">${fTgl(k.tanggal)}</td>
-        <td class="px-4 py-3"><span class="badge ${k.jenis==='masuk'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${k.kategori||'-'}</span></td>
-        <td class="px-4 py-3 text-xs text-gray-900 max-w-[200px] line-clamp-2">${k.keterangan}</td>
-        <td class="px-4 py-3 text-center"><span class="badge ${k.jenis==='masuk'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${k.jenis==='masuk'?'↑ Masuk':'↓ Keluar'}</span></td>
-        <td class="px-4 py-3 text-xs text-right font-semibold ${k.jenis==='masuk'?'text-green-600':'text-red-600'}">${k.jenis==='masuk'?'+':'-'}${fRp(k.jumlah)}</td>
-        <td class="px-4 py-3 text-center"><button onclick="deleteKas('${k.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td>
-    </tr>`).join('');
-    lucide.createIcons();
-}
-function filterKas(){
-    const q=$('searchKas').value.toLowerCase(),j=$('filterKasJenis').value,b=$('filterKasBulan').value;
-    renderKas(allKas.filter(k=>{
-        if(q&&!k.keterangan.toLowerCase().includes(q)&&!(k.kategori||'').toLowerCase().includes(q))return false;
-        if(j!=='all'&&k.jenis!==j)return false;
-        if(b!=='all'&&monthKey(k.tanggal)!==b)return false;
-        return true;
-    }));
-}
+function renderKas(d){$('kasBody').innerHTML=d.map((k,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs text-gray-600">${fTgl(k.tanggal)}</td><td class="px-4 py-3"><span class="badge ${k.jenis==='masuk'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${k.kategori||'-'}</span></td><td class="px-4 py-3 text-xs text-gray-900 max-w-[200px] line-clamp-2">${k.keterangan}</td><td class="px-4 py-3 text-center"><span class="badge ${k.jenis==='masuk'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${k.jenis==='masuk'?'↑ Masuk':'↓ Keluar'}</span></td><td class="px-4 py-3 text-xs text-right font-semibold ${k.jenis==='masuk'?'text-green-600':'text-red-600'}">${k.jenis==='masuk'?'+':'-'}${fRp(k.jumlah)}</td><td class="px-4 py-3 text-center auth-action-col"><button onclick="deleteKas('${k.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();updateAuthUI(currentUser);}
+function filterKas(){const q=$('searchKas').value.toLowerCase(),j=$('filterKasJenis').value,b=$('filterKasBulan').value;renderKas(allKas.filter(k=>{if(q&&!k.keterangan.toLowerCase().includes(q)&&!(k.kategori||'').toLowerCase().includes(q))return false;if(j!=='all'&&k.jenis!==j)return false;if(b!=='all'&&mKey(k.tanggal)!==b)return false;return true;}));}
 async function deleteKas(id){if(!confirm('Hapus transaksi ini?'))return;try{await db.collection('kas').doc(id).delete();toast('Transaksi dihapus');loadKas();loadDashboard();}catch(e){toast('Gagal menghapus','error');}}
 
 // ============ PIKET ============
-function openPiketModal(){
-    openDyn('Tambah Jadwal Piket',`
-        <div class="space-y-4">
-            <div><label class="${labelCls()}">Tanggal *</label><input type="date" id="pTgl" class="${inputCls()}" value="${today()}"></div>
-            <div><label class="${labelCls()}">Petugas 1 *</label><input id="pP1" class="${inputCls()}" placeholder="Nama petugas"></div>
-            <div><label class="${labelCls()}">Petugas 2</label><input id="pP2" class="${inputCls()}" placeholder="Nama petugas (opsional)"></div>
-            <div><label class="${labelCls()}">Petugas 3</label><input id="pP3" class="${inputCls()}" placeholder="Nama petugas (opsional)"></div>
-            <div><label class="${labelCls()}">Keterangan</label><textarea id="pKet" rows="2" class="${inputCls()} resize-none" placeholder="Catatan tambahan"></textarea></div>
-            ${errDiv('pErr')}
-            <div class="flex gap-3 pt-1">
-                <button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button>
-                <button id="pBtn" onclick="submitPiket()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button>
-            </div>
-        </div>`);
-}
+function openPiketModal(){openDyn('Tambah Jadwal Piket',`<div class="space-y-4"><div><label class="${LC()}">Tanggal *</label><input type="date" id="pTgl" class="${IC()}" value="${today()}"></div><div><label class="${LC()}">Petugas 1 *</label><input id="pP1" class="${IC()}" placeholder="Nama petugas"></div><div><label class="${LC()}">Petugas 2</label><input id="pP2" class="${IC()}" placeholder="Opsional"></div><div><label class="${LC()}">Petugas 3</label><input id="pP3" class="${IC()}" placeholder="Opsional"></div><div><label class="${LC()}">Keterangan</label><textarea id="pKet" rows="2" class="${IC()} resize-none" placeholder="Catatan"></textarea></div>${ED('pErr')}<div class="flex gap-3 pt-1"><button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="pBtn" onclick="submitPiket()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);}
 async function submitPiket(){
     const tgl=$('pTgl').value,p1=$('pP1').value.trim(),p2=$('pP2').value.trim(),p3=$('pP3').value.trim(),ket=$('pKet').value.trim();
-    if(!tgl){showErr('pErr','Tanggal wajib diisi');return;}
-    if(!p1){showErr('pErr','Petugas 1 wajib diisi');return;}
-    hideErr('pErr');
-    const petugas=[p1,p2,p3].filter(Boolean);
-    const btn=$('pBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
-    try{
-        await db.collection('piket').add({tanggal:tgl,petugas,keterangan:ket,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-        toast('Jadwal piket ditambahkan');closeDynModal();loadPiket();
-    }catch(e){showErr('pErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
+    if(!tgl){sE('pErr','Tanggal wajib diisi');return;}if(!p1){sE('pErr','Petugas 1 wajib diisi');return;}
+    hE('pErr');const petugas=[p1,p2,p3].filter(Boolean);const btn=$('pBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
+    try{await db.collection('piket').add({tanggal:tgl,petugas,keterangan:ket,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Jadwal piket ditambahkan');closeDynModal();loadPiket();}
+    catch(e){sE('pErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
 }
 async function loadPiket(){
     $('piketLoading').classList.remove('hidden');$('piketEmpty').classList.add('hidden');$('piketContent').classList.add('hidden');
-    try{
-        const snap=await db.collection('piket').orderBy('tanggal','desc').get();
-        allPiket=snap.docs.map(d=>({id:d.id,...d.data()}));
-        $('piketLoading').classList.add('hidden');
-        if(!allPiket.length){$('piketEmpty').classList.remove('hidden');return;}
-        $('piketContent').classList.remove('hidden');
-        $('piketBody').innerHTML=allPiket.map((p,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-            <td class="px-4 py-3 text-xs text-gray-500">${i+1}</td>
-            <td class="px-4 py-3 text-xs text-gray-600">${fTgl(p.tanggal)}</td>
-            <td class="px-4 py-3 text-xs text-gray-900">${(p.petugas||[]).join(', ')}</td>
-            <td class="px-4 py-3 text-xs text-gray-500">${p.keterangan||'-'}</td>
-            <td class="px-4 py-3 text-center"><button onclick="deletePiket('${p.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td>
-        </tr>`).join('');
-        lucide.createIcons();
-    }catch(e){$('piketLoading').classList.add('hidden');$('piketEmpty').classList.remove('hidden');}
+    try{const s=await db.collection('piket').orderBy('tanggal','desc').get();allPiket=s.docs.map(d=>({id:d.id,...d.data()}));$('piketLoading').classList.add('hidden');
+    if(!allPiket.length){$('piketEmpty').classList.remove('hidden');return;}$('piketContent').classList.remove('hidden');
+    $('piketBody').innerHTML=allPiket.map((p,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs text-gray-600">${fTgl(p.tanggal)}</td><td class="px-4 py-3 text-xs text-gray-900">${(p.petugas||[]).join(', ')}</td><td class="px-4 py-3 text-xs text-gray-500">${p.keterangan||'-'}</td><td class="px-4 py-3 text-center auth-action-col"><button onclick="deletePiket('${p.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();updateAuthUI(currentUser);}
+    catch(e){$('piketLoading').classList.add('hidden');$('piketEmpty').classList.remove('hidden');}
 }
 async function deletePiket(id){if(!confirm('Hapus jadwal ini?'))return;try{await db.collection('piket').doc(id).delete();toast('Jadwal dihapus');loadPiket();}catch(e){toast('Gagal menghapus','error');}}
 
 // ============ INVENTARIS ============
-function openInventarisModal(){
-    openDyn('Tambah Inventaris',`
-        <div class="space-y-4">
-            <div><label class="${labelCls()}">Nama Barang *</label><input id="iNama" class="${inputCls()}" placeholder="Nama barang"></div>
-            <div class="grid grid-cols-2 gap-3">
-                <div><label class="${labelCls()}">Jumlah *</label><input type="number" id="iJml" class="${inputCls()}" placeholder="0" min="1"></div>
-                <div><label class="${labelCls()}">Kondisi *</label><select id="iKondisi" class="${inputCls()}">${KONDISI.map(k=>`<option value="${k}">${k}</option>`).join('')}</select></div>
-            </div>
-            <div><label class="${labelCls()}">Keterangan</label><textarea id="iKet" rows="2" class="${inputCls()} resize-none" placeholder="Keterangan tambahan"></textarea></div>
-            <div><label class="${labelCls()}">Tanggal Masuk *</label><input type="date" id="iTgl" class="${inputCls()}" value="${today()}"></div>
-            ${errDiv('iErr')}
-            <div class="flex gap-3 pt-1">
-                <button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button>
-                <button id="iBtn" onclick="submitInv()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button>
-            </div>
-        </div>`);
-}
+function openInventarisModal(){openDyn('Tambah Inventaris',`<div class="space-y-4"><div><label class="${LC()}">Nama Barang *</label><input id="iNama" class="${IC()}" placeholder="Nama barang"></div><div class="grid grid-cols-2 gap-3"><div><label class="${LC()}">Jumlah *</label><input type="number" id="iJml" class="${IC()}" placeholder="0" min="1"></div><div><label class="${LC()}">Kondisi *</label><select id="iKond" class="${IC()}">${KONDISI.map(k=>`<option value="${k}">${k}</option>`).join('')}</select></div></div><div><label class="${LC()}">Keterangan</label><textarea id="iKet" rows="2" class="${IC()} resize-none" placeholder="Keterangan"></textarea></div><div><label class="${LC()}">Tanggal Masuk *</label><input type="date" id="iTgl" class="${IC()}" value="${today()}"></div>${ED('iErr')}<div class="flex gap-3 pt-1"><button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="iBtn" onclick="submitInv()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);}
 async function submitInv(){
-    const nama=$('iNama').value.trim(),jml=$('iJml').value,kondisi=$('iKondisi').value,ket=$('iKet').value.trim(),tgl=$('iTgl').value;
-    if(!nama){showErr('iErr','Nama barang wajib diisi');return;}
-    if(!jml||Number(jml)<1){showErr('iErr','Jumlah minimal 1');return;}
-    if(!tgl){showErr('iErr','Tanggal wajib diisi');return;}
-    hideErr('iErr');
-    const btn=$('iBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
-    try{
-        await db.collection('inventaris').add({nama,jumlah:Number(jml),kondisi,keterangan:ket,tanggalMasuk:tgl,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-        toast('Inventaris ditambahkan');closeDynModal();loadInv();
-    }catch(e){showErr('iErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
+    const nm=$('iNama').value.trim(),jml=$('iJml').value,kond=$('iKond').value,ket=$('iKet').value.trim(),tgl=$('iTgl').value;
+    if(!nm){sE('iErr','Nama barang wajib diisi');return;}if(!jml||Number(jml)<1){sE('iErr','Jumlah minimal 1');return;}if(!tgl){sE('iErr','Tanggal wajib diisi');return;}
+    hE('iErr');const btn=$('iBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
+    try{await db.collection('inventaris').add({nama:nm,jumlah:Number(jml),kondisi:kond,keterangan:ket,tanggalMasuk:tgl,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Inventaris ditambahkan');closeDynModal();loadInv();}
+    catch(e){sE('iErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
 }
 async function loadInv(){
     $('invLoading').classList.remove('hidden');$('invEmpty').classList.add('hidden');$('invContent').classList.add('hidden');
-    try{
-        const snap=await db.collection('inventaris').orderBy('createdAt','desc').get();
-        allInv=snap.docs.map(d=>({id:d.id,...d.data()}));
-        $('invLoading').classList.add('hidden');
-        if(!allInv.length){$('invEmpty').classList.remove('hidden');return;}
-        $('invContent').classList.remove('hidden');renderInv(allInv);
-    }catch(e){$('invLoading').classList.add('hidden');$('invEmpty').classList.remove('hidden');}
+    try{const s=await db.collection('inventaris').orderBy('createdAt','desc').get();allInv=s.docs.map(d=>({id:d.id,...d.data()}));$('invLoading').classList.add('hidden');
+    if(!allInv.length){$('invEmpty').classList.remove('hidden');return;}$('invContent').classList.remove('hidden');renderInv(allInv);}catch(e){$('invLoading').classList.add('hidden');$('invEmpty').classList.remove('hidden');}
 }
-function renderInv(data){
-    const kondisiCls={Baik:'bg-green-100 text-green-700','Rusak Ringan':'bg-yellow-100 text-yellow-700','Rusak Berat':'bg-red-100 text-red-700'};
-    $('invBody').innerHTML=data.map((v,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-        <td class="px-4 py-3 text-xs text-gray-500">${i+1}</td>
-        <td class="px-4 py-3 text-xs font-semibold text-gray-900">${v.nama}</td>
-        <td class="px-4 py-3 text-xs text-center font-semibold text-gray-900">${v.jumlah}</td>
-        <td class="px-4 py-3 text-center"><span class="badge ${kondisiCls[v.kondisi]||'bg-gray-100 text-gray-600'}">${v.kondisi}</span></td>
-        <td class="px-4 py-3 text-xs text-gray-500">${v.keterangan||'-'}</td>
-        <td class="px-4 py-3 text-center"><button onclick="deleteInv('${v.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td>
-    </tr>`).join('');
-    lucide.createIcons();
-}
+function renderInv(d){const kc={Baik:'bg-green-100 text-green-700','Rusak Ringan':'bg-yellow-100 text-yellow-700','Rusak Berat':'bg-red-100 text-red-700'};$('invBody').innerHTML=d.map((v,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs font-semibold text-gray-900">${v.nama}</td><td class="px-4 py-3 text-xs text-center font-semibold">${v.jumlah}</td><td class="px-4 py-3 text-center"><span class="badge ${kc[v.kondisi]||'bg-gray-100 text-gray-600'}">${v.kondisi}</span></td><td class="px-4 py-3 text-xs text-gray-500">${v.keterangan||'-'}</td><td class="px-4 py-3 text-center auth-action-col"><button onclick="deleteInv('${v.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();updateAuthUI(currentUser);}
 function filterInventaris(){const q=$('searchInv').value.toLowerCase();renderInv(allInv.filter(v=>v.nama.toLowerCase().includes(q)||(v.keterangan||'').toLowerCase().includes(q)));}
 async function deleteInv(id){if(!confirm('Hapus inventaris ini?'))return;try{await db.collection('inventaris').doc(id).delete();toast('Inventaris dihapus');loadInv();}catch(e){toast('Gagal menghapus','error');}}
 
 // ============ DANA SOSIAL ============
-function openDSModal(){
-    openDyn('Tambah Transaksi Dana Sosial',`
-        <div class="space-y-4">
-            <div><label class="${labelCls()}">Jenis Transaksi *</label>
-                <div class="flex gap-3">
-                    <label class="flex-1 cursor-pointer"><input type="radio" name="dsJenis" value="masuk" checked class="hidden peer"><div class="peer-checked:bg-violet-50 peer-checked:border-violet-500 peer-checked:text-violet-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Masuk</div></label>
-                    <label class="flex-1 cursor-pointer"><input type="radio" name="dsJenis" value="keluar" class="hidden peer"><div class="peer-checked:bg-orange-50 peer-checked:border-orange-500 peer-checked:text-orange-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Keluar</div></label>
-                </div>
-            </div>
-            <div><label class="${labelCls()}">Kategori *</label><select id="dsKat" class="${inputCls()}">${DS_KATEGORI.map(k=>`<option value="${k}">${k}</option>`).join('')}</select></div>
-            <div><label class="${labelCls()}">Keterangan *</label><textarea id="dsKet" rows="2" class="${inputCls()} resize-none" placeholder="Keterangan transaksi"></textarea></div>
-            <div><label class="${labelCls()}">Penerima / Penyumbang</label><input id="dsPenerima" class="${inputCls()}" placeholder="Nama (opsional)"></div>
-            <div class="grid grid-cols-2 gap-3">
-                <div><label class="${labelCls()}">Jumlah (Rp) *</label><input type="number" id="dsJml" class="${inputCls()}" placeholder="0" min="0"></div>
-                <div><label class="${labelCls()}">Tanggal *</label><input type="date" id="dsTgl" class="${inputCls()}" value="${today()}"></div>
-            </div>
-            ${errDiv('dsErr')}
-            <div class="flex gap-3 pt-1">
-                <button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button>
-                <button id="dsBtn" onclick="submitDS()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button>
-            </div>
-        </div>`);
-}
+function openDSModal(){openDyn('Tambah Transaksi Dana Sosial',`<div class="space-y-4"><div><label class="${LC()}">Jenis Transaksi *</label><div class="flex gap-3"><label class="flex-1 cursor-pointer"><input type="radio" name="dsJenis" value="masuk" checked class="hidden peer"><div class="peer-checked:bg-violet-50 peer-checked:border-violet-500 peer-checked:text-violet-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Masuk</div></label><label class="flex-1 cursor-pointer"><input type="radio" name="dsJenis" value="keluar" class="hidden peer"><div class="peer-checked:bg-orange-50 peer-checked:border-orange-500 peer-checked:text-orange-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Keluar</div></label></div></div><div><label class="${LC()}">Kategori *</label><select id="dsKat" class="${IC()}">${DS_CAT.map(k=>`<option value="${k}">${k}</option>`).join('')}</select></div><div><label class="${LC()}">Keterangan *</label><textarea id="dsKet" rows="2" class="${IC()} resize-none" placeholder="Keterangan"></textarea></div><div><label class="${LC()}">Penerima / Penyumbang</label><input id="dsPenerima" class="${IC()}" placeholder="Nama (opsional)"></div><div class="grid grid-cols-2 gap-3"><div><label class="${LC()}">Jumlah (Rp) *</label><input type="number" id="dsJml" class="${IC()}" placeholder="0" min="0"></div><div><label class="${LC()}">Tanggal *</label><input type="date" id="dsTgl" class="${IC()}" value="${today()}"></div></div>${ED('dsErr')}<div class="flex gap-3 pt-1"><button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="dsBtn" onclick="submitDS()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);}
 async function submitDS(){
-    const jenis=document.querySelector('input[name="dsJenis"]:checked')?.value;
-    const kat=$('dsKat').value,ket=$('dsKet').value.trim(),penerima=$('dsPenerima').value.trim(),jml=$('dsJml').value,tgl=$('dsTgl').value;
-    if(!jenis){showErr('dsErr','Pilih jenis transaksi');return;}
-    if(!ket){showErr('dsErr','Keterangan wajib diisi');return;}
-    if(!jml||Number(jml)<=0){showErr('dsErr','Jumlah harus lebih dari 0');return;}
-    if(!tgl){showErr('dsErr','Tanggal wajib diisi');return;}
-    hideErr('dsErr');
-    const btn=$('dsBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
-    try{
-        await db.collection('danaSosial').add({jenis,kategori:kat,keterangan:ket,penerima,jumlah:Number(jml),tanggal:tgl,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-        toast('Transaksi dana sosial ditambahkan');closeDynModal();loadDS();loadDashboard();
-    }catch(e){showErr('dsErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
+    const j=document.querySelector('input[name="dsJenis"]:checked')?.value,kat=$('dsKat').value,ket=$('dsKet').value.trim,pnr=$('dsPenerima').value.trim(),jml=$('dsJml').value,tgl=$('dsTgl').value;
+    if(!j){sE('dsErr','Pilih jenis transaksi');return;}if(!ket){sE('dsErr','Keterangan wajib diisi');return;}if(!jml||Number(jml)<=0){sE('dsErr','Jumlah harus lebih dari 0');return;}if(!tgl){sE('dsErr','Tanggal wajib diisi');return;}
+    hE('dsErr');const btn=$('dsBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
+    try{await db.collection('danaSosial').add({jenis:j,kategori:kat,keterangan:ket,penerima:pnr,jumlah:Number(jml),tanggal:tgl,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Transaksi dana sosial ditambahkan');closeDynModal();loadDS();loadDashboard();}
+    catch(e){sE('dsErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
 }
 async function loadDS(){
     $('dsLoading').classList.remove('hidden');$('dsContent').classList.add('hidden');
-    try{
-        const snap=await db.collection('danaSosial').orderBy('tanggal','desc').get();
-        allDS=snap.docs.map(d=>({id:d.id,...d.data()}));
-        $('dsLoading').classList.add('hidden');$('dsContent').classList.remove('hidden');
-        let m=0,k=0;allDS.forEach(d=>{if(d.jenis==='masuk')m+=Number(d.jumlah)||0;else k+=Number(d.jumlah)||0;});
-        $('dsMasuk').textContent=fRp(m);$('dsKeluar').textContent=fRp(k);$('dsSaldo').textContent=fRp(m-k);
-        const agg=aggregateMonthly(allDS);
-        if(dsChartDT)dsChartDT.destroy();
-        dsChartDT=makeDSChart('chartDSDetail',agg);
-        renderDS(allDS);
-    }catch(e){$('dsLoading').classList.add('hidden');}
+    try{const s=await db.collection('danaSosial').orderBy('tanggal','desc').get();allDS=s.docs.map(d=>({id:d.id,...d.data()}));$('dsLoading').classList.add('hidden');$('dsContent').classList.remove('hidden');
+    let m=0,k=0;allDS.forEach(d=>{if(d.jenis==='masuk')m+=Number(d.jumlah)||0;else k+=Number(d.jumlah)||0;});
+    $('dsMasuk').textContent=fRp(m);$('dsKeluar').textContent=fRp(k);$('dsSaldo').textContent=fRp(m-k);
+    const ag=aggMonthly(allDS);if(dsChartDT)dsChartDT.destroy();dsChartDT=mkDSC('chartDSDT',ag);renderDS(allDS);}catch(e){$('dsLoading').classList.add('hidden');}
 }
-function renderDS(data){
-    $('dsBody').innerHTML=data.map((d,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-        <td class="px-4 py-3 text-xs text-gray-500">${i+1}</td>
-        <td class="px-4 py-3 text-xs text-gray-600">${fTgl(d.tanggal)}</td>
-        <td class="px-4 py-3"><span class="badge bg-violet-100 text-violet-700">${d.kategori||'-'}</span></td>
-        <td class="px-4 py-3 text-xs text-gray-900 max-w-[160px] line-clamp-2">${d.keterangan}</td>
-        <td class="px-4 py-3 text-xs text-gray-500">${d.penerima||'-'}</td>
-        <td class="px-4 py-3 text-center"><span class="badge ${d.jenis==='masuk'?'bg-violet-100 text-violet-700':'bg-orange-100 text-orange-700'}">${d.jenis==='masuk'?'↑ Masuk':'↓ Keluar'}</span></td>
-        <td class="px-4 py-3 text-xs text-right font-semibold ${d.jenis==='masuk'?'text-violet-600':'text-orange-600'}">${d.jenis==='masuk'?'+':'-'}${fRp(d.jumlah)}</td>
-        <td class="px-4 py-3 text-center"><button onclick="deleteDS('${d.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600 transition-colors"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td>
-    </tr>`).join('');
-    lucide.createIcons();
-}
-function filterDS(){
-    const q=$('searchDS').value.toLowerCase(),j=$('filterDSJenis').value;
-    renderDS(allDS.filter(d=>{
-        if(q&&!d.keterangan.toLowerCase().includes(q)&&!(d.kategori||'').toLowerCase().includes(q)&&!(d.penerima||'').toLowerCase().includes(q))return false;
-        if(j!=='all'&&d.jenis!==j)return false;
-        return true;
-    }));
-}
+function renderDS(d){$('dsBody').innerHTML=d.map((x,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs text-gray-600">${fTgl(x.tanggal)}</td><td class="px-4 py-3"><span class="badge bg-violet-100 text-violet-700">${x.kategori||'-'}</span></td><td class="px-4 py-3 text-xs text-gray-900 max-w-[140px] line-clamp-2">${x.keterangan}</td><td class="px-4 py-3 text-xs text-gray-500">${x.penerima||'-'}</td><td class="px-4 py-3 text-center"><span class="badge ${x.jenis==='masuk'?'bg-violet-100 text-violet-700':'bg-orange-100 text-orange-700'}">${x.jenis==='masuk'?'↑ Masuk':'↓ Keluar'}</span></td><td class="px-4 py-3 text-xs text-right font-semibold ${x.jenis==='masuk'?'text-violet-600':'text-orange-600'}">${x.jenis==='masuk'?'+':'-'}${fRp(x.jumlah)}</td><td class="px-4 py-3 text-center auth-action-col"><button onclick="deleteDS('${x.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();updateAuthUI(currentUser);}
+function filterDS(){const q=$('searchDS').value.toLowerCase(),j=$('filterDSJenis').value;renderDS(allDS.filter(d=>{if(q&&!d.keterangan.toLowerCase().includes(q)&&!(d.kategori||'').toLowerCase().includes(q)&&!(d.penerima||'').toLowerCase().includes(q))return false;if(j!=='all'&&d.jenis!==j)return false;return true;}));}
 async function deleteDS(id){if(!confirm('Hapus transaksi ini?'))return;try{await db.collection('danaSosial').doc(id).delete();toast('Transaksi dihapus');loadDS();loadDashboard();}catch(e){toast('Gagal menghapus','error');}}
 
 // ============ KEGIATAN ============
-function openKegiatanModal(){
-    openDyn('Tambah Kegiatan',`
-        <div class="space-y-4">
-            <div><label class="${labelCls()}">Judul Kegiatan *</label><input id="kgJudul" class="${inputCls()}" placeholder="Judul kegiatan"></div>
-            <div><label class="${labelCls()}">Deskripsi *</label><textarea id="kgDesk" rows="3" class="${inputCls()} resize-none" placeholder="Deskripsi kegiatan"></textarea></div>
-            <div><label class="${labelCls()}">Tanggal *</label><input type="date" id="kgTgl" class="${inputCls()}" value="${today()}"></div>
-            <div>
-                <label class="${labelCls()}">Foto Kegiatan *</label>
-                <div id="kgDrop" class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-primary-400 hover:bg-primary-50/30 transition-all cursor-pointer" onclick="$('kgFile').click()">
-                    <div id="kgPlaceholder"><i data-lucide="upload-cloud" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i><p class="text-xs text-gray-500">Klik untuk pilih foto</p><p class="text-[10px] text-gray-400 mt-0.5">JPG, PNG, maks 5MB</p></div>
-                    <div id="kgPreview" class="hidden"><img id="kgPrevImg" src="" class="max-h-40 object-cover rounded-lg mx-auto mb-1"><p id="kgPrevName" class="text-[10px] text-gray-500"></p></div>
-                </div>
-                <input type="file" id="kgFile" accept="image/*" class="hidden" onchange="previewKegImg(event)">
-            </div>
-            ${errDiv('kgErr')}
-            <div class="flex gap-3 pt-1">
-                <button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button>
-                <button id="kgBtn" onclick="submitKegiatan()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button>
-            </div>
-        </div>`);
-    selectedFile=null;
-}
-function previewKegImg(e){
-    const f=e.target.files[0];if(!f)return;
-    if(f.size>5*1024*1024){showErr('kgErr','Ukuran maks 5MB');e.target.value='';return;}
-    if(!f.type.startsWith('image/')){showErr('kgErr','File harus gambar');e.target.value='';return;}
-    selectedFile=f;
-    const r=new FileReader();r.onload=ev=>{$('kgPrevImg').src=ev.target.result;$('kgPrevName').textContent=f.name;$('kgPlaceholder').classList.add('hidden');$('kgPreview').classList.remove('hidden');};r.readAsDataURL(f);
-    hideErr('kgErr');
-}
+function openKegiatanModal(){openDyn('Tambah Kegiatan',`<div class="space-y-4"><div><label class="${LC()}">Judul Kegiatan *</label><input id="kgJudul" class="${IC()}" placeholder="Judul kegiatan"></div><div><label class="${LC()}">Deskripsi *</label><textarea id="kgDesk" rows="3" class="${IC()} resize-none" placeholder="Deskripsi kegiatan"></textarea></div><div><label class="${LC()}">Tanggal *</label><input type="date" id="kgTgl" class="${IC()}" value="${today()}"></div><div><label class="${LC()}">Foto Kegiatan *</label><div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-primary-400 hover:bg-primary-50/30 transition-all cursor-pointer" onclick="$('kgFile').click()"><div id="kgPH"><i data-lucide="upload-cloud" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i><p class="text-xs text-gray-500">Klik untuk pilih foto</p><p class="text-[10px] text-gray-400 mt-0.5">JPG, PNG, maks 5MB</p></div><div id="kgPV" class="hidden"><img id="kgPI" src="" class="max-h-40 object-cover rounded-lg mx-auto mb-1"><p id="kgPN" class="text-[10px] text-gray-500"></p></div></div><input type="file" id="kgFile" accept="image/*" class="hidden" onchange="previewKegImg(event)"></div>${ED('kgErr')}<div class="flex gap-3 pt-1"><button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="kgBtn" onclick="submitKegiatan()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);selectedFile=null;}
+function previewKegImg(e){const f=e.target.files[0];if(!f)return;if(f.size>5*1024*1024){sE('kgErr','Ukuran maks 5MB');e.target.value='';return;}if(!f.type.startsWith('image/')){sE('kgErr','File harus gambar');e.target.value='';return;}selectedFile=f;const r=new FileReader();r.onload=ev=>{$('kgPI').src=ev.target.result;$('kgPN').textContent=f.name;$('kgPH').classList.add('hidden');$('kgPV').classList.remove('hidden');};r.readAsDataURL(f);hE('kgErr');}
 async function submitKegiatan(){
     const judul=$('kgJudul').value.trim(),desk=$('kgDesk').value.trim(),tgl=$('kgTgl').value;
-    if(!judul){showErr('kgErr','Judul wajib diisi');return;}
-    if(!desk){showErr('kgErr','Deskripsi wajib diisi');return;}
-    if(!tgl){showErr('kgErr','Tanggal wajib diisi');return;}
-    if(!selectedFile){showErr('kgErr','Foto wajib diunggah');return;}
-    hideErr('kgErr');
-    const btn=$('kgBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div> Menyimpan...';
-    try{
-        const foto=await uploadImgBB(selectedFile);
-        await db.collection('kegiatan').add({judul,deskripsi:desk,tanggal:tgl,foto,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-        toast('Kegiatan berhasil ditambahkan');closeDynModal();loadKegiatan();
-    }catch(e){showErr('kgErr','Gagal menyimpan. Coba lagi.');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
+    if(!judul){sE('kgErr','Judul wajib diisi');return;}if(!desk){sE('kgErr','Deskripsi wajib diisi');return;}if(!tgl){sE('kgErr','Tanggal wajib diisi');return;}if(!selectedFile){sE('kgErr','Foto wajib diunggah');return;}
+    hE('kgErr');const btn=$('kgBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div> Menyimpan...';
+    try{const foto=await uploadImgBB(selectedFile);await db.collection('kegiatan').add({judul,deskripsi:desk,tanggal:tgl,foto,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Kegiatan ditambahkan');closeDynModal();loadKegiatan();}
+    catch(e){sE('kgErr','Gagal menyimpan. Coba lagi.');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
 }
 async function loadKegiatan(){
     $('kegLoading').classList.remove('hidden');$('kegEmpty').classList.add('hidden');$('kegContent').classList.add('hidden');
-    try{
-        const snap=await db.collection('kegiatan').orderBy('createdAt','desc').get();
-        allKeg=snap.docs.map(d=>({id:d.id,...d.data()}));
-        $('kegLoading').classList.add('hidden');
-        if(!allKeg.length){$('kegEmpty').classList.remove('hidden');return;}
-        $('kegContent').classList.remove('hidden');
-        $('kegContent').innerHTML=allKeg.map(k=>`
-            <div class="card-hover bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden cursor-pointer" onclick="openDetKeg('${k.id}')">
-                <div class="relative overflow-hidden">
-                    <img src="${k.foto}" alt="${k.judul}" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-500" loading="lazy" onerror="this.src='https://picsum.photos/seed/${k.id}/400/300.jpg'">
-                    <div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[10px] font-semibold text-gray-700 px-2.5 py-1 rounded-lg flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3 text-primary-600"></i>${fTgl(k.tanggal)}</div>
-                </div>
-                <div class="p-4">
-                    <h3 class="font-bold text-gray-900 text-sm mb-1.5 line-clamp-2">${k.judul}</h3>
-                    <p class="text-xs text-gray-500 line-clamp-2">${k.deskripsi}</p>
-                    <div class="mt-3 flex items-center gap-1 text-xs font-semibold text-primary-600"><span>Lihat Detail</span><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></div>
-                </div>
-            </div>`).join('');
-        lucide.createIcons();
-    }catch(e){$('kegLoading').classList.add('hidden');$('kegEmpty').classList.remove('hidden');}
+    try{const s=await db.collection('kegiatan').orderBy('createdAt','desc').get();allKeg=s.docs.map(d=>({id:d.id,...d.data()}));$('kegLoading').classList.add('hidden');
+    if(!allKeg.length){$('kegEmpty').classList.remove('hidden');return;}$('kegContent').classList.remove('hidden');
+    $('kegContent').innerHTML=allKeg.map(k=>`<div class="card-hover bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden cursor-pointer" onclick="openDetKeg('${k.id}')"><div class="relative overflow-hidden"><img src="${k.foto}" alt="${k.judul}" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-500" loading="lazy" onerror="this.src='https://picsum.photos/seed/${k.id}/400/300.jpg'"><div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[10px] font-semibold text-gray-700 px-2.5 py-1 rounded-lg flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3 text-primary-600"></i>${fTgl(k.tanggal)}</div></div><div class="p-4"><h3 class="font-bold text-gray-900 text-sm mb-1.5 line-clamp-2">${k.judul}</h3><p class="text-xs text-gray-500 line-clamp-2">${k.deskripsi}</p><div class="mt-3 flex items-center gap-1 text-xs font-semibold text-primary-600"><span>Lihat Detail</span><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></div></div></div>`).join('');lucide.createIcons();}catch(e){$('kegLoading').classList.add('hidden');$('kegEmpty').classList.remove('hidden');}
 }
-function openDetKeg(id){
-    const k=allKeg.find(x=>x.id===id);if(!k)return;
-    currentKegId=id;
-    $('detModalBody').innerHTML=`<img src="${k.foto}" alt="${k.judul}" class="w-full h-56 object-cover rounded-xl mb-4" onerror="this.src='https://picsum.photos/seed/${k.id}/400/300.jpg'">
-        <h2 class="text-lg font-bold text-gray-900 mb-2">${k.judul}</h2>
-        <div class="flex items-center gap-2 text-xs text-gray-500 mb-3"><i data-lucide="calendar" class="w-3.5 h-3.5"></i><span>${fTgl(k.tanggal)}</span></div>
-        <p class="text-sm text-gray-600 leading-relaxed">${k.deskripsi}</p>`;
-    $('detModal').classList.remove('hidden');document.body.style.overflow='hidden';lucide.createIcons();
-}
+function openDetKeg(id){const k=allKeg.find(x=>x.id===id);if(!k)return;currentKegId=id;$('detModalBody').innerHTML=`<img src="${k.foto}" alt="${k.judul}" class="w-full h-56 object-cover rounded-xl mb-4" onerror="this.src='https://picsum.photos/seed/${k.id}/400/300.jpg'"><h2 class="text-lg font-bold text-gray-900 mb-2">${k.judul}</h2><div class="flex items-center gap-2 text-xs text-gray-500 mb-3"><i data-lucide="calendar" class="w-3.5 h-3.5"></i><span>${fTgl(k.tanggal)}</span></div><p class="text-sm text-gray-600 leading-relaxed">${k.deskripsi}</p>`;$('detModal').classList.remove('hidden');document.body.style.overflow='hidden';lucide.createIcons();updateAuthUI(currentUser);}
 async function deleteKegiatan(){if(!currentKegId||!confirm('Hapus kegiatan ini?'))return;try{await db.collection('kegiatan').doc(currentKegId).delete();toast('Kegiatan dihapus');closeDetModal();loadKegiatan();}catch(e){toast('Gagal menghapus','error');}}
 
 // ============ NAV SCROLL ============
 const secs=['beranda','profil','pengurus','warga','kas','piket','inventaris','dana-sosial','kegiatan','kontak'];
-window.addEventListener('scroll',()=>{
-    let cur='';secs.forEach(id=>{const s=$(id);if(s&&s.getBoundingClientRect().top<=100)cur=id;});
-    document.querySelectorAll('.nav-link').forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur);});
-    $('navbar').classList.toggle('shadow-md',window.scrollY>10);
-});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDynModal();closeDetModal();const m=$('mobileMenu');if(m.classList.contains('open'))toggleMobile();}});
+window.addEventListener('scroll',()=>{let cur='';secs.forEach(id=>{const s=$(id);if(s&&s.getBoundingClientRect().top<=100)cur=id;});document.querySelectorAll('.nav-link').forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur);});$('navbar').classList.toggle('shadow-md',window.scrollY>10);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDynModal();closeDetModal();if(!$('loginScreen').classList.contains('hidden')){$('loginScreen').classList.add('hidden');document.body.style.overflow='';}const m=$('mobileMenu');if(m.classList.contains('open'))toggleMobile();}});
 
 // ============ INIT ============
 document.addEventListener('DOMContentLoaded',()=>{
-    lucide.createIcons();
-    renderPengurus();
-    loadDashboard();
-    loadWarga();
-    loadKas();
-    loadPiket();
-    loadInv();
-    loadDS();
-    loadKegiatan();
+    lucide.createIcons();renderPengurus();updateAuthUI(null);
+    loadDashboard();loadWarga();loadKas();loadPiket();loadInv();loadDS();loadKegiatan();
+
+    // Auth state listener
+    auth.onAuthStateChanged(user=>{
+        updateAuthUI(user);
+        if(user){
+            $('loginScreen').classList.add('hidden');
+            document.body.style.overflow='';
+        }
+    });
 });
 </script>
+</body>
+</html>
