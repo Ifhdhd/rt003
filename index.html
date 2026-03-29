@@ -5,35 +5,49 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RT 003 RW 001</title>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 body{margin:0;font-family:system-ui;background:#020617;color:#e2e8f0;}
+.header{text-align:center;padding:20px;}
+.logo{width:80px;}
 .menu{display:flex;gap:8px;overflow:auto;padding:10px;justify-content:center;}
 .menu button{padding:10px;border-radius:20px;border:none;background:#0f172a;color:#94a3b8;}
 .menu button.active{background:#38bdf8;color:black;}
 .card{background:#0f172a;margin:12px;padding:16px;border-radius:12px;}
 .hidden{display:none;}
 img{width:100%;border-radius:10px;margin-top:10px;}
-.item{padding:8px;border-bottom:1px solid #1e293b;}
+.item{padding:8px;border-bottom:1px solid #1e293b;display:flex;justify-content:space-between;}
+.delete{color:red;cursor:pointer;}
+.btnWA{background:#22c55e;color:white;padding:5px 10px;border-radius:6px;text-decoration:none;}
 </style>
 </head>
 
 <body>
 
+<div class="header">
+<img src="logo.png" class="logo">
+<h2>RT 003 RW 001</h2>
+<p style="color:#94a3b8">Paninggilan Ciledug</p>
+</div>
+
 <div class="menu">
 <button onclick="show('home',this)" class="active">Dashboard</button>
 <button onclick="show('warga',this)">Warga</button>
 <button onclick="show('kas',this)">Kas</button>
-<button onclick="show('laporan',this)">Laporan</button>
 <button onclick="show('galeri',this)">Kegiatan</button>
 <button onclick="show('ronda',this)">Ronda</button>
 <button onclick="show('kontak',this)">Kontak</button>
 <button onclick="show('admin',this)">Admin</button>
 </div>
 
-<div id="home" class="card">Selamat datang warga 👋</div>
+<div id="home" class="card">
+<h3>Grafik Kas</h3>
+<canvas id="chartKas"></canvas>
+</div>
 
 <div id="warga" class="card hidden">
-<h3>Data Warga</h3>
+<h3>Warga</h3>
 <div id="formWarga" class="hidden">
 <input id="namaWarga" placeholder="nama">
 <button onclick="tambahWarga()">Tambah</button>
@@ -53,13 +67,6 @@ img{width:100%;border-radius:10px;margin-top:10px;}
 <button onclick="tambahKas()">Tambah</button>
 </div>
 <div id="listKas"></div>
-</div>
-
-<div id="laporan" class="card hidden">
-<h3>Laporan</h3>
-<input id="namaLap" placeholder="nama">
-<textarea id="isiLap" placeholder="isi"></textarea>
-<button onclick="kirimLaporan()">Kirim</button>
 </div>
 
 <div id="galeri" class="card hidden">
@@ -84,12 +91,14 @@ img{width:100%;border-radius:10px;margin-top:10px;}
 
 <div id="kontak" class="card hidden">
 <h3>Kontak</h3>
-<p>Ketua: Abdul Mukhid - 087774188870</p>
-<p>Wakil: Lucky - 081298349222</p>
-<p>Bendahara: Toto - 08568121707</p>
-<p>Sekretaris: Bayu - 082298983714</p>
-<p>Humas: Pursanto - 081371121986</p>
-<p>Keamanan: Gunawan - 0895331784458</p>
+
+<p>Ketua - <a class="btnWA" href="https://wa.me/6287774188870" target="_blank">WA</a></p>
+<p>Wakil - <a class="btnWA" href="https://wa.me/6281298349222" target="_blank">WA</a></p>
+<p>Bendahara - <a class="btnWA" href="https://wa.me/628568121707" target="_blank">WA</a></p>
+<p>Sekretaris - <a class="btnWA" href="https://wa.me/6282298983714" target="_blank">WA</a></p>
+<p>Humas - <a class="btnWA" href="https://wa.me/6281371121986" target="_blank">WA</a></p>
+<p>Keamanan - <a class="btnWA" href="https://wa.me/62895331784458" target="_blank">WA</a></p>
+
 </div>
 
 <div id="admin" class="card hidden">
@@ -103,12 +112,12 @@ img{width:100%;border-radius:10px;margin-top:10px;}
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,addDoc,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,addDoc,getDocs,deleteDoc,doc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-apiKey:"ISI_CONFIG",
-authDomain:"ISI_CONFIG",
-projectId:"ISI_CONFIG"
+apiKey: "AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
+authDomain: "rt003-a6d85.firebaseapp.com",
+projectId: "rt003-a6d85"
 };
 
 const API_KEY = "6bfd8efeb32a8bebf742a71cb0a8a04a";
@@ -127,6 +136,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let isAdmin=false;
+let chart;
 
 window.show=(id,el)=>{
 document.querySelectorAll('.card').forEach(x=>x.classList.add('hidden'));
@@ -147,42 +157,36 @@ formRonda.classList.toggle("hidden",!isAdmin);
 loadAll();
 });
 
-window.login=()=>signInWithEmailAndPassword(auth,email.value,password.value);
+window.login=()=>signInWithEmailAndPassword(auth,email.value,password.value)
+.then(()=>alert("Login berhasil"))
+.catch(e=>alert(e.message));
+
 window.logout=()=>signOut(auth);
 
-window.uploadFoto = async ()=>{
-if(!isAdmin) return alert("Hanya admin");
+window.uploadFoto=async()=>{
+if(!isAdmin) return alert("Admin only");
 
-const file = fileFoto.files[0];
-if(!file) return alert("Pilih foto");
+const file=fileFoto.files[0];
+const fd=new FormData();
+fd.append("image",file);
 
-const formData = new FormData();
-formData.append("image", file);
-
-const res = await fetch("https://api.imgbb.com/1/upload?key=" + API_KEY,{
-method:"POST",
-body:formData
-});
-
-const data = await res.json();
-const url = data.data.url;
+const res=await fetch("https://api.imgbb.com/1/upload?key="+API_KEY,{method:"POST",body:fd});
+const data=await res.json();
 
 await addDoc(collection(db,"galeri"),{
 judul:judulFoto.value,
-url:url
+url:data.data.url
 });
 
 loadAll();
 };
 
+window.tambahWarga=()=>addDoc(collection(db,"warga"),{nama:namaWarga.value}).then(loadAll);
+
 window.tambahKas=()=>addDoc(collection(db,"kas"),{
 ket:ketKas.value,
-jumlah:jumlahKas.value,
+jumlah:+jumlahKas.value,
 tipe:tipeKas.value
-}).then(loadAll);
-
-window.tambahWarga=()=>addDoc(collection(db,"warga"),{
-nama:namaWarga.value
 }).then(loadAll);
 
 window.tambahRonda=()=>addDoc(collection(db,"ronda"),{
@@ -190,34 +194,60 @@ nama:namaRonda.value,
 tanggal:tanggalRonda.value
 }).then(loadAll);
 
-window.kirimLaporan=()=>addDoc(collection(db,"laporan"),{
-nama:namaLap.value,
-isi:isiLap.value
-});
+window.hapus=(col,id)=>deleteDoc(doc(db,col,id)).then(loadAll);
 
 async function loadAll(){
 
-// galeri
-let g=await getDocs(collection(db,"galeri"));
-listGaleri.innerHTML="";
-g.forEach(d=>{
+// kas + chart
+let kasSnap=await getDocs(collection(db,"kas"));
+let masuk=0,keluar=0;
+
+listKas.innerHTML="";
+kasSnap.forEach(d=>{
 let x=d.data();
-listGaleri.innerHTML+=`<img src="${x.url}"><p>${x.judul}</p>`;
+if(x.tipe=="masuk") masuk+=x.jumlah;
+else keluar+=x.jumlah;
+
+listKas.innerHTML+=`
+<div class="item">
+${x.ket} - ${x.jumlah}
+${isAdmin?`<span class="delete" onclick="hapus('kas','${d.id}')">❌</span>`:""}
+</div>`;
+});
+
+if(chart) chart.destroy();
+chart=new Chart(chartKas,{
+type:"doughnut",
+data:{
+labels:["Masuk","Keluar"],
+datasets:[{data:[masuk,keluar]}]
+}
 });
 
 // warga
 let w=await getDocs(collection(db,"warga"));
 listWarga.innerHTML="";
 w.forEach(d=>{
-listWarga.innerHTML+=`<div class="item">${d.data().nama}</div>`;
+listWarga.innerHTML+=`
+<div class="item">
+${d.data().nama}
+${isAdmin?`<span class="delete" onclick="hapus('warga','${d.id}')">❌</span>`:""}
+</div>`;
 });
 
-// kas
-let k=await getDocs(collection(db,"kas"));
-listKas.innerHTML="";
-k.forEach(d=>{
+// galeri
+let g=await getDocs(collection(db,"galeri"));
+listGaleri.innerHTML="";
+g.forEach(d=>{
 let x=d.data();
-listKas.innerHTML+=`<div class="item">${x.ket} - ${x.jumlah}</div>`;
+listGaleri.innerHTML+=`
+<div class="item">
+<div>
+<img src="${x.url}">
+<p>${x.judul}</p>
+</div>
+${isAdmin?`<span class="delete" onclick="hapus('galeri','${d.id}')">❌</span>`:""}
+</div>`;
 });
 
 // ronda
@@ -225,11 +255,14 @@ let r=await getDocs(collection(db,"ronda"));
 listRonda.innerHTML="";
 r.forEach(d=>{
 let x=d.data();
-listRonda.innerHTML+=`<div class="item">${x.nama} - ${x.tanggal}</div>`;
+listRonda.innerHTML+=`
+<div class="item">
+${x.nama} - ${x.tanggal}
+${isAdmin?`<span class="delete" onclick="hapus('ronda','${d.id}')">❌</span>`:""}
+</div>`;
 });
 
 }
-
 </script>
 
 </body>
