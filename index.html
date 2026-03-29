@@ -1,0 +1,341 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RT 003 RW 001</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:Inter;
+background:#0a0a0a;
+color:white;
+}
+
+.layout{
+display:flex;
+min-height:100vh;
+}
+
+.sidebar{
+width:230px;
+background:#111;
+padding:20px;
+}
+
+.logo{
+font-weight:700;
+font-size:18px;
+margin-bottom:20px;
+}
+
+.menu button{
+display:block;
+width:100%;
+margin-bottom:8px;
+background:#181818;
+border:none;
+color:white;
+padding:10px;
+border-radius:10px;
+text-align:left;
+}
+
+.content{
+flex:1;
+padding:20px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:16px;
+}
+
+.card{
+background:#161616;
+padding:16px;
+border-radius:16px;
+}
+
+.big{
+font-size:28px;
+font-weight:700;
+}
+
+.label{
+opacity:0.6;
+font-size:13px;
+}
+
+.full{
+grid-column:1/-1;
+}
+
+.item{
+padding:10px;
+border-bottom:1px solid #222;
+}
+
+.gallery{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+gap:10px;
+}
+
+.gallery img{
+width:100%;
+border-radius:12px;
+}
+
+.contact{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:12px;
+border-radius:12px;
+background:#101010;
+margin-bottom:10px;
+}
+
+.wa{
+background:#25D366;
+padding:8px 14px;
+border-radius:10px;
+color:white;
+text-decoration:none;
+}
+
+input,textarea,select{
+width:100%;
+margin-top:6px;
+margin-bottom:10px;
+padding:10px;
+border:none;
+border-radius:10px;
+background:#0a0a0a;
+color:white;
+}
+
+button{
+cursor:pointer;
+}
+
+@media(max-width:900px){
+.sidebar{
+display:none;
+}
+.grid{
+grid-template-columns:1fr;
+}
+}
+
+.login{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#2563eb;
+padding:14px;
+border-radius:100%;
+}
+
+.loginBox{
+position:fixed;
+bottom:90px;
+right:20px;
+background:#161616;
+padding:14px;
+border-radius:14px;
+width:260px;
+}
+
+.hidden{
+display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+<div class="sidebar">
+<div class="logo">RT 003 RW 001</div>
+
+<div class="menu">
+<button onclick="show('home')">Dashboard</button>
+<button onclick="show('kas')">Kas</button>
+<button onclick="show('pengumuman')">Pengumuman</button>
+<button onclick="show('foto')">Kegiatan</button>
+<button onclick="show('kontak')">Kontak</button>
+<button onclick="show('laporan')">Laporan</button>
+</div>
+
+</div>
+
+<div class="content">
+
+<div id="home">
+<div class="grid">
+
+<div class="card">
+<div class="label">Saldo kas</div>
+<div class="big">Rp <span id="saldo">0</span></div>
+</div>
+
+<div class="card">
+<div class="label">Total warga</div>
+<div class="big"><span id="totalWarga">0</span></div>
+</div>
+
+<div class="card">
+<div class="label">Laporan masuk</div>
+<div class="big"><span id="totalLaporan">0</span></div>
+</div>
+
+<div class="card full">
+<canvas id="chart1"></canvas>
+</div>
+
+<div class="card">
+<h3>Pengumuman terbaru</h3>
+<div id="lastInfo"></div>
+</div>
+
+<div class="card">
+<h3>Kegiatan terbaru</h3>
+<div id="lastFoto"></div>
+</div>
+
+</div>
+</div>
+
+<div id="kas" class="hidden">
+<div class="card">
+<canvas id="chart2"></canvas>
+</div>
+
+<div id="formKas" class="card hidden">
+<input id="ketKas" placeholder="keterangan">
+<select id="tipeKas">
+<option value="masuk">uang masuk</option>
+<option value="keluar">uang keluar</option>
+</select>
+<input id="jumlahKas" placeholder="jumlah">
+<button onclick="tambahKas()">Simpan</button>
+</div>
+
+<div class="card">
+<div id="listKas"></div>
+</div>
+</div>
+
+<div id="pengumuman" class="hidden">
+
+<div id="formInfo" class="card hidden">
+<input id="judulInfo">
+<textarea id="isiInfo"></textarea>
+<button onclick="tambahInfo()">Posting</button>
+</div>
+
+<div class="card">
+<div id="listInfo"></div>
+</div>
+
+</div>
+
+<div id="foto" class="hidden">
+
+<div id="formFoto" class="card hidden">
+<input id="urlFoto" placeholder="link foto">
+<button onclick="tambahFoto()">Upload</button>
+</div>
+
+<div class="card">
+<div class="gallery" id="listFoto"></div>
+</div>
+
+</div>
+
+<div id="laporan" class="hidden">
+
+<div class="card">
+<input id="namaLap">
+<textarea id="isiLap"></textarea>
+<button onclick="kirimLaporan()">Kirim</button>
+</div>
+
+<div class="card">
+<div id="listLaporan"></div>
+</div>
+
+</div>
+
+<div id="kontak" class="hidden">
+
+<div class="card">
+
+<div class="contact">
+Ketua RT - Abdul Mukhid
+<a class="wa" href="https://wa.me/6287774188870">WhatsApp</a>
+</div>
+
+<div class="contact">
+Wakil RT - Lucky Mardiansyah
+<a class="wa" href="https://wa.me/6281298349222">WhatsApp</a>
+</div>
+
+<div class="contact">
+Bendahara - Toto Sulistyo
+<a class="wa" href="https://wa.me/628568121707">WhatsApp</a>
+</div>
+
+<div class="contact">
+Sekretaris - Bayu Aditya
+<a class="wa" href="https://wa.me/6282298983714">WhatsApp</a>
+</div>
+
+<div class="contact">
+Humas - Pursanto
+<a class="wa" href="https://wa.me/6281371121986">WhatsApp</a>
+</div>
+
+<div class="contact">
+Keamanan - Gunawan
+<a class="wa" href="https://wa.me/62895331784458">WhatsApp</a>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="login" onclick="toggleLogin()">⚙️</div>
+
+<div id="loginBox" class="loginBox hidden">
+<input id="email">
+<input id="password" type="password">
+<button onclick="login()">Login</button>
+<button onclick="logout()">Logout</button>
+</div>
+
+<script>
+function show(id){
+["home","kas","pengumuman","foto","kontak","laporan"]
+.forEach(x=>document.getElementById(x).classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+}
+
+function toggleLogin(){
+document.getElementById("loginBox").classList.toggle("hidden");
+}
+</script>
+
+</body>
+</html>
