@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RT 003 RW 001</title>
+
+<style>
+:root{
+--bg:#020617;
+--card:#0f172a;
+--accent:#38bdf8;
+--text:#e2e8f0;
+--muted:#64748b;
+--danger:#ef4444;
+--success:#22c55e;
+}
+
+body{
+margin:0;
+font-family:system-ui;
+background:radial-gradient(circle at top,#020617,#000);
+color:var(--text);
+}
+
+/* HEADER */
+.header{
+text-align:center;
+padding:30px 20px;
+border-bottom:1px solid #0f172a;
+}
+.logo{
+width:80px;
+cursor:pointer;
+filter:drop-shadow(0 0 10px var(--accent));
+}
+
+/* MENU */
+.menu{
+display:flex;
+overflow:auto;
+padding:10px;
+gap:8px;
+justify-content:center;
+}
+.menu button{
+border:none;
+padding:10px 16px;
+border-radius:999px;
+background:#020617;
+color:var(--muted);
+border:1px solid #0f172a;
+}
+.menu button.active{
+background:var(--accent);
+color:black;
+}
+
+/* CARD */
+.card{
+background:var(--card);
+margin:14px;
+padding:18px;
+border-radius:16px;
+box-shadow:0 0 25px rgba(56,189,248,.08);
+}
+.bigSaldo{
+font-size:28px;
+font-weight:bold;
+color:var(--accent);
+}
+
+/* TABLE */
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+}
+th,td{
+padding:10px;
+border-bottom:1px solid #1e293b;
+text-align:left;
+}
+th{
+color:var(--muted);
+font-size:12px;
+}
+.masuk{color:var(--success);}
+.keluar{color:var(--danger);}
+
+/* LIST */
+.item{
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid #1e293b;
+}
+.delete{
+color:var(--danger);
+cursor:pointer;
+margin-left:10px;
+}
+
+/* FORM */
+input,select,textarea{
+width:100%;
+padding:10px;
+margin-top:6px;
+margin-bottom:10px;
+border-radius:10px;
+border:none;
+background:#020617;
+color:white;
+}
+
+/* LOGIN */
+.loginBox{
+position:fixed;
+bottom:20px;
+right:20px;
+background:var(--card);
+padding:16px;
+border-radius:12px;
+width:250px;
+box-shadow:0 0 20px rgba(0,0,0,.5);
+display:none;
+}
+
+.hidden{display:none;}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<img src="logo.png" class="logo" onclick="tapLogo()">
+<h2>RT 003 RW 001</h2>
+<p style="color:var(--muted)">Paninggilan Ciledug</p>
+</div>
+
+<div class="menu">
+<button onclick="show('home',this)" class="active">Dashboard</button>
+<button onclick="show('warga',this)">Warga</button>
+<button onclick="show('kas',this)">Kas</button>
+<button onclick="show('laporan',this)">Laporan</button>
+</div>
+
+<div id="home" class="card">
+Saldo Kas
+<div class="bigSaldo">Rp <span id="saldo"></span></div>
+<br>
+Total Warga
+<b><span id="totalWarga"></span></b>
+</div>
+
+<div id="warga" class="card hidden">
+<h3>Data Warga</h3>
+<div id="formWarga" class="hidden">
+<input id="namaWarga" placeholder="nama">
+<input id="alamatWarga" placeholder="alamat">
+<input id="hpWarga" placeholder="no hp">
+<button onclick="tambahWarga()">Tambah</button>
+</div>
+<div id="listWarga"></div>
+</div>
+
+<div id="kas" class="card hidden">
+<h3>Kas Warga</h3>
+<div class="bigSaldo">Rp <span id="saldo2"></span></div>
+<div id="formKas" class="hidden">
+<input id="ketKas" placeholder="keterangan">
+<select id="tipeKas">
+<option value="masuk">Uang Masuk</option>
+<option value="keluar">Uang Keluar</option>
+</select>
+<input id="jumlahKas" placeholder="jumlah">
+<button onclick="tambahKas()">Tambah</button>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Tanggal</th>
+<th>Keterangan</th>
+<th>Masuk</th>
+<th>Keluar</th>
+<th></th>
+</tr>
+</thead>
+<tbody id="listKas"></tbody>
+</table>
+</div>
+
+<div id="laporan" class="card hidden">
+<h3>Laporan</h3>
+<input id="namaLap" placeholder="nama">
+<textarea id="isiLap" placeholder="isi laporan"></textarea>
+<button onclick="kirimLaporan()">Kirim</button>
+<div id="listLaporan"></div>
+</div>
+
+<div id="loginBox" class="loginBox">
+<input id="email" placeholder="email">
+<input id="password" type="password" placeholder="password">
+<button onclick="login()">Login</button>
+<button onclick="logout()">Logout</button>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,collection,addDoc,getDocs,deleteDoc,doc,query,orderBy} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
+authDomain: "rt003-a6d85.firebaseapp.com",
+projectId: "rt003-a6d85"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let isAdmin=false;
+
+window.show=function(id,el){
+["home","warga","kas","laporan"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+document.getElementById(id).classList.remove("hidden");
+document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
+el.classList.add("active");
+}
+
+let tap=0;
+window.tapLogo=function(){
+tap++;
+if(tap>=5){
+loginBox.style.display="block";
+tap=0;
+}
+}
+
+window.login=()=>signInWithEmailAndPassword(auth,email.value,password.value);
+window.logout=()=>signOut(auth);
+
+onAuthStateChanged(auth,(user)=>{
+isAdmin=!!user;
+formKas.classList.toggle("hidden",!isAdmin);
+formWarga.classList.toggle("hidden",!isAdmin);
+loadData();
+});
+
+async function loadData(){
+let saldo=0;
+
+let wargaSnap=await getDocs(collection(db,"warga"));
+listWarga.innerHTML="";
+totalWarga.innerText=wargaSnap.size;
+
+wargaSnap.forEach(d=>{
+let x=d.data();
+listWarga.innerHTML+=`
+<div class="item">
+<div>${x.nama}</div>
+${isAdmin?`<div class="delete" onclick="hapusWarga('${d.id}')">❌</div>`:""}
+</div>`;
+});
+
+let kasSnap=await getDocs(query(collection(db,"kas"),orderBy("tanggal","desc")));
+listKas.innerHTML="";
+
+kasSnap.forEach(d=>{
+let x=d.data();
+saldo+=x.tipe=="masuk"?+x.jumlah:-x.jumlah;
+
+listKas.innerHTML+=`
+<tr>
+<td>${x.tanggal}</td>
+<td>${x.ket}</td>
+<td class="masuk">${x.tipe=="masuk"?x.jumlah:""}</td>
+<td class="keluar">${x.tipe=="keluar"?x.jumlah:""}</td>
+<td>${isAdmin?`<span class="delete" onclick="hapusKas('${d.id}')">❌</span>`:""}</td>
+</tr>`;
+});
+
+saldo.innerText=saldo;
+saldo2.innerText=saldo;
+}
+
+window.tambahWarga=()=>addDoc(collection(db,"warga"),{
+nama:namaWarga.value,
+alamat:alamatWarga.value,
+hp:hpWarga.value
+}).then(loadData);
+
+window.tambahKas=()=>addDoc(collection(db,"kas"),{
+ket:ketKas.value,
+jumlah:jumlahKas.value,
+tipe:tipeKas.value,
+tanggal:new Date().toLocaleDateString()
+}).then(loadData);
+
+window.hapusKas=id=>deleteDoc(doc(db,"kas",id)).then(loadData);
+window.hapusWarga=id=>deleteDoc(doc(db,"warga",id)).then(loadData);
+
+window.kirimLaporan=()=>addDoc(collection(db,"laporan"),{
+nama:namaLap.value,
+isi:isiLap.value
+});
+
+loadData();
+</script>
+
+</body>
+</html>
