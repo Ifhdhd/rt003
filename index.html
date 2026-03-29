@@ -7,74 +7,116 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
-        :root { --navy: #1a3a5f; --gold: #f39c12; }
-        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; padding-bottom: 50px; }
+        :root { --primary: #0d6efd; --navy: #1a3a5f; --bg-light: #f8f9fa; }
+        body { background: var(--bg-light); font-family: 'Inter', sans-serif; color: #333; }
         
-        /* HEADER - Klik 5x di sini untuk Login Admin */
-        .header-rt { background: var(--navy); color: white; padding: 35px 20px; border-radius: 0 0 35px 35px; cursor: pointer; transition: 0.3s; }
-        .header-rt:active { opacity: 0.8; }
+        /* Header & Banner */
+        .header-top { background: var(--navy); color: white; padding: 40px 20px 80px; border-radius: 0 0 40px 40px; }
+        .location-text { font-size: 0.85rem; opacity: 0.8; line-height: 1.4; }
         
-        .card-saldo { border: none; border-radius: 20px; color: white; position: relative; overflow: hidden; }
-        .bg-kas { background: linear-gradient(135deg, #27ae60, #2ecc71); }
-        .bg-dansos { background: linear-gradient(135deg, #f39c12, #f1c40f); }
+        /* Saldo Area (Floating) */
+        .saldo-container { margin-top: -60px; padding: 0 15px; }
+        .card-saldo { border: none; border-radius: 20px; background: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 20px; }
+        .val-money { font-weight: 800; font-size: 1.2rem; color: var(--navy); }
         
-        .section-title { font-weight: 800; color: var(--navy); margin: 25px 0 12px; display: flex; align-items: center; gap: 10px; font-size: 1.1rem; }
-        .card-custom { border: none; border-radius: 18px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .toast-custom { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 9999; padding: 12px 25px; border-radius: 50px; color: white; display: none; font-weight: 600; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }
+        /* Menu Grid (Mirip contoh base44) */
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
+        .menu-item { background: white; padding: 15px 5px; border-radius: 20px; text-align: center; text-decoration: none; color: #444; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .menu-item i { font-size: 1.8rem; margin-bottom: 8px; display: block; }
+        .menu-item span { font-size: 0.75rem; font-weight: 600; }
+        
+        /* Info Card */
+        .info-card { background: linear-gradient(135deg, #ffffff, #f1f7ff); border-left: 5px solid var(--primary); border-radius: 15px; padding: 15px; margin-top: 25px; }
+        
+        /* Floating Button Login */
+        .btn-admin-secret { position: fixed; bottom: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); opacity: 0.3; }
+
+        .toast-custom { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; padding: 12px 25px; border-radius: 50px; color: white; display: none; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="notif-box" class="toast-custom shadow-lg"></div>
 
-<div class="header-rt text-center" onclick="cekLoginClick()">
-    <h3 class="fw-bold mb-1">PORTAL RT 003</h3>
-    <p class="small mb-0 opacity-90" style="line-height: 1.4;">
+<div class="header-top text-center">
+    <h4 class="fw-bold mb-1">E-Warga RT 003</h4>
+    <p class="location-text mb-0">
         Jl. Sadar RT.003 RW.001, Paninggilan<br>
-        Ciledug, Kota Tangerang, Banten
+        Ciledug, Tangerang, Banten
     </p>
 </div>
 
-<div class="container mt-4">
-    <div class="row g-3">
-        <div class="col-6">
-            <div class="card card-saldo bg-kas p-3 shadow-sm text-center">
-                <i class="bi bi-wallet2 opacity-25 position-absolute end-0 bottom-0 m-2" style="font-size: 2rem;"></i>
-                <small class="opacity-75">Saldo Kas RT</small>
-                <h4 class="fw-bold mb-0" id="v-kas">Rp 0</h4>
+<div class="container saldo-container">
+    <div class="card-saldo">
+        <div class="row text-center">
+            <div class="col-6 border-end">
+                <small class="text-muted d-block mb-1">Kas Utama</small>
+                <span class="val-money" id="v-kas text-success">Rp 0</span>
             </div>
-        </div>
-        <div class="col-6">
-            <div class="card card-saldo bg-dansos p-3 shadow-sm text-center">
-                <i class="bi bi-heart-fill opacity-25 position-absolute end-0 bottom-0 m-2" style="font-size: 2rem;"></i>
-                <small class="opacity-75">Dana Sosial</small>
-                <h4 class="fw-bold mb-0" id="v-dansos">Rp 0</h4>
+            <div class="col-6">
+                <small class="text-muted d-block mb-1">Dana Sosial</small>
+                <span class="val-money text-warning" id="v-dansos">Rp 0</span>
             </div>
         </div>
     </div>
 
-    <div class="section-title"><i class="bi bi-megaphone-fill text-danger"></i> Informasi Terkini</div>
-    <div class="card card-custom p-3 shadow-sm">
-        <p id="v-info" class="mb-0 text-muted small">Memuat pengumuman terbaru...</p>
+    <div class="menu-grid">
+        <a href="#" class="menu-item" onclick="alert('Menu Kas')">
+            <i class="bi bi-wallet2 text-success"></i>
+            <span>Kas RT</span>
+        </a>
+        <a href="#" class="menu-item" onclick="alert('Menu Ronda')">
+            <i class="bi bi-shield-check text-primary"></i>
+            <span>Jadwal Ronda</span>
+        </a>
+        <a href="#" class="menu-item" onclick="alert('Menu Warga')">
+            <i class="bi bi-people text-info"></i>
+            <span>Data Warga</span>
+        </a>
+        <a href="#" class="menu-item" onclick="scrollKe('aduan')">
+            <i class="bi bi-chat-left-text text-warning"></i>
+            <span>Aduan</span>
+        </a>
+        <a href="#" class="menu-item" onclick="alert('Menu Dansos')">
+            <i class="bi bi-heart text-danger"></i>
+            <span>Dana Sosial</span>
+        </a>
+        <a href="#" class="menu-item" onclick="alert('Menu Dokumen')">
+            <i class="bi bi-file-earmark-text text-secondary"></i>
+            <span>Surat</span>
+        </a>
     </div>
 
-    <div class="section-title"><i class="bi bi-chat-right-text-fill text-primary"></i> Pengaduan & Aspirasi</div>
-    <div class="card card-custom p-3 shadow-sm">
-        <input type="text" id="a-nama" class="form-control mb-2 bg-light border-0 py-2" placeholder="Nama Lengkap Anda" style="border-radius: 12px;">
-        <textarea id="a-pesan" class="form-control mb-3 bg-light border-0 py-2" rows="3" placeholder="Sampaikan laporan atau saran untuk RT kita..." style="border-radius: 12px;"></textarea>
-        <button class="btn btn-dark w-100 fw-bold py-2 shadow-sm" onclick="kirimAduan()" style="border-radius: 12px;">KIRIM KE PENGURUS</button>
+    <div class="info-card shadow-sm">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-megaphone-fill text-danger"></i>
+            <b class="small">PENGUMUMAN TERBARU</b>
+        </div>
+        <p id="v-info" class="mb-0 small text-muted">Belum ada pengumuman terbaru dari pengurus RT.</p>
     </div>
+
+    <div id="aduan" class="mt-4 mb-5">
+        <h6 class="fw-bold mb-3">Layanan Pengaduan</h6>
+        <div class="card p-3 border-0 shadow-sm" style="border-radius: 20px;">
+            <input type="text" id="a-nama" class="form-control mb-2 border-0 bg-light py-2" placeholder="Nama Lengkap" style="border-radius: 12px;">
+            <textarea id="a-pesan" class="form-control mb-3 border-0 bg-light py-2" rows="3" placeholder="Tulis laporan atau saran..." style="border-radius: 12px;"></textarea>
+            <button class="btn btn-primary w-100 fw-bold py-2 shadow-sm" onclick="kirimAduan()" style="border-radius: 12px;">KIRIM LAPORAN</button>
+        </div>
+    </div>
+</div>
+
+<div class="btn-admin-secret" onclick="cekLoginClick()">
+    <i class="bi bi-shield-lock"></i>
 </div>
 
 <div class="modal fade" id="modalLogin" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered px-4">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 25px;">
             <div class="modal-body p-4 text-center">
-                <div class="bg-primary text-white d-inline-block p-3 rounded-circle mb-3"><i class="bi bi-lock-fill fs-3"></i></div>
-                <h5 class="fw-bold mb-3 text-navy">Login Admin RT</h5>
-                <input type="email" id="l-email" class="form-control mb-2 py-2" placeholder="Email Admin" style="border-radius: 10px;">
-                <input type="password" id="l-pass" class="form-control mb-3 py-2" placeholder="Password" style="border-radius: 10px;">
-                <button class="btn btn-primary w-100 fw-bold py-2 shadow" onclick="prosesLogin()" style="border-radius: 10px;">MASUK PANEL ADMIN</button>
+                <h5 class="fw-bold mb-3">Login Admin</h5>
+                <input type="email" id="l-email" class="form-control mb-2" placeholder="Email">
+                <input type="password" id="l-pass" class="form-control mb-3" placeholder="Password">
+                <button class="btn btn-navy bg-primary text-white w-100 fw-bold" onclick="prosesLogin()">MASUK</button>
             </div>
         </div>
     </div>
@@ -104,31 +146,23 @@
         setTimeout(() => b.style.display='none', 3000);
     }
 
-    // Monitor Data Realtime
+    // Sync Data Realtime
     db.collection("config").doc("kas").onSnapshot(d => { if(d.exists) document.getElementById('v-kas').innerText = "Rp " + d.data().total.toLocaleString(); });
     db.collection("config").doc("dansos").onSnapshot(d => { if(d.exists) document.getElementById('v-dansos').innerText = "Rp " + d.data().total.toLocaleString(); });
     db.collection("config").doc("pengumuman").onSnapshot(d => { if(d.exists) document.getElementById('v-info').innerText = d.data().isi; });
 
-    // Kirim Aduan
     async function kirimAduan() {
         const nama = document.getElementById('a-nama').value;
         const pesan = document.getElementById('a-pesan').value;
-        if(!nama || !pesan) return n("⚠️ Nama & Pesan wajib diisi!", "#e74c3c");
-        try {
-            await db.collection("pengaduan").add({ nama, pesan, tgl: firebase.firestore.Timestamp.now() });
-            n("✅ Laporan Anda berhasil dikirim!");
-            document.getElementById('a-nama').value=""; document.getElementById('a-pesan').value="";
-        } catch(e) { n("❌ Gagal mengirim laporan", "#e74c3c"); }
+        if(!nama || !pesan) return n("Mohon lengkapi form!", "#e74c3c");
+        await db.collection("pengaduan").add({ nama, pesan, tgl: firebase.firestore.Timestamp.now() });
+        n("✅ Laporan terkirim!");
+        document.getElementById('a-nama').value=""; document.getElementById('a-pesan').value="";
     }
 
-    // Login Rahasia (Klik 5x pada Header)
     let c = 0;
     function cekLoginClick() {
-        c++;
-        if (c >= 5) {
-            c = 0;
-            new bootstrap.Modal(document.getElementById('modalLogin')).show();
-        }
+        c++; if (c >= 5) { c = 0; new bootstrap.Modal(document.getElementById('modalLogin')).show(); }
     }
 
     async function prosesLogin() {
@@ -137,8 +171,10 @@
         try {
             await auth.signInWithEmailAndPassword(email, pass);
             window.location.href = "admin.html";
-        } catch(e) { n("❌ Email/Password Salah!", "#e74c3c"); }
+        } catch(e) { n("❌ Login Gagal!", "#e74c3c"); }
     }
+
+    function scrollKe(id) { document.getElementById(id).scrollIntoView({behavior: 'smooth'}); }
 </script>
 </body>
 </html>
