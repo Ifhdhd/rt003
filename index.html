@@ -1,796 +1,429 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RT 003 RW 001 - Paninggilan, Ciledug</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-app-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config={theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','sans-serif']},colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d',950:'#052e16'}}}}}
-    </script>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc}
-        .hero-bg{background:linear-gradient(135deg,#14532d 0%,#166534 30%,#15803d 60%,#22c55e 100%);position:relative;overflow:hidden}
-        .hero-bg::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 50%,rgba(255,255,255,.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 20%,rgba(255,255,255,.05) 0%,transparent 40%);animation:fl 20s ease-in-out infinite}
-        .hero-bg::after{content:'';position:absolute;bottom:0;left:0;right:0;height:120px;background:linear-gradient(to top,#f8fafc,transparent)}
-        @keyframes fl{0%,100%{transform:translate(0,0) rotate(0)}33%{transform:translate(10px,-10px) rotate(1deg)}66%{transform:translate(-5px,5px) rotate(-.5deg)}}
-        .card-hover{transition:all .3s ease}.card-hover:hover{transform:translateY(-4px);box-shadow:0 16px 32px -8px rgba(0,0,0,.12)}
-        .nav-link{position:relative;transition:color .3s}.nav-link::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:#22c55e;transition:width .3s;border-radius:1px}.nav-link:hover::after,.nav-link.active::after{width:100%}.nav-link:hover,.nav-link.active{color:#22c55e}
-        .modal-overlay{background:rgba(0,0,0,.5);backdrop-filter:blur(4px);animation:fi .2s ease}.modal-content{animation:su .3s ease}
-        @keyframes fi{from{opacity:0}to{opacity:1}}@keyframes su{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-        .toast{animation:ti .3s ease,to .3s ease 2.7s}@keyframes ti{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}@keyframes to{from{opacity:1}to{opacity:0;transform:translateY(-20px)}}
-        .section-title{position:relative;display:inline-block}.section-title::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:60px;height:3px;background:linear-gradient(to right,#22c55e,#16a34a);border-radius:2px}
-        .avatar-ring{background:linear-gradient(135deg,#22c55e,#15803d);padding:3px;border-radius:50%}
-        .loading-spinner{border:3px solid #e5e7eb;border-top:3px solid #22c55e;border-radius:50%;width:32px;height:32px;animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
-        .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-        .mobile-menu{transform:translateX(100%);transition:transform .3s ease}.mobile-menu.open{transform:translateX(0)}
-        ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#f1f5f9}::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px}
-        .badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:6px}
-        table th{position:sticky;top:0;z-index:2}
-        .auth-bg{background:linear-gradient(135deg,#052e16 0%,#14532d 40%,#166534 70%,#15803d 100%)}
-        .lock-overlay{position:relative}.lock-overlay::after{content:'';position:absolute;inset:0;background:rgba(248,250,252,0.4);backdrop-filter:blur(2px);border-radius:inherit;z-index:1;pointer-events:none}
-        .protected-btn{transition:all .2s}
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RT 003 RW 001 - Paninggilan, Ciledug</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script><script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-app-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Plus Jakarta Sans','sans-serif']},colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d',950:'#052e16'}}}}}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Plus Jakarta Sans',sans-serif;background:#f8fafc}
+.page{display:none;min-height:calc(100vh - 56px)}.page.active{display:block}
+.hero-mini{background:linear-gradient(135deg,#14532d,#166534 50%,#15803d);position:relative;overflow:hidden}
+.hero-mini::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(255,255,255,.06) 0%,transparent 60%)}
+.ch{transition:all .3s}.ch:hover{transform:translateY(-4px);box-shadow:0 16px 32px -8px rgba(0,0,0,.12)}
+.nl{position:relative;transition:color .2s}.nl::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:#22c55e;transition:width .2s;border-radius:1px}.nl:hover::after,.nl.on::after{width:100%}.nl:hover,.nl.on{color:#22c55e}
+.mo{background:rgba(0,0,0,.5);backdrop-filter:blur(4px);animation:fi .2s ease}.mc{animation:su .3s ease}
+@keyframes fi{from{opacity:0}to{opacity:1}}@keyframes su{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.toast{animation:ti .3s ease,to .3s ease 2.7s}@keyframes ti{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}@keyframes to{from{opacity:1}to{opacity:0;transform:translateY(-16px)}}
+.st{position:relative;display:inline-block}.st::after{content:'';position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);width:50px;height:3px;background:linear-gradient(to right,#22c55e,#16a34a);border-radius:2px}
+.ls{border:3px solid #e5e7eb;border-top:3px solid #22c55e;border-radius:50%;width:28px;height:28px;animation:sp .8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.lc2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mm{transform:translateX(100%);transition:transform .3s ease}.mm.open{transform:translateX(0)}
+.badge{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:6px}
+table th{position:sticky;top:0;z-index:2}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#f1f5f9}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+.abg{background:linear-gradient(135deg,#052e16,#14532d 40%,#166534 70%,#15803d)}
+.ag-row{animation:su .2s ease}
+</style>
 </head>
 <body>
 
-<!-- ==================== LOGIN SCREEN ==================== -->
-<div id="loginScreen" class="fixed inset-0 z-[100] auth-bg flex items-center justify-center p-4 hidden">
-    <div class="absolute inset-0 overflow-hidden">
-        <div class="absolute top-20 left-20 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
-    </div>
-    <div class="relative z-10 w-full max-w-md">
-        <div class="text-center mb-8">
-            <div class="w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-primary-600/40">
-                <span class="text-white font-bold text-xl">RT3</span>
-            </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-white mb-2">RT 003 RW 001</h1>
-            <p class="text-green-200/70 text-sm">Kelurahan Paninggilan, Ciledug, Tangerang</p>
-        </div>
-        <div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8">
-            <!-- Tab Login/Register -->
-            <div class="flex bg-gray-100 rounded-xl p-1 mb-6">
-                <button id="tabLogin" onclick="switchAuthTab('login')" class="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-white shadow text-primary-700 transition-all">Masuk</button>
-                <button id="tabRegister" onclick="switchAuthTab('register')" class="flex-1 py-2.5 text-sm font-semibold rounded-lg text-gray-500 transition-all">Daftar</button>
-            </div>
-            <!-- Login Form -->
-            <div id="loginForm">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Email</label>
-                        <div class="relative">
-                            <i data-lucide="mail" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                            <input type="email" id="loginEmail" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="email@contoh.com">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Password</label>
-                        <div class="relative">
-                            <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                            <input type="password" id="loginPass" class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Masukkan password" onkeydown="if(event.key==='Enter')doLogin()">
-                            <button onclick="togglePass('loginPass',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><i data-lucide="eye-off" class="w-4 h-4"></i></button>
-                        </div>
-                    </div>
-                    <div id="loginErr" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl px-3 py-2.5 flex items-center gap-2">
-                        <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i><span id="loginErrText"></span>
-                    </div>
-                    <button id="loginBtn" onclick="doLogin()" class="w-full bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-3 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center justify-center gap-2">
-                        <i data-lucide="log-in" class="w-4 h-4"></i>Masuk
-                    </button>
-                </div>
-            </div>
-            <!-- Register Form -->
-            <div id="registerForm" class="hidden">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Nama Lengkap</label>
-                        <div class="relative">
-                            <i data-lucide="user" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                            <input type="text" id="regName" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Nama lengkap">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Email</label>
-                        <div class="relative">
-                            <i data-lucide="mail" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                            <input type="email" id="regEmail" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="email@contoh.com">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Password</label>
-                        <div class="relative">
-                            <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                            <input type="password" id="regPass" class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Min. 6 karakter">
-                            <button onclick="togglePass('regPass',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><i data-lucide="eye-off" class="w-4 h-4"></i></button>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">Konfirmasi Password</label>
-                        <div class="relative">
-                            <i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                            <input type="password" id="regPass2" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Ulangi password" onkeydown="if(event.key==='Enter')doRegister()">
-                        </div>
-                    </div>
-                    <div id="regErr" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl px-3 py-2.5 flex items-center gap-2">
-                        <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i><span id="regErrText"></span>
-                    </div>
-                    <button id="regBtn" onclick="doRegister()" class="w-full bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-3 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center justify-center gap-2">
-                        <i data-lucide="user-plus" class="w-4 h-4"></i>Daftar Akun
-                    </button>
-                </div>
-            </div>
-            <p class="text-center text-[11px] text-gray-400 mt-5">© 2025 RT 003 RW 001 Paninggilan</p>
-        </div>
-    </div>
+<!-- ===== LOGIN ===== -->
+<div id="loginScr" class="fixed inset-0 z-[100] abg flex items-center justify-center p-4 hidden">
+<div class="absolute inset-0 overflow-hidden"><div class="absolute top-20 left-20 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div><div class="absolute bottom-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div></div>
+<div class="relative z-10 w-full max-w-md">
+<div class="text-center mb-8"><div class="w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-primary-600/40"><span class="text-white font-bold text-xl">RT3</span></div><h1 class="text-2xl font-extrabold text-white mb-2">RT 003 RW 001</h1><p class="text-green-200/70 text-sm">Kelurahan Paninggilan, Ciledug, Tangerang</p></div>
+<div class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8">
+<div class="flex bg-gray-100 rounded-xl p-1 mb-6"><button id="tL" onclick="sAT('login')" class="flex-1 py-2.5 text-sm font-semibold rounded-lg bg-white shadow text-primary-700 transition-all">Masuk</button><button id="tR" onclick="sAT('register')" class="flex-1 py-2.5 text-sm font-semibold rounded-lg text-gray-500 transition-all">Daftar</button></div>
+<div id="fL"><div class="space-y-4"><div><label class="block text-xs font-semibold text-gray-700 mb-1.5">Email</label><div class="relative"><i data-lucide="mail" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="email" id="lE" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="email@contoh.com"></div></div><div><label class="block text-xs font-semibold text-gray-700 mb-1.5">Password</label><div class="relative"><i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="password" id="lP" class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Password" onkeydown="if(event.key==='Enter')doL()"><button onclick="tP('lP',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><i data-lucide="eye-off" class="w-4 h-4"></i></button></div></div><div id="lEr" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl px-3 py-2.5"></div><button id="lBtn" onclick="doL()" class="w-full bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-3 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center justify-center gap-2"><i data-lucide="log-in" class="w-4 h-4"></i>Masuk</button></div></div>
+<div id="fR" class="hidden"><div class="space-y-4"><div><label class="block text-xs font-semibold text-gray-700 mb-1.5">Nama Lengkap</label><div class="relative"><i data-lucide="user" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="rN" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Nama lengkap"></div></div><div><label class="block text-xs font-semibold text-gray-700 mb-1.5">Email</label><div class="relative"><i data-lucide="mail" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="email" id="rE" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="email@contoh.com"></div></div><div><label class="block text-xs font-semibold text-gray-700 mb-1.5">Password</label><div class="relative"><i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="password" id="rP" class="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Min. 6 karakter"><button onclick="tP('rP',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><i data-lucide="eye-off" class="w-4 h-4"></i></button></div></div><div><label class="block text-xs font-semibold text-gray-700 mb-1.5">Konfirmasi Password</label><div class="relative"><i data-lucide="lock" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="password" id="rP2" class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Ulangi password" onkeydown="if(event.key==='Enter')doR()"></div></div><div id="rEr" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl px-3 py-2.5"></div><button id="rBtn" onclick="doR()" class="w-full bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold py-3 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center justify-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i>Daftar Akun</button></div></div>
+<p class="text-center text-[11px] text-gray-400 mt-5">© 2025 RT 003 RW 001</p>
+</div></div>
 </div>
 
-<!-- ==================== TOP BAR ==================== -->
-<div class="bg-primary-950 text-white text-xs">
-<div class="max-w-7xl mx-auto px-4 py-2 flex flex-col sm:flex-row items-center justify-between gap-1">
-<div class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3 text-primary-400"></i><span>Jl. Sadar RT.003 RW.001, Paninggilan, Ciledug, Tangerang</span></div>
-<a href="https://wa.me/6287774188870" class="flex items-center gap-1 hover:text-primary-300 transition-colors"><i data-lucide="phone" class="w-3 h-3"></i><span>Hubungi Kami</span></a>
-</div></div>
-
-<!-- ==================== NAVBAR ==================== -->
-<nav id="navbar" class="bg-white/95 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 transition-shadow duration-300">
-<div class="max-w-7xl mx-auto px-4">
-<div class="flex items-center justify-between h-14">
-<a href="#beranda" class="flex items-center gap-2.5 flex-shrink-0">
+<!-- ===== NAVBAR ===== -->
+<nav id="navbar" class="bg-white/95 backdrop-blur-md fixed top-0 left-0 right-0 z-50 border-b border-gray-100 transition-shadow">
+<div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
+<a onclick="go('beranda')" class="flex items-center gap-2.5 cursor-pointer flex-shrink-0">
 <div class="w-9 h-9 bg-primary-600 rounded-lg flex items-center justify-center shadow-lg shadow-primary-600/30"><span class="text-white font-bold text-xs">RT3</span></div>
 <div><div class="font-bold text-gray-900 text-sm leading-tight">RT 003 RW 001</div><div class="text-[10px] text-gray-500 leading-tight">Paninggilan, Ciledug</div></div>
 </a>
-<div class="hidden lg:flex items-center gap-4 xl:gap-5">
-<a href="#beranda" class="nav-link text-[11px] font-semibold text-gray-600 active">Beranda</a>
-<a href="#profil" class="nav-link text-[11px] font-semibold text-gray-600">Profil</a>
-<a href="#pengurus" class="nav-link text-[11px] font-semibold text-gray-600">Pengurus</a>
-<a href="#warga" class="nav-link text-[11px] font-semibold text-gray-600">Warga</a>
-<a href="#kas" class="nav-link text-[11px] font-semibold text-gray-600">Kas RT</a>
-<a href="#piket" class="nav-link text-[11px] font-semibold text-gray-600">Piket</a>
-<a href="#inventaris" class="nav-link text-[11px] font-semibold text-gray-600">Inventaris</a>
-<a href="#dana-sosial" class="nav-link text-[11px] font-semibold text-gray-600">Dana Sosial</a>
-<a href="#kegiatan" class="nav-link text-[11px] font-semibold text-gray-600">Kegiatan</a>
-<a href="#kontak" class="nav-link text-[11px] font-semibold text-gray-600">Kontak</a>
+<div class="hidden xl:flex items-center gap-4">
+<a onclick="go('beranda')" class="nl text-[11px] font-semibold text-gray-600 on cursor-pointer">Beranda</a>
+<a onclick="go('profil')" class="nl text-[11px] font-semibold text-gray-600 cursor-pointer">Profil</a>
+<a onclick="go('pengurus')" class="nl text-[11px] font-semibold text-gray-600 cursor-pointer">Pengurus</a>
+<a onclick="go('warga')" class="nl text-[11px] font-semibold text-gray-600 cursor-pointer">Warga</a>
+<a onclick="go('kas')" class="nl text-[11px] font-semibold text-gray-600 cursor-pointer">Kas RT</a>
+<a onclick="go('piket')" class="nl text-[11px] font-semibold text-gray-600 cursor-pointer">Piket</a>
+<a onclick="go('inventaris')" class="nl text-[11px] font-semibold text-gray-600 cursor-pointer">Inventaris</a>
+<a onclick="go('ds')" class="nl text-[11px] font-semibold text-gray-600 cursor-pointer">Dana Sosial</a>
+<a onclick="go('kegiatan')" class="nl text-[11px] font-semibold text-gray-600 cursor-pointer">Kegiatan</a>
+<a onclick="go('pengaduan')" class="nl text-[11px] font-semibold text-gray-600 cursor-pointer">Pengaduan</a>
+<a onclick="go('kontak')" class="nl text-[11px] font-semibold text-gray-600 cursor-pointer">Kontak</a>
 </div>
 <div class="flex items-center gap-2">
-<!-- Auth buttons in navbar -->
-<div id="navAuthLoggedOut" class="hidden lg:flex items-center gap-2">
-<button onclick="showLogin()" class="flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-primary-600 px-3 py-2 rounded-lg hover:bg-primary-50 transition-all"><i data-lucide="log-in" class="w-4 h-4"></i>Masuk</button>
-</div>
-<div id="navAuthLoggedIn" class="hidden items-center gap-2">
-<div class="hidden sm:flex items-center gap-2 bg-primary-50 rounded-xl px-3 py-1.5">
-<div class="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center"><span id="navAvatar" class="text-white text-[10px] font-bold">A</span></div>
-<span id="navUserName" class="text-xs font-semibold text-primary-800 max-w-[120px] truncate">Admin</span>
-</div>
-<button onclick="doLogout()" class="flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-600 px-3 py-2 rounded-lg hover:bg-red-50 transition-all" title="Keluar"><i data-lucide="log-out" class="w-4 h-4"></i><span class="hidden sm:inline">Keluar</span></button>
-</div>
-<button onclick="toggleMobile()" class="lg:hidden p-2 rounded-lg hover:bg-gray-100"><i data-lucide="menu" class="w-5 h-5 text-gray-700"></i></button>
-</div>
-</div>
-</div>
-</nav>
+<div id="navLO" class="hidden xl:flex items-center gap-2"><button onclick="showL()" class="flex items-center gap-1.5 text-xs font-semibold text-gray-600 hover:text-primary-600 px-3 py-2 rounded-lg hover:bg-primary-50 transition-all"><i data-lucide="log-in" class="w-4 h-4"></i>Masuk</button></div>
+<div id="navLI" class="hidden items-center gap-2"><div class="hidden sm:flex items-center gap-2 bg-primary-50 rounded-xl px-3 py-1.5"><div class="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center"><span id="navAv" class="text-white text-[10px] font-bold">A</span></div><span id="navUN" class="text-xs font-semibold text-primary-800 max-w-[100px] truncate">Admin</span></div><button onclick="doOut()" class="flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-600 px-2.5 py-2 rounded-lg hover:bg-red-50 transition-all" title="Keluar"><i data-lucide="log-out" class="w-4 h-4"></i><span class="hidden sm:inline">Keluar</span></button></div>
+<button onclick="tMM()" class="xl:hidden p-2 rounded-lg hover:bg-gray-100"><i data-lucide="menu" class="w-5 h-5 text-gray-700"></i></button>
+</div></div></nav>
 
 <!-- Mobile Menu -->
-<div id="mobileMenu" class="mobile-menu fixed top-0 right-0 w-72 h-full bg-white z-[60] shadow-2xl">
-<div class="p-4 border-b flex items-center justify-between"><span class="font-bold text-gray-900">Menu</span><button onclick="toggleMobile()" class="p-2 rounded-lg hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button></div>
-<div class="p-3 flex flex-col gap-0.5 overflow-y-auto max-h-[calc(100vh-60px)]">
-<a href="#beranda" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="home" class="w-4 h-4"></i>Beranda</a>
-<a href="#profil" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="info" class="w-4 h-4"></i>Profil</a>
-<a href="#pengurus" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="users" class="w-4 h-4"></i>Pengurus</a>
-<a href="#warga" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="user-plus" class="w-4 h-4"></i>Data Warga</a>
-<a href="#kas" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="wallet" class="w-4 h-4"></i>Kas RT</a>
-<a href="#piket" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="moon" class="w-4 h-4"></i>Piket Malam</a>
-<a href="#inventaris" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="box" class="w-4 h-4"></i>Inventaris</a>
-<a href="#dana-sosial" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="heart-handshake" class="w-4 h-4"></i>Dana Sosial</a>
-<a href="#kegiatan" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="calendar" class="w-4 h-4"></i>Kegiatan</a>
-<a href="#kontak" onclick="toggleMobile()" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm"><i data-lucide="phone" class="w-4 h-4"></i>Kontak</a>
-<div class="mt-3 pt-3 border-t border-gray-100" id="mobileAuthArea"></div>
+<div id="mm" class="mm fixed top-0 right-0 w-72 h-full bg-white z-[60] shadow-2xl">
+<div class="p-4 border-b flex items-center justify-between"><span class="font-bold text-gray-900">Menu</span><button onclick="tMM()" class="p-2 rounded-lg hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+<div class="p-3 flex flex-col gap-0.5 overflow-y-auto max-h-[calc(100vh-56px)]" id="mmLinks"></div>
 </div>
-</div>
-<div id="mobileOverlay" class="fixed inset-0 bg-black/40 z-[55] hidden" onclick="toggleMobile()"></div>
+<div id="mmO" class="fixed inset-0 bg-black/40 z-[55] hidden" onclick="tMM()"></div>
 
-<!-- ==================== HERO ==================== -->
-<section id="beranda" class="hero-bg text-white relative">
-<div class="relative z-10 max-w-6xl mx-auto px-4 pt-20 pb-32 sm:pt-28 sm:pb-36">
-<div class="text-center max-w-3xl mx-auto">
-<div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-8"><span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span><span class="text-xs sm:text-sm font-medium text-green-100">Kelurahan Paninggilan, Kec. Ciledug</span></div>
-<h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight tracking-tight mb-6">RT 003<br><span class="text-green-300">RW 001</span></h1>
-<p class="text-lg sm:text-xl text-green-100/90 font-light leading-relaxed mb-10 max-w-2xl mx-auto">Melayani warga dengan sepenuh hati untuk menciptakan lingkungan yang aman, nyaman, dan harmonis di Paninggilan, Ciledug, Kota Tangerang.</p>
-<div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-<a href="#pengurus" class="bg-white text-primary-800 font-semibold px-8 py-3.5 rounded-xl hover:bg-green-50 transition-all shadow-xl flex items-center gap-2 text-sm"><i data-lucide="users" class="w-4 h-4"></i>Lihat Pengurus</a>
-<a href="#kas" class="bg-white/10 backdrop-blur-sm border border-white/30 text-white font-semibold px-8 py-3.5 rounded-xl hover:bg-white/20 transition-all flex items-center gap-2 text-sm"><i data-lucide="wallet" class="w-4 h-4"></i>Transparansi Kas</a>
-</div>
-</div>
-</div>
-</section>
+<!-- ===== PAGES ===== -->
 
-<!-- ==================== DASHBOARD STATS ==================== -->
-<section class="relative z-10 -mt-16">
-<div class="max-w-6xl mx-auto px-4">
-<div class="bg-white rounded-2xl shadow-xl shadow-gray-200/60 border border-gray-100 p-5 sm:p-6 grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-<div class="text-center p-3"><div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-2.5"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i></div><div class="text-2xl font-bold text-gray-900" id="statWarga">-</div><div class="text-[11px] text-gray-500 mt-0.5">Total Warga</div></div>
-<div class="text-center p-3"><div class="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center mx-auto mb-2.5"><i data-lucide="home" class="w-5 h-5 text-amber-600"></i></div><div class="text-2xl font-bold text-gray-900" id="statKK">-</div><div class="text-[11px] text-gray-500 mt-0.5">Kepala Keluarga</div></div>
-<div class="text-center p-3"><div class="w-11 h-11 bg-primary-50 rounded-xl flex items-center justify-center mx-auto mb-2.5"><i data-lucide="wallet" class="w-5 h-5 text-primary-600"></i></div><div class="text-2xl font-bold text-gray-900" id="statKas">-</div><div class="text-[11px] text-gray-500 mt-0.5">Saldo Kas RT</div></div>
-<div class="text-center p-3"><div class="w-11 h-11 bg-rose-50 rounded-xl flex items-center justify-center mx-auto mb-2.5"><i data-lucide="heart-handshake" class="w-5 h-5 text-rose-500"></i></div><div class="text-2xl font-bold text-gray-900" id="statDS">-</div><div class="text-[11px] text-gray-500 mt-0.5">Saldo Dana Sosial</div></div>
+<!-- BERANDA -->
+<div id="pg-beranda" class="page active pt-14">
+<div class="hero-mini text-white relative pb-12 pt-8">
+<div class="relative z-10 max-w-6xl mx-auto px-4 text-center">
+<div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-5"><span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span><span class="text-xs font-medium text-green-100">Kelurahan Paninggilan, Kec. Ciledug</span></div>
+<h1 class="text-3xl sm:text-4xl font-extrabold leading-tight mb-3">RT 003 <span class="text-green-300">RW 001</span></h1>
+<p class="text-sm sm:text-base text-green-100/80 font-light max-w-lg mx-auto">Melayani warga dengan sepenuh hati untuk lingkungan yang aman, nyaman, dan harmonis.</p>
+</div></div>
+<div class="max-w-6xl mx-auto px-4 -mt-8 relative z-10 pb-12">
+<div class="bg-white rounded-2xl shadow-xl shadow-gray-200/60 border border-gray-100 p-5 grid grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="text-center p-2"><div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-2"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i></div><div class="text-2xl font-bold text-gray-900" id="sW">-</div><div class="text-[11px] text-gray-500">Total Warga</div></div>
+<div class="text-center p-2"><div class="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center mx-auto mb-2"><i data-lucide="home" class="w-5 h-5 text-amber-600"></i></div><div class="text-2xl font-bold text-gray-900" id="sKK">-</div><div class="text-[11px] text-gray-500">Kepala Keluarga</div></div>
+<div class="text-center p-2"><div class="w-11 h-11 bg-primary-50 rounded-xl flex items-center justify-center mx-auto mb-2"><i data-lucide="wallet" class="w-5 h-5 text-primary-600"></i></div><div class="text-2xl font-bold text-gray-900" id="sKas">-</div><div class="text-[11px] text-gray-500">Saldo Kas RT</div></div>
+<div class="text-center p-2"><div class="w-11 h-11 bg-rose-50 rounded-xl flex items-center justify-center mx-auto mb-2"><i data-lucide="heart-handshake" class="w-5 h-5 text-rose-500"></i></div><div class="text-2xl font-bold text-gray-900" id="sDS">-</div><div class="text-[11px] text-gray-500">Saldo Dana Sosial</div></div>
+</div>
+<div class="grid md:grid-cols-2 gap-5 mt-6">
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg p-5"><h3 class="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2"><i data-lucide="trending-up" class="w-4 h-4 text-primary-600"></i>Grafik Kas RT</h3><div style="height:220px"><canvas id="cKOV"></canvas></div></div>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg p-5"><h3 class="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2"><i data-lucide="heart" class="w-4 h-4 text-rose-500"></i>Grafik Dana Sosial</h3><div style="height:220px"><canvas id="cDOV"></canvas></div></div>
 </div>
 </div>
-</section>
+</div>
 
-<!-- ==================== GRAFIK OVERVIEW ==================== -->
-<section class="py-12">
-<div class="max-w-6xl mx-auto px-4">
-<div class="grid md:grid-cols-2 gap-6">
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg shadow-gray-100/50 p-5"><h3 class="font-bold text-gray-900 text-sm mb-4 flex items-center gap-2"><i data-lucide="trending-up" class="w-4 h-4 text-primary-600"></i>Grafik Kas RT</h3><div style="height:220px"><canvas id="chartKasOV"></canvas></div></div>
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg shadow-gray-100/50 p-5"><h3 class="font-bold text-gray-900 text-sm mb-4 flex items-center gap-2"><i data-lucide="heart" class="w-4 h-4 text-rose-500"></i>Grafik Dana Sosial</h3><div style="height:220px"><canvas id="chartDSOV"></canvas></div></div>
-</div>
-</div>
-</section>
-
-<!-- ==================== PROFIL ==================== -->
-<section id="profil" class="py-16 sm:py-20">
-<div class="max-w-6xl mx-auto px-4">
-<div class="text-center mb-12"><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Profil RT</h2><p class="text-gray-500 mt-6 max-w-xl mx-auto text-sm">Informasi mengenai Rukun Tetangga 003 Rukun Warga 001</p></div>
+<!-- PROFIL -->
+<div id="pg-profil" class="page pt-14">
+<div class="max-w-5xl mx-auto px-4 py-10">
+<div class="text-center mb-10"><h2 class="st text-3xl font-bold text-gray-900 mb-4">Profil RT</h2><p class="text-gray-500 mt-6 text-sm">Informasi Rukun Tetangga 003 Rukun Warga 001</p></div>
 <div class="grid md:grid-cols-2 gap-8 items-center">
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden"><img src="https://picsum.photos/seed/rt003-neighborhood/600/400.jpg" alt="Lingkungan" class="w-full h-64 object-cover"></div>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden"><img src="https://picsum.photos/seed/rt003-area/600/400.jpg" class="w-full h-64 object-cover"></div>
 <div class="space-y-4">
 <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-start gap-3"><div class="w-9 h-9 bg-primary-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="map-pin" class="w-4 h-4 text-primary-600"></i></div><div><div class="font-semibold text-gray-900 text-sm mb-0.5">Alamat</div><div class="text-xs text-gray-600 leading-relaxed">Jalan Sadar RT.003 RW.001, Kelurahan Paninggilan, Kecamatan Ciledug, Kota Tangerang, Banten</div></div></div>
-<div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-start gap-3"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="building-2" class="w-4 h-4 text-blue-600"></i></div><div><div class="font-semibold text-gray-900 text-sm mb-0.5">Wilayah</div><div class="text-xs text-gray-600 leading-relaxed">Kelurahan Paninggilan, Kecamatan Ciledug, Kota Tangerang, Provinsi Banten</div></div></div>
+<div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-start gap-3"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="building-2" class="w-4 h-4 text-blue-600"></i></div><div><div class="font-semibold text-gray-900 text-sm mb-0.5">Wilayah</div><div class="text-xs text-gray-600 leading-relaxed">Kel. Paninggilan, Kec. Ciledug, Kota Tangerang, Provinsi Banten</div></div></div>
 <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-start gap-3"><div class="w-9 h-9 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="target" class="w-4 h-4 text-amber-600"></i></div><div><div class="font-semibold text-gray-900 text-sm mb-0.5">Visi</div><div class="text-xs text-gray-600 leading-relaxed">Mewujudkan lingkungan yang aman, nyaman, bersih, sejahtera, dan solidar antar warga.</div></div></div>
-<div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-start gap-3"><div class="w-9 h-9 bg-rose-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="award" class="w-4 h-4 text-rose-500"></i></div><div><div class="font-semibold text-gray-900 text-sm mb-0.5">Misi</div><div class="text-xs text-gray-600 leading-relaxed">Meningkatkan pelayanan, menjaga keamanan, memelihara kebersihan, dan mempererat silaturahmi.</div></div></div>
+<div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-start gap-3"><div class="w-9 h-9 bg-rose-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="award" class="w-4 h-4 text-rose-500"></i></div><div><div class="font-semibold text-gray-900 text-sm mb-0.5">Misi</div><div class="text-xs text-gray-600 leading-relaxed">Meningkatkan pelayanan, menjaga keamanan, memelihara kebersihan, mempererat silaturahmi antar warga.</div></div></div>
+</div></div></div>
 </div>
-</div>
-</div>
-</section>
 
-<!-- ==================== PENGURUS ==================== -->
-<section id="pengurus" class="py-16 sm:py-20 bg-white">
-<div class="max-w-6xl mx-auto px-4">
-<div class="text-center mb-12"><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Struktur Pengurus</h2><p class="text-gray-500 mt-6 max-w-xl mx-auto text-sm">Pengurus RT 003 RW 001 Kelurahan Paninggilan</p></div>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="pengurusGrid"></div>
-</div>
-</section>
-
-<!-- ==================== WARGA ==================== -->
-<section id="warga" class="py-16 sm:py-20">
-<div class="max-w-6xl mx-auto px-4">
-<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
-<div><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Data Warga</h2><p class="text-gray-500 mt-6 text-sm">Data penduduk RT 003 RW 001</p></div>
-<button onclick="authGuard('openWargaModal')" class="protected-btn bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i>Tambah Warga</button>
-</div>
-<div id="wargaLoading" class="flex items-center justify-center py-16"><div class="loading-spinner"></div></div>
-<div id="wargaEmpty" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="users" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Data Warga</h3><p class="text-gray-500 text-xs">Klik tombol untuk menambahkan data warga</p></div>
-<div id="wargaContent" class="hidden">
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
-<div class="p-4 border-b border-gray-100"><div class="relative"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="searchWarga" oninput="filterWarga()" placeholder="Cari nama, no KK, alamat..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"></div></div>
-<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Nama KK</th><th class="text-left px-4 py-3 font-semibold text-xs">No. KK</th><th class="text-left px-4 py-3 font-semibold text-xs">Alamat</th><th class="text-center px-4 py-3 font-semibold text-xs">Anggota</th><th class="text-center px-4 py-3 font-semibold text-xs auth-action-col">Aksi</th></tr></thead><tbody id="wargaBody"></tbody></table></div>
-</div>
-</div>
-</div>
-</section>
-
-<!-- ==================== KAS RT ==================== -->
-<section id="kas" class="py-16 sm:py-20 bg-white">
-<div class="max-w-6xl mx-auto px-4">
-<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
-<div><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Kas RT</h2><p class="text-gray-500 mt-6 text-sm">Transparansi keuangan RT 003</p></div>
-<button onclick="authGuard('openKasModal')" class="protected-btn bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Transaksi</button>
-</div>
-<div id="kasLoading" class="flex items-center justify-center py-16"><div class="loading-spinner"></div></div>
-<div id="kasContent" class="hidden space-y-6">
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-<div class="bg-green-50 border border-green-100 rounded-xl p-4 text-center"><p class="text-xs text-green-600 font-semibold mb-1">Total Pemasukan</p><p class="text-xl font-bold text-green-700" id="kasMasuk">Rp 0</p></div>
-<div class="bg-red-50 border border-red-100 rounded-xl p-4 text-center"><p class="text-xs text-red-600 font-semibold mb-1">Total Pengeluaran</p><p class="text-xl font-bold text-red-700" id="kasKeluar">Rp 0</p></div>
-<div class="bg-primary-50 border border-primary-100 rounded-xl p-4 text-center"><p class="text-xs text-primary-600 font-semibold mb-1">Saldo</p><p class="text-xl font-bold text-primary-700" id="kasSaldo">Rp 0</p></div>
-</div>
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg p-5"><h3 class="font-bold text-gray-900 text-sm mb-3">Grafik Kas Bulanan</h3><div style="height:250px"><canvas id="chartKasDT"></canvas></div></div>
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
-<div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
-<div class="relative flex-1"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="searchKas" oninput="filterKas()" placeholder="Cari keterangan..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"></div>
-<select id="filterKasJenis" onchange="filterKas()" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"><option value="all">Semua Jenis</option><option value="masuk">Pemasukan</option><option value="keluar">Pengeluaran</option></select>
-<select id="filterKasBulan" onchange="filterKas()" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"><option value="all">Semua Bulan</option></select>
-</div>
-<div class="overflow-x-auto max-h-96 overflow-y-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Kategori</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-center px-4 py-3 font-semibold text-xs">Jenis</th><th class="text-right px-4 py-3 font-semibold text-xs">Jumlah</th><th class="text-center px-4 py-3 font-semibold text-xs auth-action-col">Aksi</th></tr></thead><tbody id="kasBody"></tbody></table></div>
-</div>
-</div>
-</div>
-</section>
-
-<!-- ==================== PIKET MALAM ==================== -->
-<section id="piket" class="py-16 sm:py-20">
-<div class="max-w-6xl mx-auto px-4">
-<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
-<div><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Jadwal Piket Malam</h2><p class="text-gray-500 mt-6 text-sm">Jadwal piket keamanan RT 003</p></div>
-<button onclick="authGuard('openPiketModal')" class="protected-btn bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Jadwal</button>
-</div>
-<div id="piketLoading" class="flex items-center justify-center py-16"><div class="loading-spinner"></div></div>
-<div id="piketEmpty" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="moon" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Jadwal</h3><p class="text-gray-500 text-xs">Tambahkan jadwal piket malam</p></div>
-<div id="piketContent" class="hidden">
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
-<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Petugas</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-center px-4 py-3 font-semibold text-xs auth-action-col">Aksi</th></tr></thead><tbody id="piketBody"></tbody></table></div>
-</div>
-</div>
-</div>
-</section>
-
-<!-- ==================== INVENTARIS ==================== -->
-<section id="inventaris" class="py-16 sm:py-20 bg-white">
-<div class="max-w-6xl mx-auto px-4">
-<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
-<div><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Inventaris RT</h2><p class="text-gray-500 mt-6 text-sm">Data barang inventaris RT 003</p></div>
-<button onclick="authGuard('openInventarisModal')" class="protected-btn bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Inventaris</button>
-</div>
-<div id="invLoading" class="flex items-center justify-center py-16"><div class="loading-spinner"></div></div>
-<div id="invEmpty" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="box" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Inventaris</h3><p class="text-gray-500 text-xs">Tambahkan data inventaris</p></div>
-<div id="invContent" class="hidden">
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
-<div class="p-4 border-b border-gray-100"><div class="relative"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="searchInv" oninput="filterInventaris()" placeholder="Cari barang..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"></div></div>
-<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Nama Barang</th><th class="text-center px-4 py-3 font-semibold text-xs">Jumlah</th><th class="text-center px-4 py-3 font-semibold text-xs">Kondisi</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-center px-4 py-3 font-semibold text-xs auth-action-col">Aksi</th></tr></thead><tbody id="invBody"></tbody></table></div>
-</div>
-</div>
-</div>
-</section>
-
-<!-- ==================== DANA SOSIAL ==================== -->
-<section id="dana-sosial" class="py-16 sm:py-20">
-<div class="max-w-6xl mx-auto px-4">
-<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
-<div><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Dana Sosial</h2><p class="text-gray-500 mt-6 text-sm">Transparansi dana sosial RT 003</p></div>
-<button onclick="authGuard('openDSModal')" class="protected-btn bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Transaksi</button>
-</div>
-<div id="dsLoading" class="flex items-center justify-center py-16"><div class="loading-spinner"></div></div>
-<div id="dsContent" class="hidden space-y-6">
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-<div class="bg-violet-50 border border-violet-100 rounded-xl p-4 text-center"><p class="text-xs text-violet-600 font-semibold mb-1">Total Masuk</p><p class="text-xl font-bold text-violet-700" id="dsMasuk">Rp 0</p></div>
-<div class="bg-orange-50 border border-orange-100 rounded-xl p-4 text-center"><p class="text-xs text-orange-600 font-semibold mb-1">Total Keluar</p><p class="text-xl font-bold text-orange-700" id="dsKeluar">Rp 0</p></div>
-<div class="bg-primary-50 border border-primary-100 rounded-xl p-4 text-center"><p class="text-xs text-primary-600 font-semibold mb-1">Saldo</p><p class="text-xl font-bold text-primary-700" id="dsSaldo">Rp 0</p></div>
-</div>
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg p-5"><h3 class="font-bold text-gray-900 text-sm mb-3">Grafik Dana Sosial Bulanan</h3><div style="height:250px"><canvas id="chartDSDT"></canvas></div></div>
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
-<div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
-<div class="relative flex-1"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="searchDS" oninput="filterDS()" placeholder="Cari keterangan..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"></div>
-<select id="filterDSJenis" onchange="filterDS()" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"><option value="all">Semua Jenis</option><option value="masuk">Masuk</option><option value="keluar">Keluar</option></select>
-</div>
-<div class="overflow-x-auto max-h-96 overflow-y-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Kategori</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-left px-4 py-3 font-semibold text-xs">Penerima</th><th class="text-center px-4 py-3 font-semibold text-xs">Jenis</th><th class="text-right px-4 py-3 font-semibold text-xs">Jumlah</th><th class="text-center px-4 py-3 font-semibold text-xs auth-action-col">Aksi</th></tr></thead><tbody id="dsBody"></tbody></table></div>
-</div>
-</div>
-</div>
-</section>
-
-<!-- ==================== KEGIATAN ==================== -->
-<section id="kegiatan" class="py-16 sm:py-20 bg-white">
-<div class="max-w-6xl mx-auto px-4">
-<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
-<div><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Kegiatan RT</h2><p class="text-gray-500 mt-6 text-sm">Dokumentasi kegiatan RT 003</p></div>
-<button onclick="authGuard('openKegiatanModal')" class="protected-btn bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Kegiatan</button>
-</div>
-<div id="kegLoading" class="flex items-center justify-center py-16"><div class="loading-spinner"></div></div>
-<div id="kegEmpty" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="calendar-x" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Kegiatan</h3><p class="text-gray-500 text-xs mb-4">Tambahkan kegiatan baru</p></div>
-<div id="kegContent" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
-</div>
-</section>
-
-<!-- ==================== KONTAK ==================== -->
-<section id="kontak" class="py-16 sm:py-20">
-<div class="max-w-6xl mx-auto px-4">
-<div class="text-center mb-12"><h2 class="section-title text-3xl font-bold text-gray-900 mb-4">Hubungi Kami</h2><p class="text-gray-500 mt-6 max-w-xl mx-auto text-sm">Jangan ragu menghubungi pengurus RT 003</p></div>
-<div class="grid md:grid-cols-3 gap-5">
-<a href="https://wa.me/6287774188870" class="card-hover bg-gradient-to-br from-green-50 to-white rounded-2xl border border-green-100 p-6 text-center block"><div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="message-circle" class="w-7 h-7 text-green-600"></i></div><h3 class="font-bold text-gray-900 mb-1">WhatsApp</h3><p class="text-xs text-gray-500 mb-3">Chat langsung Ketua RT</p><span class="text-xs font-semibold text-green-600">087774188870 →</span></a>
-<div class="card-hover bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 p-6 text-center"><div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="map-pin" class="w-7 h-7 text-blue-600"></i></div><h3 class="font-bold text-gray-900 mb-1">Alamat</h3><p class="text-xs text-gray-500 leading-relaxed">Jl. Sadar RT.003 RW.001, Kel. Paninggilan, Kec. Ciledug, Kota Tangerang</p></div>
-<div class="card-hover bg-gradient-to-br from-purple-50 to-white rounded-2xl border border-purple-100 p-6 text-center"><div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="clock" class="w-7 h-7 text-purple-600"></i></div><h3 class="font-bold text-gray-900 mb-1">Jam Operasional</h3><p class="text-xs text-gray-500 leading-relaxed">Senin - Sabtu: 08.00 - 17.00<br>Minggu & Hari Libur: Tutup</p></div>
-</div>
-<div class="mt-8 rounded-2xl overflow-hidden border border-gray-200 shadow-lg"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.7!2d106.73!3d-6.23!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMTMnNDguMCJTIDEwNsKwNDMnNDguMCJF!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe></div>
-</div>
-</section>
-
-<!-- ==================== FOOTER ==================== -->
-<footer class="bg-primary-950 text-white">
+<!-- PENGURUS -->
+<div id="pg-pengurus" class="page pt-14">
 <div class="max-w-6xl mx-auto px-4 py-10">
-<div class="grid md:grid-cols-3 gap-8">
-<div><div class="flex items-center gap-2.5 mb-3"><div class="w-9 h-9 bg-primary-600 rounded-lg flex items-center justify-center"><span class="text-white font-bold text-xs">RT3</span></div><div><div class="font-bold text-sm">RT 003 RW 001</div><div class="text-[10px] text-primary-300">Paninggilan, Ciledug</div></div></div><p class="text-xs text-primary-200/70 leading-relaxed">Melayani warga dengan sepenuh hati untuk menciptakan lingkungan yang aman, nyaman, dan harmonis.</p></div>
-<div><h4 class="font-semibold text-sm mb-3">Tautan</h4><div class="flex flex-col gap-2"><a href="#beranda" class="text-xs text-primary-200/70 hover:text-white transition-colors">Beranda</a><a href="#warga" class="text-xs text-primary-200/70 hover:text-white transition-colors">Data Warga</a><a href="#kas" class="text-xs text-primary-200/70 hover:text-white transition-colors">Kas RT</a><a href="#kegiatan" class="text-xs text-primary-200/70 hover:text-white transition-colors">Kegiatan</a></div></div>
-<div><h4 class="font-semibold text-sm mb-3">Kontak</h4><div class="flex flex-col gap-2"><a href="https://wa.me/6287774188870" class="text-xs text-primary-200/70 hover:text-white transition-colors">Abdul Mukhid (Ketua)</a><a href="https://wa.me/6281298349222" class="text-xs text-primary-200/70 hover:text-white transition-colors">Lucky Mardiansyah (Wakil)</a><a href="https://wa.me/628568121707" class="text-xs text-primary-200/70 hover:text-white transition-colors">Toto Sulistyo (Bendahara)</a></div></div>
-</div>
-<div class="border-t border-primary-800/50 mt-8 pt-6 text-center"><p class="text-[10px] text-primary-200/50">© 2025 RT 003 RW 001 Paninggilan, Ciledug, Kota Tangerang, Banten</p></div>
-</div>
-</footer>
+<div class="text-center mb-10"><h2 class="st text-3xl font-bold text-gray-900 mb-4">Struktur Pengurus</h2><p class="text-gray-500 mt-6 text-sm">Pengurus RT 003 RW 001 Kelurahan Paninggilan</p></div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="pGrid"></div>
+</div></div>
 
-<!-- ==================== DYNAMIC MODAL ==================== -->
-<div id="dynModal" class="fixed inset-0 z-[70] hidden">
-<div class="modal-overlay absolute inset-0" onclick="closeDynModal()"></div>
+<!-- WARGA -->
+<div id="pg-warga" class="page pt-14">
+<div class="max-w-6xl mx-auto px-4 py-10">
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
+<div><h2 class="st text-3xl font-bold text-gray-900 mb-4">Data Warga</h2><p class="text-gray-500 mt-6 text-sm">Data penduduk RT 003 RW 001</p></div>
+<button id="btnAddW" onclick="ag('openWM')" class="bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="user-plus" class="w-4 h-4"></i>Tambah Warga</button>
+</div>
+<div id="wL" class="flex items-center justify-center py-16"><div class="ls"></div></div>
+<div id="wE" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="users" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Data Warga</h3></div>
+<div id="wC" class="hidden">
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+<div class="p-4 border-b border-gray-100"><div class="relative"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="sW" oninput="fW()" placeholder="Cari nama KK, no KK, alamat..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div></div>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Nama KK</th><th class="text-left px-4 py-3 font-semibold text-xs">No. KK</th><th class="text-left px-4 py-3 font-semibold text-xs">Alamat</th><th class="text-center px-4 py-3 font-semibold text-xs">Anggota</th><th class="text-center px-4 py-3 font-semibold text-xs">Detail</th><th class="text-center px-4 py-3 font-semibold text-xs ac">Aksi</th></tr></thead><tbody id="wB"></tbody></table></div></div></div></div></div>
+
+<!-- KAS -->
+<div id="pg-kas" class="page pt-14">
+<div class="max-w-6xl mx-auto px-4 py-10">
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
+<div><h2 class="st text-3xl font-bold text-gray-900 mb-4">Kas RT</h2><p class="text-gray-500 mt-6 text-sm">Transparansi keuangan RT 003</p></div>
+<button id="btnAddK" onclick="ag('openKM')" class="bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Transaksi</button>
+</div>
+<div id="kL" class="flex items-center justify-center py-16"><div class="ls"></div></div>
+<div id="kC" class="hidden space-y-6">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="bg-green-50 border border-green-100 rounded-xl p-4 text-center"><p class="text-xs text-green-600 font-semibold mb-1">Total Pemasukan</p><p class="text-xl font-bold text-green-700" id="kM">Rp 0</p></div>
+<div class="bg-red-50 border border-red-100 rounded-xl p-4 text-center"><p class="text-xs text-red-600 font-semibold mb-1">Total Pengeluaran</p><p class="text-xl font-bold text-red-700" id="kK">Rp 0</p></div>
+<div class="bg-primary-50 border border-primary-100 rounded-xl p-4 text-center"><p class="text-xs text-primary-600 font-semibold mb-1">Saldo</p><p class="text-xl font-bold text-primary-700" id="kS">Rp 0</p></div>
+</div>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg p-5"><h3 class="font-bold text-gray-900 text-sm mb-3">Grafik Kas Bulanan</h3><div style="height:250px"><canvas id="cKDT"></canvas></div></div>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+<div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
+<div class="relative flex-1"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="sK" oninput="fK()" placeholder="Cari keterangan..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
+<select id="fKJ" onchange="fK()" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"><option value="all">Semua Jenis</option><option value="masuk">Pemasukan</option><option value="keluar">Pengeluaran</option></select>
+<select id="fKB" onchange="fK()" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"><option value="all">Semua Bulan</option></select>
+</div>
+<div class="overflow-x-auto max-h-96 overflow-y-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Kategori</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-center px-4 py-3 font-semibold text-xs">Jenis</th><th class="text-right px-4 py-3 font-semibold text-xs">Jumlah</th><th class="text-center px-4 py-3 font-semibold text-xs ac">Aksi</th></tr></thead><tbody id="kB"></tbody></table></div></div></div></div></div>
+
+<!-- PIKET -->
+<div id="pg-piket" class="page pt-14">
+<div class="max-w-6xl mx-auto px-4 py-10">
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
+<div><h2 class="st text-3xl font-bold text-gray-900 mb-4">Jadwal Piket Malam</h2><p class="text-gray-500 mt-6 text-sm">Jadwal piket keamanan RT 003</p></div>
+<button id="btnAddP" onclick="ag('openPM')" class="bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Jadwal</button>
+</div>
+<div id="pL" class="flex items-center justify-center py-16"><div class="ls"></div></div>
+<div id="pE" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="moon" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Jadwal</h3></div>
+<div id="pC" class="hidden"><div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Petugas</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-center px-4 py-3 font-semibold text-xs ac">Aksi</th></tr></thead><tbody id="pB"></tbody></table></div></div></div></div></div>
+
+<!-- INVENTARIS -->
+<div id="pg-inventaris" class="page pt-14">
+<div class="max-w-6xl mx-auto px-4 py-10">
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
+<div><h2 class="st text-3xl font-bold text-gray-900 mb-4">Inventaris RT</h2><p class="text-gray-500 mt-6 text-sm">Data barang inventaris RT 003</p></div>
+<button id="btnAddI" onclick="ag('openIM')" class="bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Inventaris</button>
+</div>
+<div id="iL" class="flex items-center justify-center py-16"><div class="ls"></div></div>
+<div id="iE" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="box" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Inventaris</h3></div>
+<div id="iC" class="hidden"><div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+<div class="p-4 border-b border-gray-100"><div class="relative"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="sI" oninput="fI()" placeholder="Cari barang..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div></div>
+<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Nama Barang</th><th class="text-center px-4 py-3 font-semibold text-xs">Jumlah</th><th class="text-center px-4 py-3 font-semibold text-xs">Kondisi</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-center px-4 py-3 font-semibold text-xs ac">Aksi</th></tr></thead><tbody id="iB"></tbody></table></div></div></div></div></div>
+
+<!-- DANA SOSIAL -->
+<div id="pg-ds" class="page pt-14">
+<div class="max-w-6xl mx-auto px-4 py-10">
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
+<div><h2 class="st text-3xl font-bold text-gray-900 mb-4">Dana Sosial</h2><p class="text-gray-500 mt-6 text-sm">Transparansi dana sosial RT 003</p></div>
+<button id="btnAddD" onclick="ag('openDM')" class="bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Transaksi</button>
+</div>
+<div id="dL" class="flex items-center justify-center py-16"><div class="ls"></div></div>
+<div id="dC" class="hidden space-y-6">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="bg-violet-50 border border-violet-100 rounded-xl p-4 text-center"><p class="text-xs text-violet-600 font-semibold mb-1">Total Masuk</p><p class="text-xl font-bold text-violet-700" id="dM">Rp 0</p></div>
+<div class="bg-orange-50 border border-orange-100 rounded-xl p-4 text-center"><p class="text-xs text-orange-600 font-semibold mb-1">Total Keluar</p><p class="text-xl font-bold text-orange-700" id="dK">Rp 0</p></div>
+<div class="bg-primary-50 border border-primary-100 rounded-xl p-4 text-center"><p class="text-xs text-primary-600 font-semibold mb-1">Saldo</p><p class="text-xl font-bold text-primary-700" id="dS">Rp 0</p></div>
+</div>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg p-5"><h3 class="font-bold text-gray-900 text-sm mb-3">Grafik Dana Sosial Bulanan</h3><div style="height:250px"><canvas id="cDDT"></canvas></div></div>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+<div class="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
+<div class="relative flex-1"><i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i><input type="text" id="sD" oninput="fD()" placeholder="Cari keterangan..." class="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"></div>
+<select id="fDJ" onchange="fD()" class="px-4 py-2.5 border border-gray-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"><option value="all">Semua Jenis</option><option value="masuk">Masuk</option><option value="keluar">Keluar</option></select>
+</div>
+<div class="overflow-x-auto max-h-96 overflow-y-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Kategori</th><th class="text-left px-4 py-3 font-semibold text-xs">Keterangan</th><th class="text-left px-4 py-3 font-semibold text-xs">Penerima</th><th class="text-center px-4 py-3 font-semibold text-xs">Jenis</th><th class="text-right px-4 py-3 font-semibold text-xs">Jumlah</th><th class="text-center px-4 py-3 font-semibold text-xs ac">Aksi</th></tr></thead><tbody id="dB"></tbody></table></div></div></div></div></div>
+
+<!-- KEGIATAN -->
+<div id="pg-kegiatan" class="page pt-14">
+<div class="max-w-6xl mx-auto px-4 py-10">
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-3">
+<div><h2 class="st text-3xl font-bold text-gray-900 mb-4">Kegiatan RT</h2><p class="text-gray-500 mt-6 text-sm">Dokumentasi kegiatan RT 003</p></div>
+<button id="btnAddKg" onclick="ag('openKgM')" class="bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center gap-2"><i data-lucide="plus" class="w-4 h-4"></i>Tambah Kegiatan</button>
+</div>
+<div id="kgL" class="flex items-center justify-center py-16"><div class="ls"></div></div>
+<div id="kgE" class="hidden text-center py-16"><div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="calendar-x" class="w-8 h-8 text-gray-400"></i></div><h3 class="font-semibold text-gray-900 mb-1">Belum Ada Kegiatan</h3></div>
+<div id="kgC" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+</div></div>
+
+<!-- PENGADUAN -->
+<div id="pg-pengaduan" class="page pt-14">
+<div class="max-w-5xl mx-auto px-4 py-10">
+<div class="text-center mb-10"><h2 class="st text-3xl font-bold text-gray-900 mb-4">Pengaduan Warga</h2><p class="text-gray-500 mt-6 text-sm">Sampaikan keluhan atau saran Anda secara anonim</p></div>
+<div class="grid lg:grid-cols-5 gap-6">
+<div class="lg:col-span-2">
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg p-6">
+<h3 class="font-bold text-gray-900 text-sm mb-4 flex items-center gap-2"><i data-lucide="message-square-warning" class="w-4 h-4 text-amber-500"></i>Buat Pengaduan</h3>
+<div class="space-y-4">
+<div><label class="block text-xs font-semibold text-gray-700 mb-1.5">Kategori *</label><select id="pdKat" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"><option value="">Pilih kategori</option><option>Kebersihan</option><option>Keamanan</option><option>Infrastruktur</option><option>Ketertiban</option><option>Lainnya</option></select></div>
+<div><label class="block text-xs font-semibold text-gray-700 mb-1.5">Isi Pengaduan *</label><textarea id="pdIsi" rows="4" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none" placeholder="Tuliskan pengaduan Anda..."></textarea></div>
+<div><label class="block text-xs font-semibold text-gray-700 mb-1.5">Nama (opsional)</label><input id="pdNama" class="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Kosongkan untuk anonim"></div>
+<div id="pdEr" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl px-3 py-2"></div>
+<button id="pdBtn" onclick="subPd()" class="w-full bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-3 rounded-xl transition-all shadow-lg shadow-primary-600/25 flex items-center justify-center gap-2"><i data-lucide="send" class="w-4 h-4"></i>Kirim Pengaduan</button>
+</div></div></div>
+<div class="lg:col-span-3">
+<div id="pdAdminLock" class="bg-white rounded-2xl border border-gray-100 shadow-lg p-10 text-center">
+<div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="lock" class="w-8 h-8 text-gray-400"></i></div>
+<h3 class="font-semibold text-gray-900 mb-1">Khusus Admin</h3><p class="text-gray-500 text-xs">Masuk sebagai admin untuk melihat daftar pengaduan warga</p>
+</div>
+<div id="pdAdmin" class="hidden">
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden">
+<div class="p-4 border-b border-gray-100"><h3 class="font-bold text-gray-900 text-sm flex items-center gap-2"><i data-lucide="inbox" class="w-4 h-4 text-amber-500"></i>Daftar Pengaduan</h3></div>
+<div class="overflow-x-auto max-h-[500px] overflow-y-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50 text-gray-600"><th class="text-left px-4 py-3 font-semibold text-xs">No</th><th class="text-left px-4 py-3 font-semibold text-xs">Tanggal</th><th class="text-left px-4 py-3 font-semibold text-xs">Kategori</th><th class="text-left px-4 py-3 font-semibold text-xs">Isi</th><th class="text-left px-4 py-3 font-semibold text-xs">Pelapor</th><th class="text-center px-4 py-3 font-semibold text-xs">Status</th><th class="text-center px-4 py-3 font-semibold text-xs">Aksi</th></tr></thead><tbody id="pdB"></tbody></table></div></div></div></div></div></div></div>
+
+<!-- KONTAK -->
+<div id="pg-kontak" class="page pt-14">
+<div class="max-w-6xl mx-auto px-4 py-10">
+<div class="text-center mb-10"><h2 class="st text-3xl font-bold text-gray-900 mb-4">Hubungi Kami</h2><p class="text-gray-500 mt-6 text-sm">Jangan ragu menghubungi pengurus RT 003</p></div>
+<div class="grid md:grid-cols-3 gap-5 mb-8">
+<a href="https://wa.me/6287774188870" class="ch bg-gradient-to-br from-green-50 to-white rounded-2xl border border-green-100 p-6 text-center block"><div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="message-circle" class="w-7 h-7 text-green-600"></i></div><h3 class="font-bold text-gray-900 mb-1">WhatsApp</h3><p class="text-xs text-gray-500 mb-3">Chat langsung Ketua RT</p><span class="text-xs font-semibold text-green-600">087774188870 →</span></a>
+<div class="ch bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 p-6 text-center"><div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="map-pin" class="w-7 h-7 text-blue-600"></i></div><h3 class="font-bold text-gray-900 mb-1">Alamat</h3><p class="text-xs text-gray-500 leading-relaxed">Jl. Sadar RT.003 RW.001, Kel. Paninggilan, Kec. Ciledug, Kota Tangerang</p></div>
+<div class="ch bg-gradient-to-br from-purple-50 to-white rounded-2xl border border-purple-100 p-6 text-center"><div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i data-lucide="clock" class="w-7 h-7 text-purple-600"></i></div><h3 class="font-bold text-gray-900 mb-1">Jam Operasional</h3><p class="text-xs text-gray-500 leading-relaxed">Senin - Sabtu: 08.00 - 17.00<br>Minggu & Hari Libur: Tutup</p></div>
+</div>
+<div class="rounded-2xl overflow-hidden border border-gray-200 shadow-lg"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.7!2d106.73!3d-6.23!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMTMnNDguMCJTIDEwNsKwNDMnNDguMCJF!5e0!3m2!1sid!2sid!4v1700000000000!5m2!1sid!2sid" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe></div>
+</div></div>
+
+<!-- FOOTER -->
+<footer class="bg-primary-950 text-white">
+<div class="max-w-6xl mx-auto px-4 py-8">
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-2.5"><div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center"><span class="text-white font-bold text-[10px]">RT3</span></div><span class="font-bold text-sm">RT 003 RW 001</span></div>
+<p class="text-[10px] text-primary-200/50">© 2025 Kel. Paninggilan, Kec. Ciledug, Kota Tangerang, Banten</p>
+</div></div></footer>
+
+<!-- MODAL -->
+<div id="dM" class="fixed inset-0 z-[70] hidden">
+<div class="mo absolute inset-0" onclick="cDM()"></div>
 <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
-<div class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-<div class="sticky top-0 bg-white rounded-t-2xl border-b border-gray-100 px-5 py-3.5 flex items-center justify-between z-10">
-<h3 id="dynModalTitle" class="text-base font-bold text-gray-900"></h3>
-<button onclick="closeDynModal()" class="p-1.5 rounded-lg hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button>
-</div>
-<div id="dynModalBody" class="p-5"></div>
-</div>
-</div>
-</div>
+<div class="mc bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+<div class="sticky top-0 bg-white rounded-t-2xl border-b border-gray-100 px-5 py-3.5 flex items-center justify-between z-10"><h3 id="dMT" class="text-base font-bold text-gray-900"></h3><button onclick="cDM()" class="p-1.5 rounded-lg hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button></div>
+<div id="dMB" class="p-5"></div>
+</div></div></div>
 
-<!-- ==================== DETAIL MODAL (KEGIATAN) ==================== -->
-<div id="detModal" class="fixed inset-0 z-[70] hidden">
-<div class="modal-overlay absolute inset-0" onclick="closeDetModal()"></div>
+<!-- DETAIL MODAL -->
+<div id="dtM" class="fixed inset-0 z-[70] hidden">
+<div class="mo absolute inset-0" onclick="cDtM()"></div>
 <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
-<div class="modal-content bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-<div class="sticky top-0 bg-white rounded-t-2xl border-b border-gray-100 px-5 py-3.5 flex items-center justify-between z-10">
-<h3 class="text-base font-bold text-gray-900">Detail Kegiatan</h3>
-<div class="flex items-center gap-1"><button id="btnDelKeg" onclick="deleteKegiatan()" class="p-1.5 rounded-lg hover:bg-red-50 text-red-500 auth-action-btn"><i data-lucide="trash-2" class="w-4 h-4"></i></button><button onclick="closeDetModal()" class="p-1.5 rounded-lg hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button></div>
-</div>
-<div id="detModalBody" class="p-5"></div>
-</div>
-</div>
-</div>
+<div class="mc bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+<div class="sticky top-0 bg-white rounded-t-2xl border-b border-gray-100 px-5 py-3.5 flex items-center justify-between z-10"><h3 id="dtMT" class="text-base font-bold text-gray-900">Detail</h3><button onclick="cDtM()" class="p-1.5 rounded-lg hover:bg-gray-100"><i data-lucide="x" class="w-5 h-5 text-gray-500"></i></button></div>
+<div id="dtMB" class="p-5"></div>
+</div></div></div>
 
-<!-- Toast -->
-<div id="toastBox" class="fixed top-16 right-4 z-[90] flex flex-col gap-2"></div>
+<div id="tB" class="fixed top-16 right-4 z-[90] flex flex-col gap-2"></div>
 
 <script>
-// ============ FIREBASE INIT ============
-firebase.initializeApp({
-    apiKey:"AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
-    authDomain:"rt003-a6d85.firebaseapp.com",
-    projectId:"rt003-a6d85",
-    storageBucket:"rt003-a6d85.firebasestorage.app",
-    messagingSenderId:"342671500828",
-    appId:"1:342671500828:web:338c075feed136c803a1d9",
-    measurementId:"G-X44MV0236P"
-});
-const db=firebase.firestore();
-const auth=firebase.auth();
-
-// ============ CONSTANTS ============
-const KAS_MASUK_CAT=['Iuran Bulanan','Iuran Kegiatan','Sumbangan','Lainnya'];
-const KAS_KELUAR_CAT=['Operasional','Kegiatan','Pembelian Barang','ATK','Listrik/Air','Sedekah','Lainnya'];
-const DS_CAT=['Zakat','Infaq','Sedekah','Bantuan Warga','Bencana Alam','Lainnya'];
-const KONDISI=['Baik','Rusak Ringan','Rusak Berat'];
-const IMGBB='6bfd8efeb32a8bebf742a71cb0a8a04a';
-const PENGURUS=[
-    {j:'Ketua',n:'Abdul Mukhid',wa:'6287774188870',c:'green'},
-    {j:'Wakil',n:'Lucky Mardiansyah',wa:'6281298349222',c:'blue'},
-    {j:'Bendahara',n:'Toto Sulistyo',wa:'628568121707',c:'amber'},
-    {j:'Sekretaris',n:'Bayu Aditya P',wa:'6282298983714',c:'purple'},
-    {j:'Humas',n:'Pursanto',wa:'6281371121986',c:'rose'},
-    {j:'Keamanan',n:'Gunawan',wa:'62895331784458',c:'teal'}
-];
-
-// ============ STATE ============
-let allWarga=[],allKas=[],allPiket=[],allInv=[],allDS=[],allKeg=[];
-let kasChartOV=null,dsChartOV=null,kasChartDT=null,dsChartDT=null;
-let currentKegId=null,selectedFile=null,isLoggedIn=false;
-
-// ============ UTILS ============
+firebase.initializeApp({apiKey:"AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",authDomain:"rt003-a6d85.firebaseapp.com",projectId:"rt003-a6d85",storageBucket:"rt003-a6d85.firebasestorage.app",messagingSenderId:"342671500828",appId:"1:342671500828:web:338c075feed136c803a1d9",measurementId:"G-X44MV0236P"});
+const db=firebase.firestore(),auth=firebase.auth();
+const KM=['Iuran Bulanan','Iuran Kegiatan','Sumbangan','Lainnya'],KK=['Operasional','Kegiatan','Pembelian Barang','ATK','Listrik/Air','Sedekah','Lainnya'],DC=['Zakat','Infaq','Sedekah','Bantuan Warga','Bencana Alam','Lainnya'],KD=['Baik','Rusak Ringan','Rusak Berat'],HB=['Kepala Keluarga','Istri','Anak','Orang Tua','Menantu','Cucu','Saudara','Lainnya'],IB='6bfd8efeb32a8bebf742a71cb0a8a04a';
+const PU=[{j:'Ketua',n:'Abdul Mukhid',wa:'6287774188870',c:'green'},{j:'Wakil',n:'Lucky Mardiansyah',wa:'6281298349222',c:'blue'},{j:'Bendahara',n:'Toto Sulistyo',wa:'628568121707',c:'amber'},{j:'Sekretaris',n:'Bayu Aditya P',wa:'6282298983714',c:'purple'},{j:'Humas',n:'Pursanto',wa:'6281371121986',c:'rose'},{j:'Keamanan',n:'Gunawan',wa:'62895331784458',c:'teal'}];
+let aW=[],aK=[],aP=[],aI=[],aD=[],aKg=[],aPd=[],cKO=null,cDO=null,cKD=null,cDD=null,curKg=null,selF=null,isL=false,curU=null,agC=0;
 const $=id=>document.getElementById(id);
-const fRp=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
-const fTgl=d=>{if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});};
-const fBulan=d=>{if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('id-ID',{month:'long',year:'numeric'});};
-const mKey=d=>d?d.substring(0,7):'';
-const today=()=>new Date().toISOString().split('T')[0];
+const fR=n=>'Rp '+Number(n||0).toLocaleString('id-ID');
+const fT=d=>{if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});};
+const mK=d=>d?d.substring(0,7):'';const td=()=>new Date().toISOString().split('T')[0];
 const IC=()=>'w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent';
 const LC=()=>'block text-xs font-semibold text-gray-700 mb-1.5';
 const ED=id=>`<div id="${id}" class="hidden bg-red-50 border border-red-200 text-red-600 text-xs rounded-xl px-3 py-2 mt-2"></div>`;
 const sE=(id,m)=>{const e=$(id);if(e){e.textContent=m;e.classList.remove('hidden');}};
 const hE=id=>{const e=$(id);if(e)e.classList.add('hidden');};
 
-function toast(msg,type='success'){
-    const c=$('toastBox'),t=document.createElement('div');
-    const bg={success:'bg-green-600',error:'bg-red-600',info:'bg-blue-600'}[type];
-    const ic={success:'check-circle',error:'alert-circle',info:'info'}[type];
-    t.className=`toast ${bg} text-white px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-xs font-medium min-w-[240px]`;
-    t.innerHTML=`<i data-lucide="${ic}" class="w-4 h-4 flex-shrink-0"></i><span>${msg}</span>`;
-    c.appendChild(t);lucide.createIcons();setTimeout(()=>t.remove(),3000);
-}
+function toast(m,t='success'){const c=$('tB'),t2=document.createElement('div');const bg={success:'bg-green-600',error:'bg-red-600',info:'bg-blue-600'}[t];const ic={success:'check-circle',error:'alert-circle',info:'info'}[t];t2.className=`toast ${bg} text-white px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-xs font-medium min-w-[220px]`;t2.innerHTML=`<i data-lucide="${ic}" class="w-4 h-4 flex-shrink-0"></i><span>${m}</span>`;c.appendChild(t2);lucide.createIcons();setTimeout(()=>t2.remove(),3000);}
 
-function toggleMobile(){
-    const m=$('mobileMenu'),o=$('mobileOverlay');
-    m.classList.toggle('open');o.classList.toggle('hidden');
-    document.body.style.overflow=m.classList.contains('open')?'hidden':'';
-    updateMobileAuth();
-}
-function closeDynModal(){$('dynModal').classList.add('hidden');document.body.style.overflow='';}
-function closeDetModal(){$('detModal').classList.add('hidden');document.body.style.overflow='';currentKegId=null;}
-function openDyn(title,html){
-    $('dynModalTitle').textContent=title;$('dynModalBody').innerHTML=html;
-    $('dynModal').classList.remove('hidden');document.body.style.overflow='hidden';lucide.createIcons();
-}
+// ===== SPA NAV =====
+const pages=['beranda','profil','pengurus','warga','kas','piket','inventaris','ds','kegiatan','pengaduan','kontak'];
+function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));const pg=$('pg-'+id);if(pg)pg.classList.add('active');document.querySelectorAll('.nl').forEach(l=>{l.classList.toggle('on',l.dataset.p===id);});window.scrollTo(0,0);if(id==='beranda')loadDash();if(id==='pengaduan')loadPd();tMM(true);}
 
-async function uploadImgBB(file){
-    const fd=new FormData();fd.append('image',file);
-    const r=await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB}`,{method:'POST',body:fd});
-    if(!r.ok)throw new Error('Upload gagal');return(await r.json()).data.display_url;
+// ===== MOBILE MENU =====
+function tMM(forceClose){
+    const m=$('mm'),o=$('mmO');
+    if(forceClose||m.classList.contains('open')){m.classList.remove('open');o.classList.add('hidden');document.body.style.overflow='';}
+    else{m.classList.add('open');o.classList.remove('hidden');document.body.style.overflow='hidden';}
 }
+function buildMM(){
+    const links=[{p:'beranda',i:'home',l:'Beranda'},{p:'profil',i:'info',l:'Profil'},{p:'pengurus',i:'users',l:'Pengurus'},{p:'warga',i:'user-plus',l:'Data Warga'},{p:'kas',i:'wallet',l:'Kas RT'},{p:'piket',i:'moon',l:'Piket'},{p:'inventaris',i:'box',l:'Inventaris'},{p:'ds',i:'heart-handshake',l:'Dana Sosial'},{p:'kegiatan',i:'calendar',l:'Kegiatan'},{p:'pengaduan',i:'message-square-warning',l:'Pengaduan'},{p:'kontak',i:'phone',l:'Kontak'}];
+    let h=links.map(l=>`<a onclick="go('${l.p}');tMM(true)" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-700 text-sm cursor-pointer"><i data-lucide="${l.i}" class="w-4 h-4"></i>${l.l}</a>`).join('');
+    h+=`<div class="mt-3 pt-3 border-t border-gray-100" id="mmAuth"></div>`;
+    $('mmLinks').innerHTML=h;
+    lucide.createIcons();updMMA();
+}
+function updMMA(){const a=$('mmAuth');if(!a)return;a.innerHTML=isL?`<button onclick="doOut();tMM(true)" class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-red-50 text-red-600 text-sm font-medium w-full"><i data-lucide="log-out" class="w-4 h-4"></i>Keluar</button>`:`<button onclick="showL();tMM(true)" class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-primary-700 text-sm font-medium w-full"><i data-lucide="log-in" class="w-4 h-4"></i>Masuk Admin</button>`;lucide.createIcons();}
 
-function aggMonthly(data,jf='jenis'){
-    const m={};
-    data.forEach(d=>{const k=mKey(d.tanggal);if(!k)return;if(!m[k])m[k]={masuk:0,keluar:0};m[k][d[jf]]=(m[k][d[jf]]||0)+(Number(d.jumlah)||0);});
-    return Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0]));
-}
-function mLabels(a){return a.map(([k])=>{const[y,m]=k.split('-');return new Date(y,m-1).toLocaleDateString('id-ID',{month:'short',year:'2-digit'});});}
-function populateBulan(sel,data){
-    const s=$(sel);s.innerHTML='<option value="all">Semua Bulan</option>';
-    [...new Set(data.map(d=>mKey(d.tanggal)).filter(Boolean))].sort().reverse().forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=fBulan(m+'-01');s.appendChild(o);});
-}
+// ===== AUTH =====
+function tP(id,btn){const inp=$(id);const isP=inp.type==='password';inp.type=isP?'text':'password';btn.innerHTML=isP?'<i data-lucide="eye" class="w-4 h-4"></i>':'<i data-lucide="eye-off" class="w-4 h-4"></i>';lucide.createIcons();}
+function sAT(t){$('fL').classList.toggle('hidden',t!=='login');$('fR').classList.toggle('hidden',t!=='register');$('tL').className=`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${t==='login'?'bg-white shadow text-primary-700':'text-gray-500'}`;$('tR').className=`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${t==='register'?'bg-white shadow text-primary-700':'text-gray-500'}`;hE('lEr');hE('rEr');}
+function showL(){$('loginScr').classList.remove('hidden');document.body.style.overflow='hidden';sAT('login');$('lE').value='';$('lP').value='';hE('lEr');setTimeout(()=>$('lE').focus(),200);}
+async function doL(){const e=$('lE').value.trim(),p=$('lP').value;if(!e||!p){sE('lEr','Email dan password wajib diisi');return;}hE('lEr');const b=$('lBtn');b.disabled=true;b.innerHTML='<div class="ls w-4 h-4 border-2 border-white/30 border-t-white"></div>';try{await auth.signInWithEmailAndPassword(e,p);toast('Berhasil masuk!');$('loginScr').classList.add('hidden');document.body.style.overflow='';}catch(x){const m={['auth/user-not-found']:'Akun tidak ditemukan',['auth/wrong-password']:'Password salah',['auth/invalid-email']:'Format email tidak valid',['auth/invalid-credential']:'Email atau password salah'}[x.code]||'Gagal masuk. Coba lagi.';sE('lEr',m);}b.disabled=false;b.innerHTML='<i data-lucide="log-in" class="w-4 h-4"></i> Masuk';lucide.createIcons();}
+async function doR(){const n=$('rN').value.trim(),e=$('rE').value.trim(),p=$('rP').value,p2=$('rP2').value;if(!n||!e||!p){sE('rEr','Semua field wajib diisi');return;}if(p.length<6){sE('rEr','Password minimal 6 karakter');return;}if(p!==p2){sE('rEr','Konfirmasi password tidak cocok');return;}hE('rEr');const b=$('rBtn');b.disabled=true;b.innerHTML='<div class="ls w-4 h-4 border-2 border-white/30 border-t-white"></div>';try{const cr=await auth.createUserWithEmailAndPassword(e,p);await cr.user.updateProfile({displayName:n});toast('Akun berhasil dibuat!');$('loginScr').classList.add('hidden');document.body.style.overflow='';}catch(x){const m={['auth/email-already-in-use']:'Email sudah terdaftar',['auth/weak-password']:'Password terlalu lemah',['auth/invalid-email']:'Format email tidak valid'}[x.code]||'Gagal mendaftar.';sE('rEr',m);}b.disabled=false;b.innerHTML='<i data-lucide="user-plus" class="w-4 h-4"></i> Daftar Akun';lucide.createIcons();}
+async function doOut(){try{await auth.signOut();toast('Berhasil keluar');}catch(e){toast('Gagal keluar','error');}}
+function ag(fn){if(isL)window[fn]();else showL();}
+function updUI(u){isL=!!u;curU=u;$('navLO').style.display=isL?'none':'flex';$('navLI').style.display=isL?'flex':'none';$('navLI').classList.toggle('hidden',!isL);if(u){const n=u.displayName||u.email||'User';$('navUN').textContent=n;$('navAv').textContent=(n[0]||'U').toUpperCase();}
+document.querySelectorAll('[id^="btnAdd"]').forEach(b=>b.style.display=isL?'flex':'none');
+document.querySelectorAll('.ac').forEach(c=>c.style.display=isL?'':'none');
+ $('pdAdminLock').style.display=isL?'none':'';$('pdAdmin').style.display=isL?'':'none';
+updMMA();}
 
-// ============ AUTH ============
-let currentUser=null;
+// ===== MODAL =====
+function oDM(t,h){$('dMT').textContent=t;$('dMB').innerHTML=h;$('dM').classList.remove('hidden');document.body.style.overflow='hidden';lucide.createIcons();}
+function cDM(){$('dM').classList.add('hidden');document.body.style.overflow='';}
+function oDtM(t,h){$('dtMT').textContent=t;$('dtMB').innerHTML=h;$('dtM').classList.remove('hidden');document.body.style.overflow='hidden';lucide.createIcons();}
+function cDtM(){$('dtM').classList.add('hidden');document.body.style.overflow='';curKg=null;}
 
-function togglePass(id,btn){
-    const inp=$(id);const isP=inp.type==='password';inp.type=isP?'text':'password';
-    btn.innerHTML=isP?'<i data-lucide="eye" class="w-4 h-4"></i>':'<i data-lucide="eye-off" class="w-4 h-4"></i>';
-    lucide.createIcons();
-}
+// ===== CHARTS =====
+const cDf={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:12,font:{size:10,family:'Plus Jakarta Sans'}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{ticks:{font:{size:9},callback:v=>v>=1e6?(v/1e6).toFixed(1)+'jt':v>=1e3?(v/1e3).toFixed(0)+'rb':v},grid:{color:'#f1f5f9'}}}};
+function mkKC(cid,ag){const c=$(cid);if(!c)return null;return new Chart(c,{type:'bar',data:{labels:ag.map(([k])=>{const[y,m]=k.split('-');return new Date(y,m-1).toLocaleDateString('id-ID',{month:'short',year:'2-digit'});}),datasets:[{label:'Pemasukan',data:ag.map(([,v])=>v.masuk),backgroundColor:'rgba(34,197,94,0.7)',borderRadius:5,barPercentage:.55},{label:'Pengeluaran',data:ag.map(([,v])=>v.keluar),backgroundColor:'rgba(239,68,68,0.7)',borderRadius:5,barPercentage:.55}]},options:{...cDf}});}
+function mkDC(cid,ag){const c=$(cid);if(!c)return null;return new Chart(c,{type:'bar',data:{labels:ag.map(([k])=>{const[y,m]=k.split('-');return new Date(y,m-1).toLocaleDateString('id-ID',{month:'short',year:'2-digit'});}),datasets:[{label:'Masuk',data:ag.map(([,v])=>v.masuk),backgroundColor:'rgba(139,92,246,0.7)',borderRadius:5,barPercentage:.55},{label:'Keluar',data:ag.map(([,v])=>v.keluar),backgroundColor:'rgba(249,115,22,0.7)',borderRadius:5,barPercentage:.55}]},options:{...cDf}});}
+function aggM(d){const m={};d.forEach(x=>{const k=mK(x.tanggal);if(!k)return;if(!m[k])m[k]={masuk:0,keluar:0};m[k][x.jenis]=(m[k][x.jenis]||0)+(Number(x.jumlah)||0);});return Object.entries(m).sort((a,b)=>a[0].localeCompare(b[0]));}
+function popB(sel,d){const s=$(sel);s.innerHTML='<option value="all">Semua Bulan</option>';[...new Set(d.map(x=>mK(x.tanggal)).filter(Boolean))].sort().reverse().forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=new Date(m+'-01T00:00:00').toLocaleDateString('id-ID',{month:'long',year:'numeric'});s.appendChild(o);});}
+async function upImg(f){const fd=new FormData();fd.append('image',f);const r=await fetch(`https://api.imgbb.com/1/upload?key=${IB}`,{method:'POST',body:fd});if(!r.ok)throw new Error('Upload gagal');return(await r.json()).data.display_url;}
 
-function switchAuthTab(tab){
-    $('loginForm').classList.toggle('hidden',tab!=='login');
-    $('registerForm').classList.toggle('hidden',tab!=='register');
-    $('tabLogin').className=`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${tab==='login'?'bg-white shadow text-primary-700':'text-gray-500'}`;
-    $('tabRegister').className=`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${tab==='register'?'bg-white shadow text-primary-700':'text-gray-500'}`;
-    hE('loginErr');hE('regErr');
-}
+// ===== DASHBOARD =====
+async function loadDash(){try{const[w,k,d]=await Promise.all([db.collection('warga').get(),db.collection('kas').get(),db.collection('danaSosial').get()]);let tw=0;w.docs.forEach(x=>{const d=x.data();tw+=(d.anggota||[]).length;});$('sW').textContent=tw;$('sKK').textContent=w.size;let km=0,kk=0;k.docs.forEach(x=>{const v=x.data();if(v.jenis==='masuk')km+=Number(v.jumlah)||0;else kk+=Number(v.jumlah)||0;});$('sKas').textContent=fR(km-kk);let dm=0,dk=0;d.docs.forEach(x=>{const v=x.data();if(v.jenis==='masuk')dm+=Number(v.jumlah)||0;else dk+=Number(v.jumlah)||0;});$('sDS').textContent=fR(dm-dk);const ka=aggM(k.docs.map(x=>x.data())),da=aggM(d.docs.map(x=>x.data()));if(cKO)cKO.destroy();if(cDO)cDO.destroy();cKO=mkKC('cKOV',ka);cDO=mkDC('cDOV',da);}catch(e){console.error(e);}}
 
-function showLogin(){
-    $('loginScreen').classList.remove('hidden');
-    document.body.style.overflow='hidden';
-    switchAuthTab('login');
-    $('loginEmail').value='';$('loginPass').value='';hE('loginErr');
-    setTimeout(()=>$('loginEmail').focus(),300);
-}
+// ===== PENGURUS =====
+function rP(){$('pGrid').innerHTML=PU.map(p=>{const cm={green:'primary',blue:'blue',amber:'amber',purple:'purple',rose:'rose',teal:'teal'};const c=cm[p.c]||'primary';const ph=p.wa.replace(/^62/,'0');return `<div class="ch bg-gradient-to-br from-${c}-50 to-white rounded-2xl border border-${c}-100 p-6 text-center relative overflow-hidden"><div class="absolute top-3 right-3 bg-${c}-600 text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">${p.j}</div><div class="w-20 h-20 mx-auto mb-4 mt-1 bg-${c}-100 rounded-full p-[3px]"><div class="w-full h-full bg-${c}-50 rounded-full flex items-center justify-center"><i data-lucide="${p.j==='Keamanan'?'shield':'user'}" class="w-8 h-8 text-${c}-600"></i></div></div><h3 class="font-bold text-gray-900 mb-0.5">${p.n}</h3><p class="text-xs text-${c}-600 font-semibold mb-3">${p.j} RT</p><a href="https://wa.me/${p.wa}" class="inline-flex items-center gap-1.5 bg-${c}-600 hover:bg-${c}-700 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition-all shadow-lg shadow-${c}-600/20"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i>${ph}</a></div>`;}).join('');lucide.createIcons();}
 
-async function doLogin(){
-    const email=$('loginEmail').value.trim(),pass=$('loginPass').value;
-    if(!email||!pass){sE('loginErr','Email dan password wajib diisi');$('loginErr').classList.remove('hidden');$('loginErr').classList.add('flex');return;}
-    hE('loginErr');
-    const btn=$('loginBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div> Masuk...';
-    try{
-        await auth.signInWithEmailAndPassword(email,pass);
-        toast('Berhasil masuk!');$('loginScreen').classList.add('hidden');document.body.style.overflow='';
-    }catch(e){
-        const msg=e.code==='auth/user-not-found'?'Akun tidak ditemukan':e.code==='auth/wrong-password'?'Password salah':e.code==='auth/invalid-email'?'Format email tidak valid':e.code==='auth/invalid-credential'?'Email atau password salah':'Gagal masuk. Coba lagi.';
-        sE('loginErr',msg);$('loginErr').classList.remove('hidden');$('loginErr').classList.add('flex');
-    }
-    btn.disabled=false;btn.innerHTML='<i data-lucide="log-in" class="w-4 h-4"></i> Masuk';lucide.createIcons();
-}
+// ===== WARGA =====
+function addAgRow(nama='',hub='Anak',jk='Laki-laki'){agC++;const d=document.createElement('div');d.className='ag-row bg-gray-50 rounded-xl p-3 flex flex-col sm:flex-row gap-2 items-start relative group';d.id='agr-'+agC;d.innerHTML=`<button type="button" onclick="this.parentElement.remove()" class="absolute top-2 right-2 p-1 rounded-lg hover:bg-red-100 text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all"><i data-lucide="x" class="w-3.5 h-3.5"></i></button><input type="text" class="ag-nama flex-1 ${IC()}" placeholder="Nama anggota" value="${nama}"><select class="ag-hub w-full sm:w-32 ${IC()}">${HB.map(h=>`<option ${h===hub?'selected':''}>${h}</option>`).join('')}</select><select class="ag-jk w-full sm:w-28 ${IC()}"><option ${jk==='Laki-laki'?'selected':''}>Laki-laki</option><option ${jk==='Perempuan'?'selected':''}>Perempuan</option></select>`;$('agList').appendChild(d);lucide.createIcons();}
+function openWM(){agC=0;oDM('Tambah Data Warga',`<div class="space-y-4"><div><label class="${LC()}">Nama Kepala Keluarga *</label><input id="wN" class="${IC()}" placeholder="Nama KK"></div><div><label class="${LC()}">No. KK *</label><input id="wKK" class="${IC()}" placeholder="16 digit" maxlength="16"></div><div><label class="${LC()}">Alamat *</label><input id="wAl" class="${IC()}" placeholder="Alamat rumah"></div><div class="grid grid-cols-2 gap-3"><div><label class="${LC()}">No. HP</label><input id="wHP" class="${IC()}" placeholder="08xxx"></div><div><label class="${LC()}">Pekerjaan KK</label><input id="wPK" class="${IC()}" placeholder="Pekerjaan"></div></div><div><div class="flex items-center justify-between mb-2"><label class="${LC()} mb-0">Anggota Keluarga *</label><button type="button" onclick="addAgRow()" class="text-xs font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1"><i data-lucide="plus" class="w-3.5 h-3.5"></i>Tambah</button></div><div id="agList" class="space-y-2"></div></div>${ED('wEr')}<div class="flex gap-3 pt-1"><button onclick="cDM()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="wBtn" onclick="subW()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);addAgRow('','Kepala Keluarga','Laki-laki');}
+async function subW(){const nm=$('wN').value.trim(),kk=$('wKK').value.trim(),al=$('wAl').value.trim(),hp=$('wHP').value.trim(),pk=$('wPK').value.trim();if(!nm){sE('wEr','Nama KK wajib diisi');return;}if(!kk||kk.length<10){sE('wEr','No. KK tidak valid');return;}if(!al){sE('wEr','Alamat wajib diisi');return;}
+const rows=$('agList').querySelectorAll('.ag-row');const anggota=[];let valid=true;rows.forEach(r=>{const n=r.querySelector('.ag-nama').value.trim(),h=r.querySelector('.ag-hub').value,j=r.querySelector('.ag-jk').value;if(!n){valid=false;}anggota.push({nama:n,hubungan:h,jenisKelamin:j});});if(!valid||anggota.length===0){sE('wErr','Semua anggota keluarga wajib diisi nama');return;}hE('wEr');const b=$('wBtn');b.disabled=true;b.innerHTML='<div class="ls w-4 h-4 border-2 border-white/30 border-t-white"></div>';try{await db.collection('warga').add({namaKK:nm,noKK:kk,alamat:al,noHP:hp,pekerjaan:pk,anggota,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Data warga ditambahkan');cDM();loadW();}catch(e){sE('wEr','Gagal menyimpan');b.disabled=false;b.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}}
+async function loadW(){$('wL').classList.remove('hidden');$('wE').classList.add('hidden');$('wC').classList.add('hidden');try{const s=await db.collection('warga').orderBy('createdAt','desc').get();aW=s.docs.map(d=>({id:d.id,...d.data()}));$('wL').classList.add('hidden');if(!aW.length){$('wE').classList.remove('hidden');return;}$('wC').classList.remove('hidden');rW(aW);}catch(e){$('wL').classList.add('hidden');$('wE').classList.remove('hidden');}}
+function rW(d){$('wB').innerHTML=d.map((w,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs font-semibold text-gray-900">${w.namaKK}</td><td class="px-4 py-3 text-xs text-gray-600 font-mono">${w.noKK}</td><td class="px-4 py-3 text-xs text-gray-600">${w.alamat}</td><td class="px-4 py-3 text-xs text-center font-semibold">${(w.anggota||[]).length}</td><td class="px-4 py-3 text-center"><button onclick="showWDetail('${w.id}')" class="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500"><i data-lucide="eye" class="w-3.5 h-3.5"></i></button></td><td class="px-4 py-3 text-center ac"><button onclick="delW('${w.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();}
+function showWDetail(id){const w=aW.find(x=>x.id===id);if(!w)return;const ag=w.anggota||[];const h=oDtM('Detail Anggota Keluarga',`<div class="mb-4"><p class="text-sm font-bold text-gray-900">${w.namaKK}</p><p class="text-xs text-gray-500">No. KK: ${w.noKK} · ${w.alamat}</p></div><div class="space-y-2">${ag.map((a,i)=>`<div class="flex items-center gap-3 p-3 rounded-xl ${i===0?'bg-primary-50 border border-primary-100':'bg-gray-50 border border-gray-100'}"><div class="w-8 h-8 ${i===0?'bg-primary-200':'bg-gray-200'} rounded-full flex items-center justify-center text-xs font-bold ${i===0?'text-primary-700':'text-gray-600'}">${(a.jenisKelamin||'L')[0]}</div><div class="flex-1"><p class="text-xs font-semibold text-gray-900">${a.nama}</p><p class="text-[10px] text-gray-500">${a.hubungan} · ${a.jenisKelamin}</p></div>${i===0?'<span class="badge bg-primary-200 text-primary-800">KK</span>':''}</div>`).join('')}</div>`);}
+function fW(){const q=$('sW').value.toLowerCase();rW(aW.filter(w=>w.namaKK.toLowerCase().includes(q)||w.noKK.includes(q)||w.alamat.toLowerCase().includes(q)));}
+async function delW(id){if(!confirm('Hapus data warga ini?'))return;try{await db.collection('warga').doc(id).delete();toast('Data warga dihapus');loadW();}catch(e){toast('Gagal','error');}}
 
-async function doRegister(){
-    const name=$('regName').value.trim(),email=$('regEmail').value.trim(),pass=$('regPass').value,pass2=$('regPass2').value;
-    if(!name||!email||!pass){sE('regErr','Semua field wajib diisi');$('regErr').classList.remove('hidden');$('regErr').classList.add('flex');return;}
-    if(pass.length<6){sE('regErr','Password minimal 6 karakter');$('regErr').classList.remove('hidden');$('regErr').classList.add('flex');return;}
-    if(pass!==pass2){sE('regErr','Konfirmasi password tidak cocok');$('regErr').classList.remove('hidden');$('regErr').classList.add('flex');return;}
-    hE('regErr');
-    const btn=$('regBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div> Mendaftar...';
-    try{
-        const cred=await auth.createUserWithEmailAndPassword(email,pass);
-        await cred.user.updateProfile({displayName:name});
-        toast('Akun berhasil dibuat!');$('loginScreen').classList.add('hidden');document.body.style.overflow='';
-    }catch(e){
-        const msg=e.code==='auth/email-already-in-use'?'Email sudah terdaftar':e.code==='auth/weak-password'?'Password terlalu lemah':e.code==='auth/invalid-email'?'Format email tidak valid':'Gagal mendaftar. Coba lagi.';
-        sE('regErr',msg);$('regErr').classList.remove('hidden');$('regErr').classList.add('flex');
-    }
-    btn.disabled=false;btn.innerHTML='<i data-lucide="user-plus" class="w-4 h-4"></i> Daftar Akun';lucide.createIcons();
-}
+// ===== KAS =====
+function openKM(){oDM('Tambah Transaksi Kas',`<div class="space-y-4"><div><label class="${LC()}">Jenis *</label><div class="flex gap-3"><label class="flex-1 cursor-pointer"><input type="radio" name="kJ" value="masuk" checked class="hidden peer"><div class="peer-checked:bg-green-50 peer-checked:border-green-500 peer-checked:text-green-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Pemasukan</div></label><label class="flex-1 cursor-pointer"><input type="radio" name="kJ" value="keluar" class="hidden peer"><div class="peer-checked:bg-red-50 peer-checked:border-red-500 peer-checked:text-red-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Pengeluaran</div></label></div></div><div><label class="${LC()}">Kategori *</label><select id="kCat" class="${IC()}"><option value="">Pilih</option></select></div><div><label class="${LC()}">Keterangan *</label><textarea id="kKet" rows="2" class="${IC()} resize-none" placeholder="Keterangan"></textarea></div><div class="grid grid-cols-2 gap-3"><div><label class="${LC()}">Jumlah (Rp) *</label><input type="number" id="kJml" class="${IC()}" placeholder="0" min="0"></div><div><label class="${LC()}">Tanggal *</label><input type="date" id="kTgl" class="${IC()}" value="${td()}"></div></div>${ED('kEr')}<div class="flex gap-3 pt-1"><button onclick="cDM()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="kBtn" onclick="subK()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);uKCat();document.querySelectorAll('input[name="kJ"]').forEach(r=>r.addEventListener('change',uKCat));}
+function uKCat(){const j=document.querySelector('input[name="kJ"]:checked')?.value||'masuk';const c=j==='masuk'?KM:KK;$('kCat').innerHTML='<option value="">Pilih</option>'+c.map(x=>`<option>${x}</option>`).join('');}
+async function subK(){const j=document.querySelector('input[name="kJ"]:checked')?.value,cat=$('kCat').value,ket=$('kKet').value.trim(),jml=$('kJml').value,tgl=$('kTgl').value;if(!j||!cat||!ket||!jml||Number(jml)<=0||!tgl){sE('kEr','Lengkapi semua field');return;}hE('kEr');const b=$('kBtn');b.disabled=true;b.innerHTML='<div class="ls w-4 h-4 border-2 border-white/30 border-t-white"></div>';try{await db.collection('kas').add({jenis:j,kategori:cat,keterangan:ket,jumlah:Number(jml),tanggal:tgl,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Transaksi kas ditambahkan');cDM();loadK();}catch(e){sE('kEr','Gagal');b.disabled=false;b.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}}
+async function loadK(){$('kL').classList.remove('hidden');$('kC').classList.add('hidden');try{const s=await db.collection('kas').orderBy('tanggal','desc').get();aK=s.docs.map(d=>({id:d.id,...d.data()}));$('kL').classList.add('hidden');$('kC').classList.remove('hidden');let m=0,k=0;aK.forEach(d=>{if(d.jenis==='masuk')m+=Number(d.jumlah)||0;else k+=Number(d.jumlah)||0;});$('kM').textContent=fR(m);$('kK').textContent=fR(k);$('kS').textContent=fR(m-k);const ag=aggM(aK);if(cKD)cKD.destroy();cKD=mkKC('cKDT',ag);popB('fKB',aK);rK(aK);}catch(e){$('kL').classList.add('hidden');}}
+function rK(d){$('kB').innerHTML=d.map((k,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs text-gray-600">${fT(k.tanggal)}</td><td class="px-4 py-3"><span class="badge ${k.jenis==='masuk'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${k.kategori||'-'}</span></td><td class="px-4 py-3 text-xs text-gray-900 max-w-[180px] lc2">${k.keterangan}</td><td class="px-4 py-3 text-center"><span class="badge ${k.jenis==='masuk'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${k.jenis==='masuk'?'↑ Masuk':'↓ Keluar'}</span></td><td class="px-4 py-3 text-xs text-right font-semibold ${k.jenis==='masuk'?'text-green-600':'text-red-600'}">${k.jenis==='masuk'?'+':'-'}${fR(k.jumlah)}</td><td class="px-4 py-3 text-center ac"><button onclick="delK('${k.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();}
+function fK(){const q=$('sK').value.toLowerCase(),j=$('fKJ').value,b=$('fKB').value;rK(aK.filter(k=>{if(q&&!k.keterangan.toLowerCase().includes(q)&&!(k.kategori||'').toLowerCase().includes(q))return false;if(j!=='all'&&k.jenis!==j)return false;if(b!=='all'&&mK(k.tanggal)!==b)return false;return true;}));}
+async function delK(id){if(!confirm('Hapus transaksi ini?'))return;try{await db.collection('kas').doc(id).delete();toast('Dihapus');loadK();}catch(e){toast('Gagal','error');}}
 
-async function doLogout(){
-    try{await auth.signOut();toast('Berhasil keluar');}catch(e){toast('Gagal keluar','error');}
-}
+// ===== PIKET =====
+function openPM(){oDM('Tambah Jadwal Piket',`<div class="space-y-4"><div><label class="${LC()}">Tanggal *</label><input type="date" id="pTgl" class="${IC()}" value="${td()}"></div><div><label class="${LC()}">Petugas 1 *</label><input id="pP1" class="${IC()}" placeholder="Nama"></div><div><label class="${LC()}">Petugas 2</label><input id="pP2" class="${IC()}" placeholder="Opsional"></div><div><label class="${LC()}">Petugas 3</label><input id="pP3" class="${IC()}" placeholder="Opsional"></div><div><label class="${LC()}">Keterangan</label><textarea id="pKet" rows="2" class="${IC()} resize-none" placeholder="Catatan"></textarea></div>${ED('pEr')}<div class="flex gap-3 pt-1"><button onclick="cDM()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="pBtn" onclick="subP()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);}
+async function subP(){const tgl=$('pTgl').value,p1=$('pP1').value.trim(),p2=$('pP2').value.trim(),p3=$('pP3').value.trim(),ket=$('pKet').value.trim();if(!tgl||!p1){sE('pEr','Tanggal dan Petugas 1 wajib');return;}hE('pEr');const b=$('pBtn');b.disabled=true;b.innerHTML='<div class="ls w-4 h-4 border-2 border-white/30 border-t-white"></div>';try{await db.collection('piket').add({tanggal:tgl,petugas:[p1,p2,p3].filter(Boolean),keterangan:ket,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Jadwal ditambahkan');cDM();loadPk();}catch(e){sE('pEr','Gagal');b.disabled=false;b.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}}
+async function loadPk(){$('pL').classList.remove('hidden');$('pE').classList.add('hidden');$('pC').classList.add('hidden');try{const s=await db.collection('piket').orderBy('tanggal','desc').get();aP=s.docs.map(d=>({id:d.id,...d.data()}));$('pL').classList.add('hidden');if(!aP.length){$('pE').classList.remove('hidden');return;}$('pC').classList.remove('hidden');$('pB').innerHTML=aP.map((p,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs text-gray-600">${fT(p.tanggal)}</td><td class="px-4 py-3 text-xs text-gray-900">${(p.petugas||[]).join(', ')}</td><td class="px-4 py-3 text-xs text-gray-500">${p.keterangan||'-'}</td><td class="px-4 py-3 text-center ac"><button onclick="delPk('${p.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();}catch(e){$('pL').classList.add('hidden');$('pE').classList.remove('hidden');}}
+async function delPk(id){if(!confirm('Hapus?'))return;try{await db.collection('piket').doc(id).delete();toast('Dihapus');loadPk();}catch(e){toast('Gagal','error');}}
 
-function authGuard(fn){
-    if(isLoggedIn){window[fn]();}else{showLogin();}
-}
+// ===== INVENTARIS =====
+function openIM(){oDM('Tambah Inventaris',`<div class="space-y-4"><div><label class="${LC()}">Nama Barang *</label><input id="iNm" class="${IC()}" placeholder="Nama barang"></div><div class="grid grid-cols-2 gap-3"><div><label class="${LC()}">Jumlah *</label><input type="number" id="iJml" class="${IC()}" placeholder="0" min="1"></div><div><label class="${LC()}">Kondisi *</label><select id="iKnd" class="${IC()}">${KD.map(k=>`<option>${k}</option>`).join('')}</select></div></div><div><label class="${LC()}">Keterangan</label><textarea id="iKet" rows="2" class="${IC()} resize-none" placeholder="Keterangan"></textarea></div><div><label class="${LC()}">Tanggal Masuk *</label><input type="date" id="iTgl" class="${IC()}" value="${td()}"></div>${ED('iEr')}<div class="flex gap-3 pt-1"><button onclick="cDM()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="iBtn" onclick="subI()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);}
+async function subI(){const nm=$('iNm').value.trim(),jml=$('iJml').value,knd=$('iKnd').value,ket=$('iKet').value.trim(),tgl=$('iTgl').value;if(!nm||!jml||Number(jml)<1||!tgl){sE('iEr','Lengkapi semua field');return;}hE('iEr');const b=$('iBtn');b.disabled=true;b.innerHTML='<div class="ls w-4 h-4 border-2 border-white/30 border-t-white"></div>';try{await db.collection('inventaris').add({nama:nm,jumlah:Number(jml),kondisi:knd,keterangan:ket,tanggalMasuk:tgl,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Inventaris ditambahkan');cDM();loadInv();}catch(e){sE('iEr','Gagal');b.disabled=false;b.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}}
+async function loadInv(){$('iL').classList.remove('hidden');$('iE').classList.add('hidden');$('iC').classList.add('hidden');try{const s=await db.collection('inventaris').orderBy('createdAt','desc').get();aI=s.docs.map(d=>({id:d.id,...d.data()}));$('iL').classList.add('hidden');if(!aI.length){$('iE').classList.remove('hidden');return;}$('iC').classList.remove('hidden');rI(aI);}catch(e){$('iL').classList.add('hidden');$('iE').classList.remove('hidden');}}
+function rI(d){const kc={Baik:'bg-green-100 text-green-700','Rusak Ringan':'bg-yellow-100 text-yellow-700','Rusak Berat':'bg-red-100 text-red-700'};$('iB').innerHTML=d.map((v,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs font-semibold text-gray-900">${v.nama}</td><td class="px-4 py-3 text-xs text-center font-semibold">${v.jumlah}</td><td class="px-4 py-3 text-center"><span class="badge ${kc[v.kondisi]||'bg-gray-100 text-gray-600'}">${v.kondisi}</span></td><td class="px-4 py-3 text-xs text-gray-500">${v.keterangan||'-'}</td><td class="px-4 py-3 text-center ac"><button onclick="delI('${v.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();}
+function fI(){const q=$('sI').value.toLowerCase();rI(aI.filter(v=>v.nama.toLowerCase().includes(q)||(v.keterangan||'').toLowerCase().includes(q)));}
+async function delI(id){if(!confirm('Hapus?'))return;try{await db.collection('inventaris').doc(id).delete();toast('Dihapus');loadInv();}catch(e){toast('Gagal','error');}}
 
-function updateAuthUI(user){
-    isLoggedIn=!!user;currentUser=user;
-    // Navbar
-    $('navAuthLoggedOut').style.display=isLoggedIn?'none':'flex';
-    $('navAuthLoggedIn').style.display=isLoggedIn?'flex':'none';
-    $('navAuthLoggedIn').classList.toggle('hidden',!isLoggedIn);
-    if(user){
-        const name=user.displayName||user.email||'User';
-        $('navUserName').textContent=name;
-        $('navAvatar').textContent=(name[0]||'U').toUpperCase();
-    }
-    // Protected buttons
-    document.querySelectorAll('.protected-btn').forEach(b=>{
-        b.disabled=!isLoggedIn;
-        b.classList.toggle('opacity-40',!isLoggedIn);
-        b.classList.toggle('cursor-not-allowed',!isLoggedIn);
-    });
-    // Delete buttons in tables
-    document.querySelectorAll('.auth-action-col').forEach(c=>{
-        c.style.display=isLoggedIn?'':'none';
-    });
-    document.querySelectorAll('.auth-action-btn').forEach(b=>{
-        b.style.display=isLoggedIn?'':'none';
-    });
-    updateMobileAuth();
-}
+// ===== DANA SOSIAL =====
+function openDM(){oDM('Tambah Dana Sosial',`<div class="space-y-4"><div><label class="${LC()}">Jenis *</label><div class="flex gap-3"><label class="flex-1 cursor-pointer"><input type="radio" name="dJ" value="masuk" checked class="hidden peer"><div class="peer-checked:bg-violet-50 peer-checked:border-violet-500 peer-checked:text-violet-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Masuk</div></label><label class="flex-1 cursor-pointer"><input type="radio" name="dJ" value="keluar" class="hidden peer"><div class="peer-checked:bg-orange-50 peer-checked:border-orange-500 peer-checked:text-orange-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Keluar</div></label></div></div><div><label class="${LC()}">Kategori *</label><select id="dCat" class="${IC()}">${DC.map(c=>`<option>${c}</option>`).join('')}</select></div><div><label class="${LC()}">Keterangan *</label><textarea id="dKet" rows="2" class="${IC()} resize-none" placeholder="Keterangan"></textarea></div><div><label class="${LC()}">Penerima/Penyumbang</label><input id="dPnr" class="${IC()}" placeholder="Nama (opsional)"></div><div class="grid grid-cols-2 gap-3"><div><label class="${LC()}">Jumlah (Rp) *</label><input type="number" id="dJml" class="${IC()}" placeholder="0" min="0"></div><div><label class="${LC()}">Tanggal *</label><input type="date" id="dTgl" class="${IC()}" value="${td()}"></div></div>${ED('dEr')}<div class="flex gap-3 pt-1"><button onclick="cDM()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="dBtn" onclick="subD()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);}
+async function subD(){const j=document.querySelector('input[name="dJ"]:checked')?.value,cat=$('dCat').value,ket=$('dKet').value.trim(),pnr=$('dPnr').value.trim(),jml=$('dJml').value,tgl=$('dTgl').value;if(!j||!ket||!jml||Number(jml)<=0||!tgl){sE('dEr','Lengkapi semua field');return;}hE('dEr');const b=$('dBtn');b.disabled=true;b.innerHTML='<div class="ls w-4 h-4 border-2 border-white/30 border-t-white"></div>';try{await db.collection('danaSosial').add({jenis:j,kategori:cat,keterangan:ket,penerima:pnr,jumlah:Number(jml),tanggal:tgl,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Dana sosial ditambahkan');cDM();loadDs();}catch(e){sE('dEr','Gagal');b.disabled=false;b.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}}
+async function loadDs(){$('dL').classList.remove('hidden');$('dC').classList.add('hidden');try{const s=await db.collection('danaSosial').orderBy('tanggal','desc').get();aD=s.docs.map(d=>({id:d.id,...d.data()}));$('dL').classList.add('hidden');$('dC').classList.remove('hidden');let m=0,k=0;aD.forEach(d=>{if(d.jenis==='masuk')m+=Number(d.jumlah)||0;else k+=Number(d.jumlah)||0;});$('dM').textContent=fR(m);$('dK').textContent=fR(k);$('dS').textContent=fR(m-k);const ag=aggM(aD);if(cDD)cDD.destroy();cDD=mkDC('cDDT',ag);rD(aD);}catch(e){$('dL').classList.add('hidden');}}
+function rD(d){$('dB').innerHTML=d.map((x,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs text-gray-600">${fT(x.tanggal)}</td><td class="px-4 py-3"><span class="badge bg-violet-100 text-violet-700">${x.kategori||'-'}</span></td><td class="px-4 py-3 text-xs text-gray-900 max-w-[130px] lc2">${x.keterangan}</td><td class="px-4 py-3 text-xs text-gray-500">${x.penerima||'-'}</td><td class="px-4 py-3 text-center"><span class="badge ${x.jenis==='masuk'?'bg-violet-100 text-violet-700':'bg-orange-100 text-orange-700'}">${x.jenis==='masuk'?'↑ Masuk':'↓ Keluar'}</span></td><td class="px-4 py-3 text-xs text-right font-semibold ${x.jenis==='masuk'?'text-violet-600':'text-orange-600'}">${x.jenis==='masuk'?'+':'-'}${fR(x.jumlah)}</td><td class="px-4 py-3 text-center ac"><button onclick="delD('${x.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();}
+function fD(){const q=$('sD').value.toLowerCase(),j=$('fDJ').value;rD(aD.filter(d=>{if(q&&!d.keterangan.toLowerCase().includes(q)&&!(d.kategori||'').toLowerCase().includes(q)&&!(d.penerima||'').toLowerCase().includes(q))return false;if(j!=='all'&&d.jenis!==j)return false;return true;}));}
+async function delD(id){if(!confirm('Hapus?'))return;try{await db.collection('danaSosial').doc(id).delete();toast('Dihapus');loadDs();}catch(e){toast('Gagal','error');}}
 
-function updateMobileAuth(){
-    const area=$('mobileAuthArea');
-    if(!area)return;
-    if(isLoggedIn){
-        const name=currentUser?.displayName||currentUser?.email||'User';
-        area.innerHTML=`<button onclick="doLogout();toggleMobile();" class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-red-50 text-red-600 text-sm font-medium w-full"><i data-lucide="log-out" class="w-4 h-4"></i>Keluar (${name.split(' ')[0]})</button>`;
-    }else{
-        area.innerHTML=`<button onclick="showLogin()" class="flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-primary-50 text-primary-700 text-sm font-medium w-full"><i data-lucide="log-in" class="w-4 h-4"></i>Masuk Admin</button>`;
-    }
-    lucide.createIcons();
-}
+// ===== KEGIATAN =====
+function openKgM(){oDM('Tambah Kegiatan',`<div class="space-y-4"><div><label class="${LC()}">Judul *</label><input id="kgJ" class="${IC()}" placeholder="Judul"></div><div><label class="${LC()}">Deskripsi *</label><textarea id="kgD" rows="3" class="${IC()} resize-none" placeholder="Deskripsi"></textarea></div><div><label class="${LC()}">Tanggal *</label><input type="date" id="kgT" class="${IC()}" value="${td()}"></div><div><label class="${LC()}">Foto *</label><div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-primary-400 hover:bg-primary-50/30 transition-all cursor-pointer" onclick="$('kgF').click()"><div id="kgPH"><i data-lucide="upload-cloud" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i><p class="text-xs text-gray-500">Klik pilih foto</p><p class="text-[10px] text-gray-400 mt-0.5">JPG/PNG, maks 5MB</p></div><div id="kgPV" class="hidden"><img id="kgPI" src="" class="max-h-40 object-cover rounded-lg mx-auto mb-1"><p id="kgPN" class="text-[10px] text-gray-500"></p></div></div><input type="file" id="kgF" accept="image/*" class="hidden" onchange="pvKI(event)"></div>${ED('kgEr')}<div class="flex gap-3 pt-1"><button onclick="cDM()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="kgBtn" onclick="subKg()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);selF=null;}
+function pvKI(e){const f=e.target.files[0];if(!f)return;if(f.size>5*1024*1024){sE('kgEr','Maks 5MB');e.target.value='';return;}if(!f.type.startsWith('image/')){sE('kgEr','Harus gambar');e.target.value='';return;}selF=f;const r=new FileReader();r.onload=ev=>{$('kgPI').src=ev.target.result;$('kgPN').textContent=f.name;$('kgPH').classList.add('hidden');$('kgPV').classList.remove('hidden');};r.readAsDataURL(f);hE('kgEr');}
+async function subKg(){const j=$('kgJ').value.trim(),d=$('kgD').value.trim(),t=$('kgT').value;if(!j||!d||!t||!selF){sE('kgEr','Lengkapi semua field');return;}hE('kgEr');const b=$('kgBtn');b.disabled=true;b.innerHTML='<div class="ls w-4 h-4 border-2 border-white/30 border-t-white"></div> Menyimpan...';try{const foto=await upImg(selF);await db.collection('kegiatan').add({judul:j,deskripsi:d,tanggal:t,foto,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Kegiatan ditambahkan');cDM();loadKg();}catch(e){sE('kgEr','Gagal. Coba lagi.');b.disabled=false;b.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}}
+async function loadKg(){$('kgL').classList.remove('hidden');$('kgE').classList.add('hidden');$('kgC').classList.add('hidden');try{const s=await db.collection('kegiatan').orderBy('createdAt','desc').get();aKg=s.docs.map(d=>({id:d.id,...d.data()}));$('kgL').classList.add('hidden');if(!aKg.length){$('kgE').classList.remove('hidden');return;}$('kgC').classList.remove('hidden');$('kgC').innerHTML=aKg.map(k=>`<div class="ch bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden cursor-pointer" onclick="openDKg('${k.id}')"><div class="relative overflow-hidden"><img src="${k.foto}" alt="${k.judul}" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-500" loading="lazy" onerror="this.src='https://picsum.photos/seed/${k.id}/400/300.jpg'"><div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[10px] font-semibold text-gray-700 px-2.5 py-1 rounded-lg flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3 text-primary-600"></i>${fT(k.tanggal)}</div></div><div class="p-4"><h3 class="font-bold text-gray-900 text-sm mb-1.5 lc2">${k.judul}</h3><p class="text-xs text-gray-500 lc2">${k.deskripsi}</p><div class="mt-3 flex items-center gap-1 text-xs font-semibold text-primary-600"><span>Lihat Detail</span><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></div></div></div>`).join('');lucide.createIcons();}catch(e){$('kgL').classList.add('hidden');$('kgE').classList.remove('hidden');}}
+function openDKg(id){const k=aKg.find(x=>x.id===id);if(!k)return;curKg=id;oDtM('Detail Kegiatan',`<img src="${k.foto}" class="w-full h-52 object-cover rounded-xl mb-4" onerror="this.src='https://picsum.photos/seed/${k.id}/400/300.jpg'"><h2 class="text-lg font-bold text-gray-900 mb-2">${k.judul}</h2><div class="flex items-center gap-2 text-xs text-gray-500 mb-3"><i data-lucide="calendar" class="w-3.5 h-3.5"></i>${fT(k.tanggal)}</div><p class="text-sm text-gray-600 leading-relaxed">${k.deskripsi}</div><div class="mt-4 ac" style="display:${isL?'':'none'}"><button onclick="delKg('${k.id}')" class="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold px-4 py-2.5 rounded-xl transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i>Hapus Kegiatan</button></div>`);lucide.createIcons();}
+async function delKg(id){if(!confirm('Hapus kegiatan?'))return;try{await db.collection('kegiatan').doc(id).delete();toast('Dihapus');cDtM();loadKg();}catch(e){toast('Gagal','error');}}
 
-// ============ CHARTS ============
-const cDef={responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:15,font:{size:11,family:'Plus Jakarta Sans'}}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>v>=1e6?(v/1e6)+'jt':v>=1e3?(v/1e3)+'rb':v},grid:{color:'#f1f5f9'}}}};
-function mkKasC(cid,ag){const c=$(cid);if(!c)return null;return new Chart(c,{type:'bar',data:{labels:mLabels(ag),datasets:[{label:'Pemasukan',data:ag.map(([,v])=>v.masuk),backgroundColor:'rgba(34,197,94,0.7)',borderRadius:6,barPercentage:.6},{label:'Pengeluaran',data:ag.map(([,v])=>v.keluar),backgroundColor:'rgba(239,68,68,0.7)',borderRadius:6,barPercentage:.6}]},options:{...cDef}});}
-function mkDSC(cid,ag){const c=$(cid);if(!c)return null;return new Chart(c,{type:'bar',data:{labels:mLabels(ag),datasets:[{label:'Masuk',data:ag.map(([,v])=>v.masuk),backgroundColor:'rgba(139,92,246,0.7)',borderRadius:6,barPercentage:.6},{label:'Keluar',data:ag.map(([,v])=>v.keluar),backgroundColor:'rgba(249,115,22,0.7)',borderRadius:6,barPercentage:.6}]},options:{...cDef}});}
+// ===== PENGADUAN =====
+async function subPd(){const kat=$('pdKat').value,isi=$('pdIsi').value.trim(),nama=$('pdNama').value.trim();if(!kat||!isi){sE('pdEr','Kategori dan isi wajib diisi');return;}hE('pdEr');const b=$('pdBtn');b.disabled=true;b.innerHTML='<div class="ls w-4 h-4 border-2 border-white/30 border-t-white"></div> Mengirim...';try{await db.collection('pengaduan').add({kategori:kat,isi,nama:nama||'Anonim',status:'baru',tanggal:td(),createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Pengaduan terkirim');$('pdKat').value='';$('pdIsi').value='';$('pdNama').value='';}catch(e){sE('pdEr','Gagal mengirim');}b.disabled=false;b.innerHTML='<i data-lucide="send" class="w-4 h-4"></i>Kirim Pengaduan';lucide.createIcons();}
+async function loadPd(){if(!isL)return;try{const s=await db.collection('pengaduan').orderBy('createdAt','desc').get();aPd=s.docs.map(d=>({id:d.id,...d.data()}));const sc={baru:'bg-blue-100 text-blue-700',diproses:'bg-amber-100 text-amber-700',selesai:'bg-green-100 text-green-700'};$('pdB').innerHTML=aPd.length?aPd.map((p,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs text-gray-600">${fT(p.tanggal)}</td><td class="px-4 py-3"><span class="badge bg-gray-100 text-gray-700">${p.kategori}</span></td><td class="px-4 py-3 text-xs text-gray-900 max-w-[150px] lc2">${p.isi}</td><td class="px-4 py-3 text-xs text-gray-500">${p.nama||'Anonim'}</td><td class="px-4 py-3 text-center"><span class="badge ${sc[p.status]||'bg-gray-100 text-gray-600'}">${p.status}</span></td><td class="px-4 py-3 text-center"><div class="flex items-center justify-center gap-1">${p.status!=='diproses'?`<button onclick="updPdSt('${p.id}','diproses')" class="p-1 rounded hover:bg-amber-50 text-amber-500" title="Proses"><i data-lucide="clock" class="w-3.5 h-3.5"></i></button>`:''}${p.status!=='selesai'?`<button onclick="updPdSt('${p.id}','selesai')" class="p-1 rounded hover:bg-green-50 text-green-500" title="Selesai"><i data-lucide="check" class="w-3.5 h-3.5"></i></button>`:''}</div></td></tr>`).join(''):`<tr><td colspan="7" class="px-4 py-10 text-center text-xs text-gray-400">Belum ada pengaduan</td></tr>`;lucide.createIcons();}catch(e){console.error(e);}}
+async function updPdSt(id,st){try{await db.collection('pengaduan').doc(id).update({status:st});toast('Status diupdate');loadPd();}catch(e){toast('Gagal','error');}}
 
-// ============ DASHBOARD ============
-async function loadDashboard(){
-    try{
-        const[w,k,d]=await Promise.all([db.collection('warga').get(),db.collection('kas').get(),db.collection('danaSosial').get()]);
-        let tw=0;w.docs.forEach(d=>tw+=(Number(d.data().jumlahAnggota)||0));
-        $('statWarga').textContent=tw;$('statKK').textContent=w.size;
-        let km=0,kk=0;k.docs.forEach(d=>{const v=d.data();if(v.jenis==='masuk')km+=Number(v.jumlah)||0;else kk+=Number(v.jumlah)||0;});
-        $('statKas').textContent=fRp(km-kk);
-        let dm=0,dk=0;d.docs.forEach(d=>{const v=d.data();if(v.jenis==='masuk')dm+=Number(v.jumlah)||0;else dk+=Number(v.jumlah)||0;});
-        $('statDS').textContent=fRp(dm-dk);
-        const ka=aggMonthly(k.docs.map(d=>d.data())),da=aggMonthly(d.docs.map(d=>d.data()));
-        if(kasChartOV)kasChartOV.destroy();if(dsChartOV)dsChartOV.destroy();
-        kasChartOV=mkKasC('chartKasOV',ka);dsChartOV=mkDSC('chartDSOV',da);
-    }catch(e){console.error('Dash:',e);}
-}
-
-// ============ PENGURUS ============
-function renderPengurus(){
-    $('pengurusGrid').innerHTML=PENGURUS.map(p=>{
-        const cm={green:'primary',blue:'blue',amber:'amber',purple:'purple',rose:'rose',teal:'teal'};
-        const c=cm[p.c]||'primary';const ph=p.wa.replace(/^62/,'0');
-        return `<div class="card-hover bg-gradient-to-br from-${c}-50 to-white rounded-2xl border border-${c}-100 p-6 text-center relative overflow-hidden">
-            <div class="absolute top-3 right-3 bg-${c}-600 text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">${p.j}</div>
-            <div class="w-20 h-20 mx-auto mb-4 mt-1 bg-${c}-100 rounded-full p-[3px]"><div class="w-full h-full bg-${c}-50 rounded-full flex items-center justify-center"><i data-lucide="${p.j==='Keamanan'?'shield':'user'}" class="w-8 h-8 text-${c}-600"></i></div></div>
-            <h3 class="font-bold text-gray-900 mb-0.5">${p.n}</h3>
-            <p class="text-xs text-${c}-600 font-semibold mb-3">${p.j} RT</p>
-            <a href="https://wa.me/${p.wa}" class="inline-flex items-center gap-1.5 bg-${c}-600 hover:bg-${c}-700 text-white text-xs font-medium px-3.5 py-2 rounded-xl transition-all shadow-lg shadow-${c}-600/20"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i>${ph}</a></div>`;
-    }).join('');lucide.createIcons();
-}
-
-// ============ WARGA ============
-function openWargaModal(){openDyn('Tambah Data Warga',`<div class="space-y-4"><div><label class="${LC()}">Nama Kepala Keluarga *</label><input id="wNama" class="${IC()}" placeholder="Nama lengkap KK"></div><div><label class="${LC()}">No. KK *</label><input id="wKK" class="${IC()}" placeholder="16 digit" maxlength="16"></div><div><label class="${LC()}">Alamat *</label><input id="wAlamat" class="${IC()}" placeholder="Alamat rumah"></div><div class="grid grid-cols-2 gap-3"><div><label class="${LC()}">No. HP</label><input id="wHP" class="${IC()}" placeholder="08xxx"></div><div><label class="${LC()}">Jumlah Anggota *</label><input type="number" id="wAnggota" class="${IC()}" placeholder="0" min="1"></div></div><div><label class="${LC()}">Pekerjaan KK</label><input id="wPekerjaan" class="${IC()}" placeholder="Pekerjaan"></div>${ED('wErr')}<div class="flex gap-3 pt-1"><button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="wBtn" onclick="submitWarga()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);}
-async function submitWarga(){
-    const nm=$('wNama').value.trim(),kk=$('wKK').value.trim(),al=$('wAlamat').value.trim(),hp=$('wHP').value.trim(),ag=$('wAnggota').value,pk=$('wPekerjaan').value.trim();
-    if(!nm){sE('wErr','Nama KK wajib diisi');return;}if(!kk||kk.length<10){sE('wErr','No. KK tidak valid');return;}if(!al){sE('wErr','Alamat wajib diisi');return;}if(!ag||Number(ag)<1){sE('wErr','Jumlah anggota minimal 1');return;}
-    hE('wErr');const btn=$('wBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
-    try{await db.collection('warga').add({nama:nm,kk,alamat:al,hp,anggota:Number(ag),pekerjaan:pk,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Data warga ditambahkan');closeDynModal();loadWarga();loadDashboard();}
-    catch(e){sE('wErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
-}
-async function loadWarga(){
-    $('wargaLoading').classList.remove('hidden');$('wargaEmpty').classList.add('hidden');$('wargaContent').classList.add('hidden');
-    try{const s=await db.collection('warga').orderBy('createdAt','desc').get();allWarga=s.docs.map(d=>({id:d.id,...d.data()}));$('wargaLoading').classList.add('hidden');
-    if(!allWarga.length){$('wargaEmpty').classList.remove('hidden');return;}$('wargaContent').classList.remove('hidden');renderWarga(allWarga);}catch(e){$('wargaLoading').classList.add('hidden');$('wargaEmpty').classList.remove('hidden');}
-}
-function renderWarga(d){$('wargaBody').innerHTML=d.map((w,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs font-semibold text-gray-900">${w.nama}</td><td class="px-4 py-3 text-xs text-gray-600 font-mono">${w.kk}</td><td class="px-4 py-3 text-xs text-gray-600">${w.alamat}</td><td class="px-4 py-3 text-xs text-center font-semibold text-gray-900">${w.anggota}</td><td class="px-4 py-3 text-center auth-action-col"><button onclick="deleteWarga('${w.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();updateAuthUI(currentUser);}
-function filterWarga(){const q=$('searchWarga').value.toLowerCase();renderWarga(allWarga.filter(w=>w.nama.toLowerCase().includes(q)||w.kk.includes(q)||w.alamat.toLowerCase().includes(q)));}
-async function deleteWarga(id){if(!confirm('Hapus data warga ini?'))return;try{await db.collection('warga').doc(id).delete();toast('Data warga dihapus');loadWarga();loadDashboard();}catch(e){toast('Gagal menghapus','error');}}
-
-// ============ KAS ============
-function openKasModal(){openDyn('Tambah Transaksi Kas',`<div class="space-y-4"><div><label class="${LC()}">Jenis Transaksi *</label><div class="flex gap-3"><label class="flex-1 cursor-pointer"><input type="radio" name="kJenis" value="masuk" checked class="hidden peer"><div class="peer-checked:bg-green-50 peer-checked:border-green-500 peer-checked:text-green-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Pemasukan</div></label><label class="flex-1 cursor-pointer"><input type="radio" name="kJenis" value="keluar" class="hidden peer"><div class="peer-checked:bg-red-50 peer-checked:border-red-500 peer-checked:text-red-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Pengeluaran</div></label></div></div><div><label class="${LC()}">Kategori *</label><select id="kKat" class="${IC()}"><option value="">Pilih kategori</option></select></div><div><label class="${LC()}">Keterangan *</label><textarea id="kKet" rows="2" class="${IC()} resize-none" placeholder="Keterangan transaksi"></textarea></div><div class="grid grid-cols-2 gap-3"><div><label class="${LC()}">Jumlah (Rp) *</label><input type="number" id="kJml" class="${IC()}" placeholder="0" min="0"></div><div><label class="${LC()}">Tanggal *</label><input type="date" id="kTgl" class="${IC()}" value="${today()}"></div></div>${ED('kErr')}<div class="flex gap-3 pt-1"><button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="kBtn" onclick="submitKas()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);updKasKat();document.querySelectorAll('input[name="kJenis"]').forEach(r=>r.addEventListener('change',updKasKat));}
-function updKasKat(){const j=document.querySelector('input[name="kJenis"]:checked')?.value||'masuk';const cats=j==='masuk'?KAS_MASUK_CAT:KAS_KELUAR_CAT;$('kKat').innerHTML='<option value="">Pilih kategori</option>'+cats.map(c=>`<option value="${c}">${c}</option>`).join('');}
-async function submitKas(){
-    const j=document.querySelector('input[name="kJenis"]:checked')?.value,kat=$('kKat').value,ket=$('kKet').value.trim(),jml=$('kJml').value,tgl=$('kTgl').value;
-    if(!j){sE('kErr','Pilih jenis transaksi');return;}if(!kat){sE('kErr','Pilih kategori');return;}if(!ket){sE('kErr','Keterangan wajib diisi');return;}if(!jml||Number(jml)<=0){sE('kErr','Jumlah harus lebih dari 0');return;}if(!tgl){sE('kErr','Tanggal wajib diisi');return;}
-    hE('kErr');const btn=$('kBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
-    try{await db.collection('kas').add({jenis:j,kategori:kat,keterangan:ket,jumlah:Number(jml),tanggal:tgl,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Transaksi kas ditambahkan');closeDynModal();loadKas();loadDashboard();}
-    catch(e){sE('kErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
-}
-async function loadKas(){
-    $('kasLoading').classList.remove('hidden');$('kasContent').classList.add('hidden');
-    try{const s=await db.collection('kas').orderBy('tanggal','desc').get();allKas=s.docs.map(d=>({id:d.id,...d.data()}));$('kasLoading').classList.add('hidden');$('kasContent').classList.remove('hidden');
-    let m=0,k=0;allKas.forEach(d=>{if(d.jenis==='masuk')m+=Number(d.jumlah)||0;else k+=Number(d.jumlah)||0;});
-    $('kasMasuk').textContent=fRp(m);$('kasKeluar').textContent=fRp(k);$('kasSaldo').textContent=fRp(m-k);
-    const ag=aggMonthly(allKas);if(kasChartDT)kasChartDT.destroy();kasChartDT=mkKasC('chartKasDT',ag);
-    populateBulan('filterKasBulan',allKas);renderKas(allKas);}catch(e){$('kasLoading').classList.add('hidden');}
-}
-function renderKas(d){$('kasBody').innerHTML=d.map((k,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs text-gray-600">${fTgl(k.tanggal)}</td><td class="px-4 py-3"><span class="badge ${k.jenis==='masuk'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${k.kategori||'-'}</span></td><td class="px-4 py-3 text-xs text-gray-900 max-w-[200px] line-clamp-2">${k.keterangan}</td><td class="px-4 py-3 text-center"><span class="badge ${k.jenis==='masuk'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${k.jenis==='masuk'?'↑ Masuk':'↓ Keluar'}</span></td><td class="px-4 py-3 text-xs text-right font-semibold ${k.jenis==='masuk'?'text-green-600':'text-red-600'}">${k.jenis==='masuk'?'+':'-'}${fRp(k.jumlah)}</td><td class="px-4 py-3 text-center auth-action-col"><button onclick="deleteKas('${k.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();updateAuthUI(currentUser);}
-function filterKas(){const q=$('searchKas').value.toLowerCase(),j=$('filterKasJenis').value,b=$('filterKasBulan').value;renderKas(allKas.filter(k=>{if(q&&!k.keterangan.toLowerCase().includes(q)&&!(k.kategori||'').toLowerCase().includes(q))return false;if(j!=='all'&&k.jenis!==j)return false;if(b!=='all'&&mKey(k.tanggal)!==b)return false;return true;}));}
-async function deleteKas(id){if(!confirm('Hapus transaksi ini?'))return;try{await db.collection('kas').doc(id).delete();toast('Transaksi dihapus');loadKas();loadDashboard();}catch(e){toast('Gagal menghapus','error');}}
-
-// ============ PIKET ============
-function openPiketModal(){openDyn('Tambah Jadwal Piket',`<div class="space-y-4"><div><label class="${LC()}">Tanggal *</label><input type="date" id="pTgl" class="${IC()}" value="${today()}"></div><div><label class="${LC()}">Petugas 1 *</label><input id="pP1" class="${IC()}" placeholder="Nama petugas"></div><div><label class="${LC()}">Petugas 2</label><input id="pP2" class="${IC()}" placeholder="Opsional"></div><div><label class="${LC()}">Petugas 3</label><input id="pP3" class="${IC()}" placeholder="Opsional"></div><div><label class="${LC()}">Keterangan</label><textarea id="pKet" rows="2" class="${IC()} resize-none" placeholder="Catatan"></textarea></div>${ED('pErr')}<div class="flex gap-3 pt-1"><button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="pBtn" onclick="submitPiket()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);}
-async function submitPiket(){
-    const tgl=$('pTgl').value,p1=$('pP1').value.trim(),p2=$('pP2').value.trim(),p3=$('pP3').value.trim(),ket=$('pKet').value.trim();
-    if(!tgl){sE('pErr','Tanggal wajib diisi');return;}if(!p1){sE('pErr','Petugas 1 wajib diisi');return;}
-    hE('pErr');const petugas=[p1,p2,p3].filter(Boolean);const btn=$('pBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
-    try{await db.collection('piket').add({tanggal:tgl,petugas,keterangan:ket,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Jadwal piket ditambahkan');closeDynModal();loadPiket();}
-    catch(e){sE('pErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
-}
-async function loadPiket(){
-    $('piketLoading').classList.remove('hidden');$('piketEmpty').classList.add('hidden');$('piketContent').classList.add('hidden');
-    try{const s=await db.collection('piket').orderBy('tanggal','desc').get();allPiket=s.docs.map(d=>({id:d.id,...d.data()}));$('piketLoading').classList.add('hidden');
-    if(!allPiket.length){$('piketEmpty').classList.remove('hidden');return;}$('piketContent').classList.remove('hidden');
-    $('piketBody').innerHTML=allPiket.map((p,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs text-gray-600">${fTgl(p.tanggal)}</td><td class="px-4 py-3 text-xs text-gray-900">${(p.petugas||[]).join(', ')}</td><td class="px-4 py-3 text-xs text-gray-500">${p.keterangan||'-'}</td><td class="px-4 py-3 text-center auth-action-col"><button onclick="deletePiket('${p.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();updateAuthUI(currentUser);}
-    catch(e){$('piketLoading').classList.add('hidden');$('piketEmpty').classList.remove('hidden');}
-}
-async function deletePiket(id){if(!confirm('Hapus jadwal ini?'))return;try{await db.collection('piket').doc(id).delete();toast('Jadwal dihapus');loadPiket();}catch(e){toast('Gagal menghapus','error');}}
-
-// ============ INVENTARIS ============
-function openInventarisModal(){openDyn('Tambah Inventaris',`<div class="space-y-4"><div><label class="${LC()}">Nama Barang *</label><input id="iNama" class="${IC()}" placeholder="Nama barang"></div><div class="grid grid-cols-2 gap-3"><div><label class="${LC()}">Jumlah *</label><input type="number" id="iJml" class="${IC()}" placeholder="0" min="1"></div><div><label class="${LC()}">Kondisi *</label><select id="iKond" class="${IC()}">${KONDISI.map(k=>`<option value="${k}">${k}</option>`).join('')}</select></div></div><div><label class="${LC()}">Keterangan</label><textarea id="iKet" rows="2" class="${IC()} resize-none" placeholder="Keterangan"></textarea></div><div><label class="${LC()}">Tanggal Masuk *</label><input type="date" id="iTgl" class="${IC()}" value="${today()}"></div>${ED('iErr')}<div class="flex gap-3 pt-1"><button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="iBtn" onclick="submitInv()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);}
-async function submitInv(){
-    const nm=$('iNama').value.trim(),jml=$('iJml').value,kond=$('iKond').value,ket=$('iKet').value.trim(),tgl=$('iTgl').value;
-    if(!nm){sE('iErr','Nama barang wajib diisi');return;}if(!jml||Number(jml)<1){sE('iErr','Jumlah minimal 1');return;}if(!tgl){sE('iErr','Tanggal wajib diisi');return;}
-    hE('iErr');const btn=$('iBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
-    try{await db.collection('inventaris').add({nama:nm,jumlah:Number(jml),kondisi:kond,keterangan:ket,tanggalMasuk:tgl,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Inventaris ditambahkan');closeDynModal();loadInv();}
-    catch(e){sE('iErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
-}
-async function loadInv(){
-    $('invLoading').classList.remove('hidden');$('invEmpty').classList.add('hidden');$('invContent').classList.add('hidden');
-    try{const s=await db.collection('inventaris').orderBy('createdAt','desc').get();allInv=s.docs.map(d=>({id:d.id,...d.data()}));$('invLoading').classList.add('hidden');
-    if(!allInv.length){$('invEmpty').classList.remove('hidden');return;}$('invContent').classList.remove('hidden');renderInv(allInv);}catch(e){$('invLoading').classList.add('hidden');$('invEmpty').classList.remove('hidden');}
-}
-function renderInv(d){const kc={Baik:'bg-green-100 text-green-700','Rusak Ringan':'bg-yellow-100 text-yellow-700','Rusak Berat':'bg-red-100 text-red-700'};$('invBody').innerHTML=d.map((v,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs font-semibold text-gray-900">${v.nama}</td><td class="px-4 py-3 text-xs text-center font-semibold">${v.jumlah}</td><td class="px-4 py-3 text-center"><span class="badge ${kc[v.kondisi]||'bg-gray-100 text-gray-600'}">${v.kondisi}</span></td><td class="px-4 py-3 text-xs text-gray-500">${v.keterangan||'-'}</td><td class="px-4 py-3 text-center auth-action-col"><button onclick="deleteInv('${v.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();updateAuthUI(currentUser);}
-function filterInventaris(){const q=$('searchInv').value.toLowerCase();renderInv(allInv.filter(v=>v.nama.toLowerCase().includes(q)||(v.keterangan||'').toLowerCase().includes(q)));}
-async function deleteInv(id){if(!confirm('Hapus inventaris ini?'))return;try{await db.collection('inventaris').doc(id).delete();toast('Inventaris dihapus');loadInv();}catch(e){toast('Gagal menghapus','error');}}
-
-// ============ DANA SOSIAL ============
-function openDSModal(){openDyn('Tambah Transaksi Dana Sosial',`<div class="space-y-4"><div><label class="${LC()}">Jenis Transaksi *</label><div class="flex gap-3"><label class="flex-1 cursor-pointer"><input type="radio" name="dsJenis" value="masuk" checked class="hidden peer"><div class="peer-checked:bg-violet-50 peer-checked:border-violet-500 peer-checked:text-violet-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Masuk</div></label><label class="flex-1 cursor-pointer"><input type="radio" name="dsJenis" value="keluar" class="hidden peer"><div class="peer-checked:bg-orange-50 peer-checked:border-orange-500 peer-checked:text-orange-700 border-2 border-gray-200 rounded-xl p-3 text-center text-xs font-semibold transition-all">Keluar</div></label></div></div><div><label class="${LC()}">Kategori *</label><select id="dsKat" class="${IC()}">${DS_CAT.map(k=>`<option value="${k}">${k}</option>`).join('')}</select></div><div><label class="${LC()}">Keterangan *</label><textarea id="dsKet" rows="2" class="${IC()} resize-none" placeholder="Keterangan"></textarea></div><div><label class="${LC()}">Penerima / Penyumbang</label><input id="dsPenerima" class="${IC()}" placeholder="Nama (opsional)"></div><div class="grid grid-cols-2 gap-3"><div><label class="${LC()}">Jumlah (Rp) *</label><input type="number" id="dsJml" class="${IC()}" placeholder="0" min="0"></div><div><label class="${LC()}">Tanggal *</label><input type="date" id="dsTgl" class="${IC()}" value="${today()}"></div></div>${ED('dsErr')}<div class="flex gap-3 pt-1"><button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="dsBtn" onclick="submitDS()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);}
-async function submitDS(){
-    const j=document.querySelector('input[name="dsJenis"]:checked')?.value,kat=$('dsKat').value,ket=$('dsKet').value.trim,pnr=$('dsPenerima').value.trim(),jml=$('dsJml').value,tgl=$('dsTgl').value;
-    if(!j){sE('dsErr','Pilih jenis transaksi');return;}if(!ket){sE('dsErr','Keterangan wajib diisi');return;}if(!jml||Number(jml)<=0){sE('dsErr','Jumlah harus lebih dari 0');return;}if(!tgl){sE('dsErr','Tanggal wajib diisi');return;}
-    hE('dsErr');const btn=$('dsBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div>';
-    try{await db.collection('danaSosial').add({jenis:j,kategori:kat,keterangan:ket,penerima:pnr,jumlah:Number(jml),tanggal:tgl,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Transaksi dana sosial ditambahkan');closeDynModal();loadDS();loadDashboard();}
-    catch(e){sE('dsErr','Gagal menyimpan');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
-}
-async function loadDS(){
-    $('dsLoading').classList.remove('hidden');$('dsContent').classList.add('hidden');
-    try{const s=await db.collection('danaSosial').orderBy('tanggal','desc').get();allDS=s.docs.map(d=>({id:d.id,...d.data()}));$('dsLoading').classList.add('hidden');$('dsContent').classList.remove('hidden');
-    let m=0,k=0;allDS.forEach(d=>{if(d.jenis==='masuk')m+=Number(d.jumlah)||0;else k+=Number(d.jumlah)||0;});
-    $('dsMasuk').textContent=fRp(m);$('dsKeluar').textContent=fRp(k);$('dsSaldo').textContent=fRp(m-k);
-    const ag=aggMonthly(allDS);if(dsChartDT)dsChartDT.destroy();dsChartDT=mkDSC('chartDSDT',ag);renderDS(allDS);}catch(e){$('dsLoading').classList.add('hidden');}
-}
-function renderDS(d){$('dsBody').innerHTML=d.map((x,i)=>`<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">${i+1}</td><td class="px-4 py-3 text-xs text-gray-600">${fTgl(x.tanggal)}</td><td class="px-4 py-3"><span class="badge bg-violet-100 text-violet-700">${x.kategori||'-'}</span></td><td class="px-4 py-3 text-xs text-gray-900 max-w-[140px] line-clamp-2">${x.keterangan}</td><td class="px-4 py-3 text-xs text-gray-500">${x.penerima||'-'}</td><td class="px-4 py-3 text-center"><span class="badge ${x.jenis==='masuk'?'bg-violet-100 text-violet-700':'bg-orange-100 text-orange-700'}">${x.jenis==='masuk'?'↑ Masuk':'↓ Keluar'}</span></td><td class="px-4 py-3 text-xs text-right font-semibold ${x.jenis==='masuk'?'text-violet-600':'text-orange-600'}">${x.jenis==='masuk'?'+':'-'}${fRp(x.jumlah)}</td><td class="px-4 py-3 text-center auth-action-col"><button onclick="deleteDS('${x.id}')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`).join('');lucide.createIcons();updateAuthUI(currentUser);}
-function filterDS(){const q=$('searchDS').value.toLowerCase(),j=$('filterDSJenis').value;renderDS(allDS.filter(d=>{if(q&&!d.keterangan.toLowerCase().includes(q)&&!(d.kategori||'').toLowerCase().includes(q)&&!(d.penerima||'').toLowerCase().includes(q))return false;if(j!=='all'&&d.jenis!==j)return false;return true;}));}
-async function deleteDS(id){if(!confirm('Hapus transaksi ini?'))return;try{await db.collection('danaSosial').doc(id).delete();toast('Transaksi dihapus');loadDS();loadDashboard();}catch(e){toast('Gagal menghapus','error');}}
-
-// ============ KEGIATAN ============
-function openKegiatanModal(){openDyn('Tambah Kegiatan',`<div class="space-y-4"><div><label class="${LC()}">Judul Kegiatan *</label><input id="kgJudul" class="${IC()}" placeholder="Judul kegiatan"></div><div><label class="${LC()}">Deskripsi *</label><textarea id="kgDesk" rows="3" class="${IC()} resize-none" placeholder="Deskripsi kegiatan"></textarea></div><div><label class="${LC()}">Tanggal *</label><input type="date" id="kgTgl" class="${IC()}" value="${today()}"></div><div><label class="${LC()}">Foto Kegiatan *</label><div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-primary-400 hover:bg-primary-50/30 transition-all cursor-pointer" onclick="$('kgFile').click()"><div id="kgPH"><i data-lucide="upload-cloud" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i><p class="text-xs text-gray-500">Klik untuk pilih foto</p><p class="text-[10px] text-gray-400 mt-0.5">JPG, PNG, maks 5MB</p></div><div id="kgPV" class="hidden"><img id="kgPI" src="" class="max-h-40 object-cover rounded-lg mx-auto mb-1"><p id="kgPN" class="text-[10px] text-gray-500"></p></div></div><input type="file" id="kgFile" accept="image/*" class="hidden" onchange="previewKegImg(event)"></div>${ED('kgErr')}<div class="flex gap-3 pt-1"><button onclick="closeDynModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold py-2.5 rounded-xl">Batal</button><button id="kgBtn" onclick="submitKegiatan()" class="flex-1 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold py-2.5 rounded-xl shadow-lg shadow-primary-600/25 flex items-center justify-center gap-1.5"><i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan</button></div></div>`);selectedFile=null;}
-function previewKegImg(e){const f=e.target.files[0];if(!f)return;if(f.size>5*1024*1024){sE('kgErr','Ukuran maks 5MB');e.target.value='';return;}if(!f.type.startsWith('image/')){sE('kgErr','File harus gambar');e.target.value='';return;}selectedFile=f;const r=new FileReader();r.onload=ev=>{$('kgPI').src=ev.target.result;$('kgPN').textContent=f.name;$('kgPH').classList.add('hidden');$('kgPV').classList.remove('hidden');};r.readAsDataURL(f);hE('kgErr');}
-async function submitKegiatan(){
-    const judul=$('kgJudul').value.trim(),desk=$('kgDesk').value.trim(),tgl=$('kgTgl').value;
-    if(!judul){sE('kgErr','Judul wajib diisi');return;}if(!desk){sE('kgErr','Deskripsi wajib diisi');return;}if(!tgl){sE('kgErr','Tanggal wajib diisi');return;}if(!selectedFile){sE('kgErr','Foto wajib diunggah');return;}
-    hE('kgErr');const btn=$('kgBtn');btn.disabled=true;btn.innerHTML='<div class="loading-spinner w-4 h-4 border-2 border-white/30 border-t-white"></div> Menyimpan...';
-    try{const foto=await uploadImgBB(selectedFile);await db.collection('kegiatan').add({judul,deskripsi:desk,tanggal:tgl,foto,createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Kegiatan ditambahkan');closeDynModal();loadKegiatan();}
-    catch(e){sE('kgErr','Gagal menyimpan. Coba lagi.');btn.disabled=false;btn.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Simpan';lucide.createIcons();}
-}
-async function loadKegiatan(){
-    $('kegLoading').classList.remove('hidden');$('kegEmpty').classList.add('hidden');$('kegContent').classList.add('hidden');
-    try{const s=await db.collection('kegiatan').orderBy('createdAt','desc').get();allKeg=s.docs.map(d=>({id:d.id,...d.data()}));$('kegLoading').classList.add('hidden');
-    if(!allKeg.length){$('kegEmpty').classList.remove('hidden');return;}$('kegContent').classList.remove('hidden');
-    $('kegContent').innerHTML=allKeg.map(k=>`<div class="card-hover bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden cursor-pointer" onclick="openDetKeg('${k.id}')"><div class="relative overflow-hidden"><img src="${k.foto}" alt="${k.judul}" class="w-full h-48 object-cover hover:scale-105 transition-transform duration-500" loading="lazy" onerror="this.src='https://picsum.photos/seed/${k.id}/400/300.jpg'"><div class="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-[10px] font-semibold text-gray-700 px-2.5 py-1 rounded-lg flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3 text-primary-600"></i>${fTgl(k.tanggal)}</div></div><div class="p-4"><h3 class="font-bold text-gray-900 text-sm mb-1.5 line-clamp-2">${k.judul}</h3><p class="text-xs text-gray-500 line-clamp-2">${k.deskripsi}</p><div class="mt-3 flex items-center gap-1 text-xs font-semibold text-primary-600"><span>Lihat Detail</span><i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></div></div></div>`).join('');lucide.createIcons();}catch(e){$('kegLoading').classList.add('hidden');$('kegEmpty').classList.remove('hidden');}
-}
-function openDetKeg(id){const k=allKeg.find(x=>x.id===id);if(!k)return;currentKegId=id;$('detModalBody').innerHTML=`<img src="${k.foto}" alt="${k.judul}" class="w-full h-56 object-cover rounded-xl mb-4" onerror="this.src='https://picsum.photos/seed/${k.id}/400/300.jpg'"><h2 class="text-lg font-bold text-gray-900 mb-2">${k.judul}</h2><div class="flex items-center gap-2 text-xs text-gray-500 mb-3"><i data-lucide="calendar" class="w-3.5 h-3.5"></i><span>${fTgl(k.tanggal)}</span></div><p class="text-sm text-gray-600 leading-relaxed">${k.deskripsi}</p>`;$('detModal').classList.remove('hidden');document.body.style.overflow='hidden';lucide.createIcons();updateAuthUI(currentUser);}
-async function deleteKegiatan(){if(!currentKegId||!confirm('Hapus kegiatan ini?'))return;try{await db.collection('kegiatan').doc(currentKegId).delete();toast('Kegiatan dihapus');closeDetModal();loadKegiatan();}catch(e){toast('Gagal menghapus','error');}}
-
-// ============ NAV SCROLL ============
-const secs=['beranda','profil','pengurus','warga','kas','piket','inventaris','dana-sosial','kegiatan','kontak'];
-window.addEventListener('scroll',()=>{let cur='';secs.forEach(id=>{const s=$(id);if(s&&s.getBoundingClientRect().top<=100)cur=id;});document.querySelectorAll('.nav-link').forEach(l=>{l.classList.toggle('active',l.getAttribute('href')==='#'+cur);});$('navbar').classList.toggle('shadow-md',window.scrollY>10);});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDynModal();closeDetModal();if(!$('loginScreen').classList.contains('hidden')){$('loginScreen').classList.add('hidden');document.body.style.overflow='';}const m=$('mobileMenu');if(m.classList.contains('open'))toggleMobile();}});
-
-// ============ INIT ============
+// ===== INIT =====
 document.addEventListener('DOMContentLoaded',()=>{
-    lucide.createIcons();renderPengurus();updateAuthUI(null);
-    loadDashboard();loadWarga();loadKas();loadPiket();loadInv();loadDS();loadKegiatan();
-
-    // Auth state listener
-    auth.onAuthStateChanged(user=>{
-        updateAuthUI(user);
-        if(user){
-            $('loginScreen').classList.add('hidden');
-            document.body.style.overflow='';
-        }
+    lucide.createIcons();rP();buildMM();updUI(null);
+    loadDash();loadW();loadK();loadPk();loadInv();loadDs();loadKg();
+    // Set nav data attributes
+    document.querySelectorAll('.nl').forEach(l=>{
+        const href=l.getAttribute('onclick')||'';
+        const m=href.match(/go\('(\w+)'\)/);
+        if(m)l.dataset.p=m[1];
     });
+    auth.onAuthStateChanged(u=>{updUI(u);if(u){$('loginScr').classList.add('hidden');document.body.style.overflow='';}});
 });
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){cDM();cDtM();if(!$('loginScr').classList.contains('hidden')){$('loginScr').classList.add('hidden');document.body.style.overflow='';}const m=$('mm');if(m.classList.contains('open'))tMM();}});
+ $('navbar').classList.toggle('shadow-md',window.scrollY>10);
 </script>
 </body>
 </html>
