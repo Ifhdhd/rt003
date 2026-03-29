@@ -3,122 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin RT 003</title>
+    <title>Admin Panel RT 003</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-light">
+<body>
 
-    <div id="login-form" class="container mt-5" style="max-width: 400px;">
-        <div class="card p-4 admin-card">
-            <h4 class="text-center text-navy fw-bold mb-4">Login Pengurus</h4>
-            <input type="email" id="email" class="form-control mb-2" placeholder="Email Admin">
-            <input type="password" id="pass" class="form-control mb-3" placeholder="Password">
-            <button class="btn btn-primary w-100" onclick="handleLogin()">Login</button>
-        </div>
+<div id="login-screen" class="container mt-5 pt-5" style="max-width: 400px;">
+    <div class="card card-custom p-4 text-center">
+        <img src="logo.png" height="80" class="mx-auto mb-3">
+        <h4 class="fw-bold">Admin RT 003</h4>
+        <input type="email" id="adm-email" class="form-control mb-2" placeholder="Email">
+        <input type="password" id="adm-pass" class="form-control mb-3" placeholder="Password">
+        <button class="btn btn-navy text-white w-100" onclick="login()">Login</button>
+    </div>
+</div>
+
+<div id="admin-dashboard" class="d-none">
+    <div class="sidebar">
+        <div class="text-center mb-4"><img src="logo.png" height="50"></div>
+        <a href="#" class="active" onclick="showSection('sec-dashboard')">📊 Dashboard</a>
+        <a href="#" onclick="showSection('sec-kas')">💰 Kelola Kas</a>
+        <a href="#" onclick="showSection('sec-ronda')">👮 Kelola Ronda</a>
+        <a href="#" onclick="showSection('sec-warga')">👥 Kelola Warga</a>
+        <a href="index.html" target="_blank" style="background: var(--orange);">💡 Beranda Warga</a>
+        <hr>
+        <a href="#" onclick="firebase.auth().signOut()">Logout</a>
     </div>
 
-    <div id="admin-content" class="d-none">
-        <nav class="navbar navbar-dark bg-navy px-4">
-            <span class="navbar-brand">Admin RT 003</span>
-            <button class="btn btn-outline-light btn-sm" onclick="firebase.auth().signOut()">Logout</button>
-        </nav>
-
-        <div class="container my-4">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="card p-4 shadow-sm">
-                        <h5 class="fw-bold text-navy mb-3">Input Data Warga</h5>
-                        <input type="text" id="w-nama" class="form-control mb-2" placeholder="Nama Lengkap">
-                        <input type="text" id="w-hp" class="form-control mb-2" placeholder="No HP (08xx)">
-                        <select id="w-status" class="form-select mb-3">
-                            <option value="Tetap">Tetap</option>
-                            <option value="Kontrak">Kontrak</option>
-                        </select>
-                        <button class="btn btn-primary w-100" onclick="saveWarga()">Simpan Warga</button>
-                        <hr>
-                        <div id="admin-list-warga"></div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="card p-4 shadow-sm">
-                        <h5 class="fw-bold text-navy mb-3">Upload Foto Kegiatan</h5>
-                        <input type="text" id="f-judul" class="form-control mb-2" placeholder="Judul Kegiatan">
-                        <input type="file" id="f-file" class="form-control mb-3" accept="image/*">
-                        <button class="btn btn-primary w-100" onclick="uploadFoto()">Unggah Foto</button>
-                        <hr>
-                        <div class="row g-2" id="admin-list-foto"></div>
+    <div class="main-content">
+        <div id="sec-dashboard" class="admin-sec">
+            <h2 class="fw-bold">Ringkasan RT 003</h2>
+            <div class="row mt-4">
+                <div class="col-md-8"><div class="card card-custom p-3"><canvas id="kasChart"></canvas></div></div>
+                <div class="col-md-4">
+                    <div class="card card-custom p-3 bg-navy text-white">
+                        <h6>Total Saldo</h6>
+                        <h3 id="adm-total-kas">Rp 0</h3>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div id="sec-kas" class="admin-sec d-none">
+            <h2 class="fw-bold">Manajemen Kas</h2>
+            <div class="card card-custom p-4">
+                <div class="row g-2">
+                    <div class="col-md-4"><input type="number" id="kas-amt" class="form-control" placeholder="Nominal Rp"></div>
+                    <div class="col-md-4">
+                        <select id="kas-type" class="form-select">
+                            <option value="in">Pemasukan</option>
+                            <option value="out">Pengeluaran</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4"><button class="btn btn-primary w-100" onclick="updateKas()">Simpan Transaksi</button></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sec-ronda" class="admin-sec d-none">
+            <h2 class="fw-bold">Jadwal Ronda Mingguan</h2>
+            <div class="card card-custom p-4">
+                <select id="ronda-hari" class="form-select mb-2">
+                    <option value="Senin">Senin</option><option value="Selasa">Selasa</option>
+                    <option value="Rabu">Rabu</option><option value="Kamis">Kamis</option>
+                    <option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option>
+                    <option value="Minggu">Minggu</option>
+                </select>
+                <textarea id="ronda-petugas" class="form-control mb-3" placeholder="Nama-nama petugas..."></textarea>
+                <button class="btn btn-navy text-white w-100" onclick="updateRonda()">Update Jadwal</button>
+            </div>
+        </div>
+
+        <div id="sec-warga" class="admin-sec d-none">
+            <h2 class="fw-bold">Data Warga</h2>
+            <div class="card card-custom p-4">
+                <div class="d-flex gap-2 mb-3">
+                    <input type="text" id="w-nama" class="form-control" placeholder="Nama">
+                    <input type="text" id="w-hp" class="form-control" placeholder="WhatsApp">
+                    <button class="btn btn-success" onclick="addWarga()">Tambah</button>
+                </div>
+                <table class="table small"><tbody id="adm-warga-list"></tbody></table>
+            </div>
+        </div>
     </div>
+</div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
-            authDomain: "rt003-a6d85.firebaseapp.com",
-            projectId: "rt003-a6d85",
-            storageBucket: "rt003-a6d85.firebasestorage.app",
-            messagingSenderId: "342671500828",
-            appId: "1:342671500828:web:338c075feed136c803a1d9"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+<script>
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-        auth.onAuthStateChanged(user => {
-            if(user) {
-                document.getElementById('login-form').classList.add('d-none');
-                document.getElementById('admin-content').classList.remove('d-none');
-                loadAdminData();
-            } else {
-                document.getElementById('login-form').classList.remove('d-none');
-                document.getElementById('admin-content').classList.add('d-none');
-            }
+    auth.onAuthStateChanged(user => {
+        if(user) {
+            document.getElementById('login-screen').classList.add('d-none');
+            document.getElementById('admin-dashboard').classList.remove('d-none');
+            initAdmin();
+        } else {
+            document.getElementById('login-screen').classList.remove('d-none');
+            document.getElementById('admin-dashboard').classList.add('d-none');
+        }
+    });
+
+    async function login() {
+        const e = document.getElementById('adm-email').value;
+        const p = document.getElementById('adm-pass').value;
+        try { await auth.signInWithEmailAndPassword(e, p); } catch(err) { alert("Login Gagal!"); }
+    }
+
+    function showSection(id) {
+        document.querySelectorAll('.admin-sec').forEach(s => s.classList.add('d-none'));
+        document.getElementById(id).classList.remove('d-none');
+    }
+
+    function initAdmin() {
+        // Load Kas & Chart
+        db.collection("config").doc("kas").onSnapshot(doc => {
+            const total = doc.data() ? doc.data().total : 0;
+            document.getElementById('adm-total-kas').innerText = `Rp ${Number(total).toLocaleString('id-ID')}`;
         });
 
-        async function handleLogin() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('pass').value;
-            try { await auth.signInWithEmailAndPassword(e, p); } catch(err) { alert("Login Gagal!"); }
-        }
+        // Load Warga
+        db.collection("warga").onSnapshot(s => {
+            let h = "";
+            s.forEach(d => { h += `<tr><td>${d.data().nama}</td><td><button class="btn btn-danger btn-sm" onclick="db.collection('warga').doc('${d.id}').delete()">Hapus</button></td></tr>`; });
+            document.getElementById('adm-warga-list').innerHTML = h;
+        });
+    }
 
-        async function saveWarga() {
-            const nama = document.getElementById('w-nama').value;
-            const hp = document.getElementById('w-hp').value;
-            const status = document.getElementById('w-status').value;
-            await db.collection("warga").add({ nama, hp, status });
-            alert("Tersimpan!");
-        }
+    async function updateKas() {
+        const amt = parseInt(document.getElementById('kas-amt').value);
+        const type = document.getElementById('kas-type').value;
+        const ref = db.collection("config").doc("kas");
+        const doc = await ref.get();
+        let total = doc.exists ? doc.data().total : 0;
+        total = (type === 'in') ? total + amt : total - amt;
+        await ref.set({ total });
+        alert("Kas Berhasil Diupdate!");
+    }
 
-        async function uploadFoto() {
-            const file = document.getElementById('f-file').files[0];
-            const judul = document.getElementById('f-judul').value;
-            if(!file) return;
-            const fd = new FormData(); fd.append("image", file);
-            const res = await fetch("https://api.imgbb.com/1/upload?key=6bfd8efeb32a8bebf742a71cb0a8a04a", { method: "POST", body: fd });
-            const data = await res.json();
-            await db.collection("kegiatan").add({ judul, url: data.data.url, tanggal: new Date() });
-            alert("Terupload!");
-        }
+    async function updateRonda() {
+        const hari = document.getElementById('ronda-hari').value;
+        const petugas = document.getElementById('ronda-petugas').value;
+        await db.collection("ronda").doc(hari).set({ petugas, order: 1 }); // Tambahkan order manual jika perlu urutan
+        alert("Jadwal Ronda Terupdate!");
+    }
 
-        function loadAdminData() {
-            db.collection("warga").onSnapshot(s => {
-                let h = "";
-                s.forEach(d => { h += `<div class="d-flex justify-content-between mb-2 small border-bottom pb-1">${d.data().nama} <button class="btn btn-danger btn-sm" style="font-size:10px" onclick="db.collection('warga').doc('${d.id}').delete()">Hapus</button></div>`; });
-                document.getElementById('admin-list-warga').innerHTML = h;
-            });
-            db.collection("kegiatan").onSnapshot(s => {
-                let h = "";
-                s.forEach(d => { h += `<div class="col-4 position-relative"><img src="${d.data().url}" class="img-fluid rounded"><button class="btn btn-dark btn-sm position-absolute top-0 end-0" style="padding:0 5px" onclick="db.collection('kegiatan').doc('${d.id}').delete()">x</button></div>`; });
-                document.getElementById('admin-list-foto').innerHTML = h;
-            });
-        }
-    </script>
+    async function addWarga() {
+        const nama = document.getElementById('w-nama').value;
+        const hp = document.getElementById('w-hp').value;
+        await db.collection("warga").add({ nama, hp, status: "Tetap" });
+        alert("Warga Ditambahkan!");
+    }
+</script>
 </body>
 </html>

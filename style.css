@@ -1,36 +1,34 @@
 :root {
     --navy: #1a3a5f;
-    --green: #25d366;
+    --orange: #f39c12;
+    --blue: #3498db;
+    --green: #2ecc71;
     --light: #f4f7f6;
 }
 
-body { font-family: 'Segoe UI', sans-serif; background-color: var(--light); margin: 0; }
+body { font-family: 'Segoe UI', sans-serif; background-color: var(--light); color: #333; margin: 0; }
 .bg-navy { background-color: var(--navy) !important; }
 .text-navy { color: var(--navy); }
 
-/* Navigasi */
-.navbar-brand { font-weight: 700; letter-spacing: 1px; }
+/* Sidebar Admin */
+.sidebar { width: 240px; height: 100vh; position: fixed; background: var(--navy); color: white; padding: 20px; transition: 0.3s; z-index: 1000; }
+.sidebar a { color: rgba(255,255,255,0.8); text-decoration: none; display: block; padding: 12px; border-radius: 8px; margin-bottom: 5px; }
+.sidebar a:hover, .sidebar a.active { background: var(--orange); color: white; }
+.main-content { margin-left: 240px; padding: 30px; transition: 0.3s; }
 
-/* Kartu Warga di Mobile */
-.warga-card {
-    background: white;
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    border-left: 5px solid var(--navy);
-}
+/* Dashboard Cards */
+.card-custom { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; background: white; }
+.card-header-custom { background: none; border-bottom: 1px solid #eee; padding: 15px 20px; font-weight: 700; color: var(--navy); }
 
-/* Tombol WA */
-.btn-wa { background-color: var(--green); color: white; border: none; font-weight: 600; }
-.btn-wa:hover { background-color: #128c7e; color: white; }
+/* Ronda Grid */
+.ronda-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.ronda-day { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 10px; text-align: center; }
+.ronda-day.active { border-color: var(--orange); background: #fff9f0; }
 
-/* Admin Section */
-.admin-card { border: none; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-.gallery-img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; }
-
-/* Responsive Utility */
+/* Responsive Mobile */
 @media (max-width: 768px) {
+    .sidebar { width: 0; padding: 0; overflow: hidden; }
+    .main-content { margin-left: 0; padding: 15px; }
     .display-desktop { display: none !important; }
     .display-mobile { display: block !important; }
 }
@@ -38,3 +36,5 @@ body { font-family: 'Segoe UI', sans-serif; background-color: var(--light); marg
     .display-desktop { display: block !important; }
     .display-mobile { display: none !important; }
 }
+
+.header-logo { height: 50px; border-radius: 50%; margin-right: 10px; }
