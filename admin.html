@@ -56,7 +56,7 @@
                 </div>
                 <div class="col-12 d-none" id="input-ket">
                     <label class="small fw-bold">Keterangan Pengeluaran</label>
-                    <input type="text" id="k-note" class="form-control" placeholder="Contoh: Beli Lampu RT">
+                    <input type="text" id="k-note" class="form-control" placeholder="Contoh: Perbaikan Got">
                 </div>
                 <div class="col-12 mt-3 d-flex gap-2">
                     <button class="btn btn-primary fw-bold w-100 py-2" onclick="saveKas()">SIMPAN TRANSAKSI</button>
@@ -113,7 +113,6 @@
     let oldAmt = 0;
     let oldType = "";
 
-    // CEK LOGIN
     auth.onAuthStateChanged(u => { if(!u) window.location.href="index.html"; });
 
     function n(msg, col="#2ecc71") {
@@ -134,55 +133,56 @@
         document.getElementById('input-ket').classList.toggle('d-none', tp === 'in');
     }
 
-    // --- SIMPAN / UPDATE ---
     async function saveKas() {
-        const amt = parseInt(document.getElementById('k-amt').value);
+        const val = document.getElementById('k-amt').value;
+        const amt = parseInt(val) || 0;
         const nm = document.getElementById('k-nama').value;
         const ket = document.getElementById('k-note').value;
         const tp = document.getElementById('k-type').value;
 
-        if(!amt || (tp === 'in' && !nm) || (tp === 'out' && !ket)) return n("⚠️ Data belum lengkap!", "#e74c3c");
+        if(amt <= 0 || (tp === 'in' && !nm) || (tp === 'out' && !ket)) return n("⚠️ Data tidak valid!", "#e74c3c");
 
         try {
             const refSaldo = db.collection("config").doc("kas");
             const snap = await refSaldo.get();
-            let total = snap.exists ? (snap.data().total || 0) : 0;
+            let total = (snap.exists && !isNaN(snap.data().total)) ? Number(snap.data().total) : 0;
 
             if (editId) {
-                // Batalkan pengaruh saldo lama
+                // Hapus efek nominal lama dari total saldo
                 total = (oldType === 'in') ? total - oldAmt : total + oldAmt;
-                // Masukkan pengaruh saldo baru
+                // Masukkan efek nominal baru
                 total = (tp === 'in') ? total + amt : total - amt;
 
                 await db.collection("transaksi").doc(editId).update({
-                    jumlah: amt, nama: tp==='in'?nm:'', keterangan: tp==='out'?ket:'', tipe: tp
+                    jumlah: Number(amt), nama: tp==='in'?nm:'', keterangan: tp==='out'?ket:'', tipe: tp
                 });
                 n("✅ Transaksi Diperbarui!");
             } else {
                 await db.collection("transaksi").add({
-                    jumlah: amt, nama: tp==='in'?nm:'', keterangan: tp==='out'?ket:'', tipe: tp, tanggal: firebase.firestore.Timestamp.now()
+                    jumlah: Number(amt), nama: tp==='in'?nm:'', keterangan: tp==='out'?ket:'', tipe: tp, tanggal: firebase.firestore.Timestamp.now()
                 });
                 total = (tp === 'in') ? total + amt : total - amt;
                 n("✅ Transaksi Tersimpan!");
             }
 
-            await refSaldo.set({ total }, { merge: true });
+            await refSaldo.set({ total: Number(total) }, { merge: true });
             resetForm();
         } catch(e) { n("❌ Gagal: " + e.message, "#e74c3c"); }
     }
 
-    // --- EDIT MODE ---
     function prepareEdit(id, amt, tp, nm, ket) {
-        editId = id; oldAmt = amt; oldType = tp;
+        editId = id; 
+        oldAmt = Number(amt) || 0; 
+        oldType = tp;
         document.getElementById('form-title').innerText = "Edit Transaksi";
         document.getElementById('k-amt').value = amt;
         document.getElementById('k-type').value = tp;
-        document.getElementById('k-nama').value = nm;
-        document.getElementById('k-note').value = ket;
+        document.getElementById('k-nama').value = nm || "";
+        document.getElementById('k-note').value = ket || "";
         document.getElementById('btn-cancel').classList.remove('d-none');
         toggleFormKas();
         window.scrollTo(0,0);
-        n("✏️ Sedang mengedit data...", "#3498db");
+        n("✏️ Sedang mengedit...", "#3498db");
     }
 
     function resetForm() {
@@ -192,20 +192,20 @@
         document.getElementById('btn-cancel').classList.add('d-none');
     }
 
-    // --- LIST TRANSAKSI ---
-    db.collection("transaksi").orderBy("tanggal","desc").limit(10).onSnapshot(s => {
+    db.collection("transaksi").orderBy("tanggal","desc").limit(15).onSnapshot(s => {
         let h = "";
         s.forEach(d => {
             const t = d.data();
+            const jml = Number(t.jumlah) || 0;
             const info = (t.tipe === 'in') ? `<b>${t.nama}</b>` : `<span class="text-muted small">${t.keterangan}</span>`;
             h += `<tr>
-                <td>${t.tanggal.toDate().toLocaleDateString('id-ID')}</td>
+                <td>${t.tanggal ? t.tanggal.toDate().toLocaleDateString('id-ID') : '-'}</td>
                 <td>${info}</td>
-                <td class="${t.tipe=='in'?'text-success':'text-danger'} fw-bold">${t.jumlah.toLocaleString()}</td>
+                <td class="${t.tipe=='in'?'text-success':'text-danger'} fw-bold">${jml.toLocaleString()}</td>
                 <td>
                     <div class="d-flex gap-1">
-                        <button class="btn btn-sm btn-outline-info" onclick="prepareEdit('${d.id}', ${t.jumlah}, '${t.tipe}', '${t.nama}', '${t.keterangan}')"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="delT('${d.id}', ${t.jumlah}, '${t.tipe}')"><i class="bi bi-trash"></i></button>
+                        <button class="btn btn-sm btn-outline-info" onclick="prepareEdit('${d.id}', ${jml}, '${t.tipe}', '${t.nama || ""}', '${t.keterangan || ""}')"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="delT('${d.id}', ${jml}, '${t.tipe}')"><i class="bi bi-trash"></i></button>
                     </div>
                 </td>
             </tr>`;
@@ -213,15 +213,16 @@
         document.getElementById('list-kas').innerHTML = h;
     });
 
-    // --- HAPUS ---
     async function delT(id, jml, tp) {
         if(!confirm("Yakin hapus data ini? Saldo otomatis menyesuaikan.")) return;
         try {
             const ref = db.collection("config").doc("kas");
             const snap = await ref.get();
-            let total = snap.data().total;
-            total = (tp === 'in') ? total - jml : total + jml;
-            await ref.set({ total }, { merge: true });
+            let total = (snap.exists && !isNaN(snap.data().total)) ? Number(snap.data().total) : 0;
+            
+            total = (tp === 'in') ? total - Number(jml) : total + Number(jml);
+            
+            await ref.set({ total: Number(total) }, { merge: true });
             await db.collection("transaksi").doc(id).delete();
             n("🗑️ Berhasil Dihapus!");
         } catch(e) { n("❌ Gagal!", "#e74c3c"); }
@@ -233,6 +234,7 @@
     }
 
     async function saveWarga() { 
+        if(!document.getElementById('w-nama').value) return;
         await db.collection("warga").add({ nama: document.getElementById('w-nama').value, status: document.getElementById('w-status').value }); 
         n("✅ Warga Ditambah!");
         document.getElementById('w-nama').value="";
