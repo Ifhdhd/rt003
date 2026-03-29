@@ -3,274 +3,221 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>RT 003 RW 001</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{margin:0;font-family:system-ui;background:#f1f5f9;color:#0f172a;}
-.header{text-align:center;padding:20px;background:white;}
-.menu{display:flex;gap:8px;overflow:auto;padding:10px;justify-content:center;background:white;}
-.menu button{padding:10px;border-radius:20px;border:none;background:#e2e8f0;}
-.menu button.active{background:#38bdf8;color:white;}
-.card{background:white;margin:12px;padding:16px;border-radius:12px;}
-.hidden{display:none;}
-.item{padding:10px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;}
-.btn{cursor:pointer;margin-left:5px;}
-.edit{color:#0ea5e9;}
-.delete{color:#ef4444;}
+body{margin:0;font-family:Inter,system-ui;background:#f4f6f8;}
+.header{padding:20px;font-weight:bold;font-size:18px;}
+.menu{display:flex;gap:10px;padding:10px 20px;}
+.menu button{background:none;border:none;font-size:14px;color:#64748b;}
+.menu button.active{color:#0f172a;font-weight:bold;}
+.container{padding:15px;}
+.card{
+background:white;
+border-radius:14px;
+padding:16px;
+margin-bottom:15px;
+box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat{font-size:22px;font-weight:bold;}
 table{width:100%;border-collapse:collapse;}
-td,th{border:1px solid #ddd;padding:8px;}
+td,th{padding:10px;border-bottom:1px solid #eee;text-align:left;}
+.hidden{display:none;}
+.wa{background:#22c55e;color:white;padding:4px 8px;border-radius:6px;text-decoration:none;}
+input,select{width:100%;padding:8px;margin:5px 0;border:1px solid #ddd;border-radius:8px;}
+button.primary{background:#0ea5e9;color:white;border:none;padding:8px;border-radius:8px;}
 </style>
 </head>
 
 <body>
 
-<div class="header">
-<h2>RT 003 RW 001</h2>
-</div>
+<div class="header">RT 003 RW 001</div>
 
 <div class="menu">
 <button onclick="show('home',this)" class="active">Dashboard</button>
 <button onclick="show('warga',this)">Warga</button>
 <button onclick="show('kas',this)">Kas</button>
-<button onclick="show('galeri',this)">Kegiatan</button>
 <button onclick="show('ronda',this)">Ronda</button>
 <button onclick="show('kontak',this)">Kontak</button>
 <button onclick="show('admin',this)">Admin</button>
 </div>
 
-<div id="home" class="card">Selamat datang 👋</div>
+<div class="container">
+
+<!-- DASHBOARD -->
+<div id="home">
+<div class="card grid">
+<div>
+<div>Total Warga</div>
+<div class="stat" id="totalWarga">0</div>
+</div>
+<div>
+<div>Saldo Kas</div>
+<div class="stat">Rp <span id="saldo">0</span></div>
+</div>
+</div>
+
+<div class="card">
+<canvas id="chartKas"></canvas>
+</div>
+</div>
 
 <!-- WARGA -->
-<div id="warga" class="card hidden">
-<h3>Warga</h3>
-<input id="namaWarga" placeholder="nama">
-<button onclick="tambahWarga()">Tambah</button>
+<div id="warga" class="hidden">
+<div class="card">
+<h3>Data Warga</h3>
 <div id="listWarga"></div>
+</div>
 </div>
 
 <!-- KAS -->
-<div id="kas" class="card hidden">
+<div id="kas" class="hidden">
+<div class="card">
 <h3>Kas</h3>
+<table>
+<thead>
+<tr><th>Keterangan</th><th>Masuk</th><th>Keluar</th></tr>
+</thead>
+<tbody id="listKas"></tbody>
+</table>
+</div>
+</div>
+
+<!-- RONDA -->
+<div id="ronda" class="hidden">
+<div class="card">
+<h3>Jadwal Ronda</h3>
+<table>
+<tr>
+<th>Senin</th><th>Selasa</th><th>Rabu</th>
+<th>Kamis</th><th>Jumat</th><th>Sabtu</th><th>Minggu</th>
+</tr>
+<tr id="jadwalRonda"></tr>
+</table>
+</div>
+</div>
+
+<!-- KONTAK -->
+<div id="kontak" class="hidden">
+<div class="card">
+<h3>Kontak</h3>
+<p>Ketua - Abdul <a class="wa" href="https://wa.me/6287774188870">WA</a></p>
+<p>Wakil - Lucky <a class="wa" href="https://wa.me/6281298349222">WA</a></p>
+<p>Bendahara - Toto <a class="wa" href="https://wa.me/628568121707">WA</a></p>
+<p>Sekretaris - Bayu <a class="wa" href="https://wa.me/6282298983714">WA</a></p>
+<p>Humas - Pursanto <a class="wa" href="https://wa.me/6281371121986">WA</a></p>
+<p>Keamanan - Gunawan <a class="wa" href="https://wa.me/62895331784458">WA</a></p>
+</div>
+</div>
+
+<!-- ADMIN -->
+<div id="admin" class="hidden">
+<div class="card">
+<h3>Login Admin</h3>
+<input id="email" placeholder="email">
+<input id="password" type="password" placeholder="password">
+<button class="primary" onclick="login()">Login</button>
+<button onclick="logout()">Logout</button>
+</div>
+
+<div class="card">
+<h3>Input Data</h3>
+
+<h4>Warga</h4>
+<input id="namaWarga" placeholder="nama">
+<input id="hpWarga" placeholder="no hp">
+<button class="primary" onclick="tambahWarga()">Tambah</button>
+
+<h4>Kas</h4>
 <input id="ketKas" placeholder="keterangan">
 <input id="jumlahKas" placeholder="jumlah">
 <select id="tipeKas">
 <option value="masuk">Masuk</option>
 <option value="keluar">Keluar</option>
 </select>
-<button onclick="tambahKas()">Tambah</button>
-<div id="listKas"></div>
-</div>
+<button class="primary" onclick="tambahKas()">Tambah</button>
 
-<!-- GALERI -->
-<div id="galeri" class="card hidden">
-<h3>Kegiatan</h3>
-<input type="file" id="fileFoto">
-<input id="judulFoto" placeholder="judul">
-<button onclick="uploadFoto()">Upload</button>
-<div id="listGaleri"></div>
-</div>
-
-<!-- RONDA -->
-<div id="ronda" class="card hidden">
-<h3>Ronda</h3>
+<h4>Ronda</h4>
+<select id="hariRonda">
+<option>Senin</option><option>Selasa</option><option>Rabu</option>
+<option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option>
+</select>
 <input id="namaRonda" placeholder="nama">
-<input type="date" id="tanggalRonda">
-<button onclick="tambahRonda()">Tambah</button>
+<button class="primary" onclick="tambahRonda()">Tambah</button>
 
-<table>
-<thead>
-<tr><th>Nama</th><th>Tanggal</th><th>Hari</th><th>Aksi</th></tr>
-</thead>
-<tbody id="listRonda"></tbody>
-</table>
+</div>
 </div>
 
-<!-- KONTAK -->
-<div id="kontak" class="card hidden">
-<h3>Kontak</h3>
-<p>Ketua RT - Abdul Mukhid</p>
-<p>Wakil RT - Lucky Mardiansyah</p>
-<p>Bendahara - Toto Sulistyo</p>
-<p>Sekretaris - Bayu Aditya P</p>
-<p>Humas - Pursanto</p>
-<p>Keamanan - Gunawan</p>
-</div>
-
-<!-- ADMIN -->
-<div id="admin" class="card hidden">
-<h3 id="welcome"></h3>
-
-<input id="email" placeholder="email">
-<input id="password" type="password" placeholder="password">
-<br><br>
-<button onclick="login()">Login</button>
-<button onclick="logout()">Logout</button>
-
-<p id="status"></p>
 </div>
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,addDoc,getDocs,deleteDoc,doc,updateDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,addDoc,getDocs} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig={
-apiKey:"AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
+const app=initializeApp({
+apiKey:"AIzaSyBt...",
 authDomain:"rt003-a6d85.firebaseapp.com",
 projectId:"rt003-a6d85"
-};
+});
 
-const API_KEY="6bfd8efeb32a8bebf742a71cb0a8a04a";
-
-const ADMIN_NAMA={
-"admin_kt@rt003.com":"Ketua RT",
-"admin_wkt@rt003.com":"Wakil Ketua RT",
-"admin_hms@rt003.com":"Humas",
-"admin_bendahara@rt003.com":"Bendahara",
-"admin_sekertaris@rt003.com":"Sekretaris",
-"admin_sekuriti@rt003.com":"Keamanan"
-};
-
-const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
 const db=getFirestore(app);
 
-let isAdmin=false;
-
-const el=id=>document.getElementById(id);
+let chart;
 
 window.show=(id,btn)=>{
-document.querySelectorAll('.card').forEach(x=>x.classList.add('hidden'));
-el(id).classList.remove('hidden');
+document.querySelectorAll('.container > div').forEach(x=>x.classList.add('hidden'));
+document.getElementById(id).classList.remove('hidden');
 document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
 btn.classList.add('active');
-}
+};
 
-// LOGIN
-window.login=()=>signInWithEmailAndPassword(auth,el("email").value,el("password").value);
+window.login=()=>signInWithEmailAndPassword(auth,email.value,password.value);
 window.logout=()=>signOut(auth);
 
-// AUTH
-onAuthStateChanged(auth,(user)=>{
-if(user){
-isAdmin=true;
-el("status").innerText="Login";
-el("welcome").innerText="Selamat datang " + (ADMIN_NAMA[user.email]||user.email);
-}else{
-isAdmin=false;
-el("status").innerText="Belum login";
-el("welcome").innerText="";
-}
-loadAll();
-});
+window.tambahWarga=()=>addDoc(collection(db,"warga"),{nama:namaWarga.value,hp:hpWarga.value});
+window.tambahKas=()=>addDoc(collection(db,"kas"),{ket:ketKas.value,jumlah:+jumlahKas.value,tipe:tipeKas.value});
+window.tambahRonda=()=>addDoc(collection(db,"ronda"),{hari:hariRonda.value,nama:namaRonda.value});
 
-// WARGA
-window.tambahWarga=()=>addDoc(collection(db,"warga"),{nama:el("namaWarga").value});
-window.editWarga=(id,nama)=>{
-let baru=prompt("Edit nama",nama);
-if(baru) updateDoc(doc(db,"warga",id),{nama:baru});
-};
-window.hapusWarga=id=>deleteDoc(doc(db,"warga",id));
-
-// KAS
-window.tambahKas=()=>addDoc(collection(db,"kas"),{
-ket:el("ketKas").value,
-jumlah:+el("jumlahKas").value,
-tipe:el("tipeKas").value
-});
-window.editKas=(id,ket)=>{
-let baru=prompt("Edit ket",ket);
-if(baru) updateDoc(doc(db,"kas",id),{ket:baru});
-};
-window.hapusKas=id=>deleteDoc(doc(db,"kas",id));
-
-// GALERI
-window.uploadFoto=async()=>{
-const file=el("fileFoto").files[0];
-const fd=new FormData();
-fd.append("image",file);
-const res=await fetch("https://api.imgbb.com/1/upload?key="+API_KEY,{method:"POST",body:fd});
-const data=await res.json();
-
-addDoc(collection(db,"galeri"),{
-judul:el("judulFoto").value,
-url:data.data.url
-});
-};
-window.hapusGaleri=id=>deleteDoc(doc(db,"galeri",id));
-
-// RONDA
-function getHari(tgl){
-return ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"][new Date(tgl).getDay()];
-}
-
-window.tambahRonda=()=>addDoc(collection(db,"ronda"),{
-nama:el("namaRonda").value,
-tanggal:el("tanggalRonda").value,
-hari:getHari(el("tanggalRonda").value)
-});
-window.hapusRonda=id=>deleteDoc(doc(db,"ronda",id));
-
-// LOAD
-async function loadAll(){
-
-// warga
+async function load(){
 let w=await getDocs(collection(db,"warga"));
-el("listWarga").innerHTML="";
-w.forEach(d=>{
-el("listWarga").innerHTML+=`
-<div class="item">
-${d.data().nama}
-<div>
-<span class="btn edit" onclick="editWarga('${d.id}','${d.data().nama}')">✏️</span>
-<span class="btn delete" onclick="hapusWarga('${d.id}')">❌</span>
-</div>
-</div>`;
-});
+totalWarga.innerText=w.size;
+listWarga.innerHTML="";
+w.forEach(d=>listWarga.innerHTML+=`<div>${d.data().nama} - ${d.data().hp}</div>`);
 
-// kas
+let saldo=0,masuk=0,keluar=0;
 let k=await getDocs(collection(db,"kas"));
-el("listKas").innerHTML="";
+listKas.innerHTML="";
 k.forEach(d=>{
 let x=d.data();
-el("listKas").innerHTML+=`
-<div class="item">
-${x.ket} - ${x.jumlah}
-<div>
-<span class="btn edit" onclick="editKas('${d.id}','${x.ket}')">✏️</span>
-<span class="btn delete" onclick="hapusKas('${d.id}')">❌</span>
-</div>
-</div>`;
+if(x.tipe=="masuk"){masuk+=x.jumlah;saldo+=x.jumlah;}
+else{keluar+=x.jumlah;saldo-=x.jumlah;}
+listKas.innerHTML+=`<tr><td>${x.ket}</td><td>${x.tipe=="masuk"?x.jumlah:""}</td><td>${x.tipe=="keluar"?x.jumlah:""}</td></tr>`;
 });
+saldo.innerText=saldo;
 
-// galeri
-let g=await getDocs(collection(db,"galeri"));
-el("listGaleri").innerHTML="";
-g.forEach(d=>{
-let x=d.data();
-el("listGaleri").innerHTML+=`
-<div class="item">
-<img src="${x.url}">
-${x.judul}
-<span class="delete" onclick="hapusGaleri('${d.id}')">❌</span>
-</div>`;
-});
+if(chart) chart.destroy();
+chart=new Chart(chartKas,{type:"pie",data:{labels:["Masuk","Keluar"],datasets:[{data:[masuk,keluar]}]}});
 
-// ronda
 let r=await getDocs(collection(db,"ronda"));
-el("listRonda").innerHTML="";
-r.forEach(d=>{
-let x=d.data();
-el("listRonda").innerHTML+=`
-<tr>
-<td>${x.nama}</td>
-<td>${x.tanggal}</td>
-<td>${x.hari}</td>
-<td><span class="delete" onclick="hapusRonda('${d.id}')">❌</span></td>
-</tr>`;
-});
-
+let map={};
+r.forEach(d=>map[d.data().hari]=d.data().nama);
+jadwalRonda.innerHTML=`
+<td>${map["Senin"]||""}</td>
+<td>${map["Selasa"]||""}</td>
+<td>${map["Rabu"]||""}</td>
+<td>${map["Kamis"]||""}</td>
+<td>${map["Jumat"]||""}</td>
+<td>${map["Sabtu"]||""}</td>
+<td>${map["Minggu"]||""}</td>
+`;
 }
+
+onAuthStateChanged(auth,load);
 </script>
 
 </body>
