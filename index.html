@@ -3,53 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Resmi RT 003</title>
+    <title>Portal RT 003</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-navy sticky-top">
+    <nav class="navbar navbar-dark bg-navy shadow-sm">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="logo.png" alt="Logo" height="40" class="me-2">
-                <strong>RT 003 Online</strong>
+                <img src="logo.png" alt="Logo" height="35" class="me-2"> RT 003
             </a>
             <a href="admin.html" class="btn btn-outline-light btn-sm">Login Admin</a>
         </div>
     </nav>
 
     <div class="container my-5">
-        <div class="text-center mb-5">
-            <h1 class="text-navy fw-bold">Selamat Datang Warga RT 003</h1>
-            <p class="text-muted">Informasi Transparansi Lingkungan & Kegiatan Warga</p>
+        <h2 class="text-navy fw-bold mb-4 text-center">Daftar Warga RT 003</h2>
+
+        <div class="display-desktop card p-4 shadow-sm">
+            <table class="table table-hover">
+                <thead class="table-dark">
+                    <tr><th>Nama Warga</th><th>Kontak WhatsApp</th><th>Status</th></tr>
+                </thead>
+                <tbody id="list-desktop"></tbody>
+            </table>
         </div>
 
-        <div class="row g-4">
-            <div class="col-lg-7">
-                <div class="card p-4 shadow-sm mb-4">
-                    <h4 class="text-navy border-bottom pb-2 mb-3">👥 Daftar Warga</h4>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead><tr><th>Nama</th><th>Blok</th><th>Status</th></tr></thead>
-                            <tbody id="list-warga"></tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="card p-4 shadow-sm">
-                    <h4 class="text-navy border-bottom pb-2 mb-3">💰 Laporan Kas Terakhir</h4>
-                    <div id="display-kas" class="fs-5 fw-bold text-success">Memuat saldo...</div>
-                </div>
-            </div>
+        <div class="display-mobile" id="list-mobile"></div>
 
-            <div class="col-lg-5">
-                <div class="card p-4 shadow-sm">
-                    <h4 class="text-navy border-bottom pb-2 mb-3">📸 Galeri Kegiatan</h4>
-                    <div class="row g-2" id="galeri-warga"></div>
-                </div>
-            </div>
-        </div>
+        <hr class="my-5">
+        <h2 class="text-navy fw-bold mb-4 text-center">Galeri Kegiatan</h2>
+        <div class="row g-3" id="galeri-warga"></div>
     </div>
 
     <script>
@@ -64,18 +50,29 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Ambil Data Warga
+        // Load Warga
         db.collection("warga").orderBy("nama").onSnapshot(s => {
-            let h = "";
-            s.forEach(d => { h += `<tr><td>${d.data().nama}</td><td>${d.data().blok}</td><td><span class="badge bg-info">${d.data().status}</span></td></tr>`; });
-            document.getElementById('list-warga').innerHTML = h || "<tr><td colspan='3'>Belum ada data</td></tr>";
+            let dHTML = ""; let mHTML = "";
+            s.forEach(doc => {
+                const w = doc.data();
+                const wa = `https://wa.me/${w.hp.replace(/[^0-9]/g, '')}`;
+                dHTML += `<tr><td>${w.nama}</td><td><a href="${wa}" class="btn btn-sm btn-wa">Chat WA</a></td><td>${w.status}</td></tr>`;
+                mHTML += `<div class="warga-card d-flex justify-content-between align-items-center">
+                            <div><div class="fw-bold">${w.nama}</div><small class="text-muted">${w.status}</small></div>
+                            <a href="${wa}" class="btn btn-wa btn-sm">WhatsApp</a>
+                          </div>`;
+            });
+            document.getElementById('list-desktop').innerHTML = dHTML;
+            document.getElementById('list-mobile').innerHTML = mHTML;
         });
 
-        // Ambil Galeri
+        // Load Galeri
         db.collection("kegiatan").orderBy("tanggal", "desc").onSnapshot(s => {
-            let h = "";
-            s.forEach(d => { h += `<div class="col-6"><img src="${d.data().url}" class="img-fluid rounded mb-1 shadow-sm"><p class="small text-center">${d.data().judul}</p></div>`; });
-            document.getElementById('galeri-warga').innerHTML = h || "Belum ada foto";
+            let gHTML = "";
+            s.forEach(doc => {
+                gHTML += `<div class="col-6 col-md-3"><img src="${doc.data().url}" class="gallery-img shadow-sm"><p class="small text-center mt-1">${doc.data().judul}</p></div>`;
+            });
+            document.getElementById('galeri-warga').innerHTML = gHTML;
         });
     </script>
 </body>
