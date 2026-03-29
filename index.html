@@ -7,92 +7,66 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
-        :root { --navy: #1a3a5f; }
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
-        .card-custom { border: none; border-radius: 15px; cursor: pointer; transition: 0.2s; }
-        .card-custom:active { transform: scale(0.95); }
-        .bg-navy { background: var(--navy); color: white; }
-        #layer-container, #layer-login { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.7); z-index: 9999; backdrop-filter: blur(5px); 
-        }
+        :root { --navy: #1a3a5f; --gold: #f39c12; }
+        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; padding-bottom: 50px; }
+        .header-rt { background: var(--navy); color: white; padding: 30px 20px; border-radius: 0 0 30px 30px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .card-saldo { border: none; border-radius: 20px; overflow: hidden; transition: 0.3s; }
+        .bg-kas { background: linear-gradient(135deg, #2ecc71, #27ae60); color: white; }
+        .bg-dansos { background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; }
+        .btn-kirim { background: var(--navy); color: white; border-radius: 10px; font-weight: bold; }
+        .section-title { font-weight: 800; color: var(--navy); margin-top: 25px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .list-transaksi { max-height: 400px; overflow-y: auto; background: white; border-radius: 15px; padding: 10px; }
+        .toast-custom { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; padding: 10px 20px; border-radius: 50px; color: white; display: none; }
     </style>
 </head>
 <body>
 
-<div class="bg-navy p-4 text-center shadow-sm">
-    <img src="logo.png" height="60" class="mb-2 rounded-circle border">
-    <h5 class="fw-bold mb-0">PORTAL WARGA RT 003</h5>
-    <small class="opacity-75">Guyub Rukun Saklawase</small>
+<div id="notif-box" class="toast-custom shadow-lg"></div>
+
+<div class="header-rt text-center">
+    <h3 class="fw-bold mb-0">PORTAL RT 003</h3>
+    <p class="small opacity-75">Tanggulangin, Sidoarjo</p>
 </div>
 
-<div class="container mt-4">
-    <div class="card card-custom shadow-sm p-3 mb-4" style="border-left: 5px solid #e74c3c; cursor: default;">
-        <h6 class="fw-bold text-danger mb-1"><i class="bi bi-megaphone-fill me-2"></i>Pengumuman</h6>
-        <p id="w-pengumuman" class="mb-0 small text-muted">Memuat...</p>
-    </div>
-
+<div class="container">
     <div class="row g-3">
         <div class="col-6">
-            <div class="card card-custom p-3 shadow-sm text-center bg-white" onclick="bukaLayer('kas')">
-                <i class="bi bi-wallet2 fs-1 text-success mb-2"></i>
-                <small class="text-muted d-block">Saldo Kas</small>
-                <h5 class="fw-bold mb-0" id="w-saldo">Rp 0</h5>
+            <div class="card card-saldo bg-kas p-3 shadow-sm text-center">
+                <small>Saldo Kas RT</small>
+                <h4 class="fw-bold mb-0" id="v-kas">Rp 0</h4>
             </div>
         </div>
         <div class="col-6">
-            <div class="card card-custom p-3 shadow-sm text-center bg-white" onclick="bukaLayer('warga')">
-                <i class="bi bi-people fs-1 text-primary mb-2"></i>
-                <small class="text-muted d-block">Data Warga</small>
-                <h5 class="fw-bold mb-0" id="w-total">0</h5>
-            </div>
-        </div>
-        <div class="col-12">
-            <div class="card card-custom p-3 shadow-sm bg-white" onclick="bukaLayer('ronda')">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div><i class="bi bi-shield-check text-warning fs-4 me-2"></i> <span class="fw-bold">Jadwal Ronda</span></div>
-                    <i class="bi bi-chevron-right text-muted"></i>
-                </div>
+            <div class="card card-saldo bg-dansos p-3 shadow-sm text-center">
+                <small>Dana Sosial</small>
+                <h4 class="fw-bold mb-0" id="v-dansos">Rp 0</h4>
             </div>
         </div>
     </div>
-</div>
 
-<div class="text-center my-5">
-    <button class="btn btn-sm btn-light border opacity-50" onclick="document.getElementById('layer-login').style.display='block'">
-        <i class="bi bi-lock-fill"></i> Panel Pengurus
-    </button>
-</div>
-
-<div id="layer-container">
-    <div class="container mt-5">
-        <div class="card shadow-lg border-0 mx-auto" style="max-width: 450px; border-radius: 20px;">
-            <div class="card-header bg-white border-0 d-flex justify-content-between p-3">
-                <h5 class="fw-bold mb-0" id="l-title">Detail</h5>
-                <button class="btn-close" onclick="tutupLayer()"></button>
-            </div>
-            <div class="card-body p-3" id="l-body" style="max-height: 70vh; overflow-y: auto;"></div>
-        </div>
+    <div class="section-title"><i class="bi bi-megaphone"></i> Info Terkini</div>
+    <div class="card border-0 shadow-sm p-3 mb-3" style="border-radius: 15px;">
+        <p id="v-info" class="mb-0 text-muted">Memuat informasi...</p>
     </div>
-</div>
 
-<div id="layer-login">
-    <div class="container mt-5">
-        <div class="card p-4 mx-auto shadow-lg" style="max-width:350px; border-radius:20px;">
-            <div class="d-flex justify-content-between mb-3">
-                <h5 class="fw-bold mb-0">Login Admin</h5>
-                <button class="btn-close" onclick="document.getElementById('layer-login').style.display='none'"></button>
-            </div>
-            <input type="email" id="adm-email" class="form-control mb-2" placeholder="Email">
-            <input type="password" id="adm-pass" class="form-control mb-3" placeholder="Password">
-            <button class="btn btn-primary w-100 fw-bold" onclick="prosesLogin()">MASUK</button>
+    <div class="section-title"><i class="bi bi-chat-dots"></i> Laporan Warga</div>
+    <div class="card border-0 shadow-sm p-3 mb-3" style="border-radius: 15px;">
+        <input type="text" id="a-nama" class="form-control mb-2 border-0 bg-light" placeholder="Nama Anda" style="border-radius: 10px;">
+        <textarea id="a-pesan" class="form-control mb-3 border-0 bg-light" rows="3" placeholder="Apa yang ingin dilaporkan?" style="border-radius: 10px;"></textarea>
+        <button class="btn btn-kirim w-100" onclick="kirimAduan()">KIRIM LAPORAN</button>
+    </div>
+
+    <div class="section-title"><i class="bi bi-clock-history"></i> Transaksi Terakhir</div>
+    <div class="list-transaksi shadow-sm">
+        <div id="v-list-transaksi">
+            <p class="text-center text-muted py-4 small">Memuat data...</p>
         </div>
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
@@ -104,58 +78,68 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const auth = firebase.auth();
 
+    function n(msg, col="#1a3a5f") {
+        const b = document.getElementById('notif-box');
+        b.innerText = msg; b.style.backgroundColor = col; b.style.display = 'block';
+        setTimeout(() => b.style.display='none', 3000);
+    }
+
+    // --- AMBIL SALDO KAS & DANSOS ---
     db.collection("config").doc("kas").onSnapshot(d => {
-        let s = d.exists ? d.data().total : 0;
-        document.getElementById('w-saldo').innerText = `Rp ${Number(s).toLocaleString('id-ID')}`;
+        const val = d.exists ? (d.data().total || 0) : 0;
+        document.getElementById('v-kas').innerText = "Rp " + val.toLocaleString();
     });
-    db.collection("warga").onSnapshot(s => document.getElementById('w-total').innerText = s.size);
+
+    db.collection("config").doc("dansos").onSnapshot(d => {
+        const val = d.exists ? (d.data().total || 0) : 0;
+        document.getElementById('v-dansos').innerText = "Rp " + val.toLocaleString();
+    });
+
+    // --- AMBIL PENGUMUMAN ---
     db.collection("config").doc("pengumuman").onSnapshot(d => {
-        document.getElementById('w-pengumuman').innerText = d.exists ? d.data().isi : "Tidak ada pengumuman.";
+        if(d.exists) document.getElementById('v-info').innerText = d.data().isi;
     });
 
-    async function prosesLogin() {
+    // --- AMBIL RIWAYAT TRANSAKSI ---
+    db.collection("transaksi").orderBy("tgl", "desc").limit(10).onSnapshot(s => {
+        let h = "";
+        s.forEach(doc => {
+            const t = doc.data();
+            const color = (t.tipe === 'in') ? 'text-success' : 'text-danger';
+            const sign = (t.tipe === 'in') ? '+' : '-';
+            const catLabel = (t.kategori === 'dansos') ? '<span class="badge bg-warning text-dark me-1">Dansos</span>' : '';
+            
+            h += `
+            <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                <div>
+                    <div class="fw-bold small">${catLabel}${t.keterangan}</div>
+                    <small class="text-muted" style="font-size: 10px;">${t.tgl.toDate().toLocaleDateString('id-ID')}</small>
+                </div>
+                <div class="${color} fw-bold small">${sign} Rp ${t.nominal.toLocaleString()}</div>
+            </div>`;
+        });
+        document.getElementById('v-list-transaksi').innerHTML = h || "<p class='text-center py-3'>Belum ada transaksi</p>";
+    });
+
+    // --- FUNGSI KIRIM ADUAN ---
+    async function kirimAduan() {
+        const nama = document.getElementById('a-nama').value;
+        const pesan = document.getElementById('a-pesan').value;
+
+        if(!nama || !pesan) return n("Mohon isi nama dan pesan!", "#e74c3c");
+
         try {
-            await auth.signInWithEmailAndPassword(document.getElementById('adm-email').value, document.getElementById('adm-pass').value);
-            window.location.href = "admin.html";
-        } catch(e) { alert("Login Gagal!"); }
-    }
-
-    async function bukaLayer(tipe) {
-        const body = document.getElementById('l-body');
-        document.getElementById('l-title').innerText = tipe === 'kas' ? 'Riwayat Kas' : (tipe === 'warga' ? 'Daftar Warga' : 'Jadwal Ronda');
-        document.getElementById('layer-container').style.display = 'block';
-        body.innerHTML = "Memuat...";
-
-        if(tipe === 'kas') {
-            const snap = await db.collection("transaksi").orderBy("tanggal","desc").limit(20).get();
-            let h = '<ul class="list-group list-group-flush">';
-            snap.forEach(d => {
-                const t = d.data();
-                const info = (t.tipe === 'in') ? `<b>${t.nama}</b>` : `<span class="text-muted">${t.keterangan}</span>`;
-                h += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <small class="text-muted d-block" style="font-size:10px">${t.tanggal.toDate().toLocaleDateString('id-ID')}</small>
-                        ${info}
-                    </div>
-                    <b class="${t.tipe=='in'?'text-success':'text-danger'}">${t.tipe=='in'?'+':'-'} ${t.jumlah.toLocaleString()}</b>
-                </li>`;
+            await db.collection("pengaduan").add({
+                nama: nama,
+                pesan: pesan,
+                tgl: firebase.firestore.Timestamp.now()
             });
-            body.innerHTML = h + '</ul>';
-        } else if(tipe === 'warga') {
-            const snap = await db.collection("warga").orderBy("nama").get();
-            let h = '<table class="table small"><thead><tr><th>Nama</th><th>Status</th></tr></thead><tbody>';
-            snap.forEach(d => h += `<tr><td>${d.data().nama}</td><td>${d.data().status}</td></tr>`);
-            body.innerHTML = h + '</tbody></table>';
-        } else if(tipe === 'ronda') {
-            const snap = await db.collection("ronda").get();
-            let h = '';
-            snap.forEach(d => h += `<div class="p-3 border-bottom"><b>${d.id}</b><br><span class="text-muted">${d.data().petugas}</span></div>`);
-            body.innerHTML = h || "Belum ada jadwal.";
-        }
+            n("✅ Laporan terkirim ke Pengurus!");
+            document.getElementById('a-nama').value = "";
+            document.getElementById('a-pesan').value = "";
+        } catch(e) { n("❌ Gagal mengirim", "#e74c3c"); }
     }
-    function tutupLayer() { document.getElementById('layer-container').style.display = 'none'; }
 </script>
 </body>
 </html>
