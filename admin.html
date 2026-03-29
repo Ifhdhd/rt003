@@ -3,123 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard RT 003</title>
+    <title>Panel Admin - RT 003</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --green: #108a74; --navy: #1a2a3a; --bg: #f8faf9; }
-        body { background: var(--bg); font-family: 'Inter', sans-serif; }
-        .sidebar { background: var(--navy); min-height: 100vh; width: 260px; position: fixed; color: white; }
-        .sidebar .nav-link { color: #ffffff99; padding: 15px 25px; cursor: pointer; display: flex; align-items: center; gap: 15px; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #ffffff10; color: white; border-left: 4px solid var(--green); }
-        .main { margin-left: 260px; padding: 40px; }
-        .admin-section { display: none; }
-        .active-section { display: block; animation: fadeIn 0.3s; }
-        .card-admin { border: none; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .btn-green { background: var(--green); color: white; border: none; border-radius: 12px; padding: 10px 20px; font-weight: 600; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        :root { --main-teal: #108a74; --bg-admin: #f8f9fa; }
+        body { background-color: var(--bg-admin); font-family: 'Plus Jakarta Sans', sans-serif; }
+        .login-card { border: none; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); padding: 40px; background: white; max-width: 400px; width: 100%; }
+        .btn-login { background: var(--main-teal); color: white; border-radius: 15px; padding: 12px; font-weight: 700; border: none; width: 100%; transition: 0.3s; }
+        .btn-login:hover { background: #0b6b5a; transform: translateY(-3px); }
+        .form-control { border-radius: 12px; padding: 12px; border: 1px solid #eee; background: #fdfdfd; }
     </style>
 </head>
-<body>
+<body class="d-flex align-items-center justify-content-center" style="min-height: 100vh;">
 
-<div class="sidebar">
-    <div class="p-4 border-bottom border-secondary mb-3 text-center"><h5 class="fw-bold m-0">ADMIN RT 003</h5></div>
-    <nav class="nav flex-column">
-        <a class="nav-link active" onclick="showSec('dash', this)"><i class="bi bi-grid"></i> Dashboard</a>
-        <a class="nav-link" onclick="showSec('warga', this)"><i class="bi bi-people"></i> Data Warga</a>
-        <a class="nav-link" onclick="showSec('kas', this)"><i class="bi bi-wallet2"></i> Kelola Kas</a>
-        <a class="nav-link" onclick="showSec('inventaris', this)"><i class="bi bi-box-seam"></i> Inventaris</a>
-        <a class="nav-link text-danger mt-5" onclick="logout()"><i class="bi bi-power"></i> Keluar</a>
-    </nav>
-</div>
+    <div class="login-card text-center">
+        <div class="mb-4">
+            <i class="bi bi-shield-lock-fill text-success" style="font-size: 3rem;"></i>
+            <h4 class="fw-800 mt-3">Login Pengurus</h4>
+            <p class="text-muted small">Silakan masukkan PIN Keamanan</p>
+        </div>
 
-<div class="main">
-    <div id="dash-section" class="admin-section active-section">
-        <h4 class="fw-bold mb-4">Ringkasan Sistem</h4>
-        <div class="row g-4">
-            <div class="col-md-4"><div class="card card-admin p-4 bg-success text-white"><small>Total Saldo RT</small><h2 id="v-kas">Rp 0</h2></div></div>
-            <div class="col-md-4"><div class="card card-admin p-4 bg-white"><small>Warga Terdata</small><h2 id="v-warga">0</h2></div></div>
+        <div id="loginForm">
+            <input type="password" id="pinInput" class="form-control mb-3 text-center fs-4" placeholder="••••••" maxlength="6">
+            <button class="btn-login shadow-sm" onclick="cekLogin()">MASUK PANEL</button>
+            <a href="index.html" class="d-block mt-4 text-decoration-none text-muted small">
+                <i class="bi bi-arrow-left"></i> Kembali ke Beranda
+            </a>
         </div>
     </div>
 
-    <div id="kas-section" class="admin-section">
-        <h4 class="fw-bold mb-4">Kelola Keuangan</h4>
-        <div class="card card-admin p-4 mb-4">
-            <div class="row g-3">
-                <div class="col-md-3"><label class="small fw-bold">Nominal</label><input type="number" id="k-nominal" class="form-control"></div>
-                <div class="col-md-3"><label class="small fw-bold">Tipe</label><select id="k-tipe" class="form-select"><option value="in">Masuk (+)</option><option value="out">Keluar (-)</option></select></div>
-                <div class="col-md-6"><label class="small fw-bold">Keterangan</label><input type="text" id="k-ket" class="form-control" placeholder="Contoh: Iuran Bpk Budi"></div>
-                <div class="col-12"><button class="btn btn-green w-100 mt-2" onclick="saveKas()">SIMPAN TRANSAKSI</button></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="warga-section" class="admin-section">
-        <h4 class="fw-bold mb-4">Kelola Data Warga</h4>
-        <div class="card card-admin p-4 mb-4">
-            <div class="d-flex gap-2"><input type="text" id="w-nama" class="form-control" placeholder="Nama Warga Baru"><button class="btn btn-green" onclick="saveWarga()">Tambah</button></div>
-        </div>
-        <div class="card card-admin p-3"><table class="table align-middle"><thead><tr><th>Nama</th><th>Aksi</th></tr></thead><tbody id="list-warga-admin"></tbody></table></div>
-    </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
-        authDomain: "rt003-a6d85.firebaseapp.com",
-        projectId: "rt003-a6d85",
-        storageBucket: "rt003-a6d85.firebasestorage.app",
-        messagingSenderId: "342671500828",
-        appId: "1:342671500828:web:338c075feed136c803a1d9"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
-
-    auth.onAuthStateChanged(u => { if(!u) location.href="index.html"; });
-
-    function showSec(id, el) {
-        document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active-section'));
-        document.getElementById(id+'-section').classList.add('active-section');
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        el.classList.add('active');
-    }
-
-    db.collection("config").doc("kas").onSnapshot(d => { document.getElementById('v-kas').innerText = "Rp " + (d.data()?.total || 0).toLocaleString(); });
-    db.collection("warga").onSnapshot(s => { 
-        document.getElementById('v-warga').innerText = s.size;
-        let h = ""; s.forEach(d => { h += `<tr><td>${d.data().nama}</td><td><button class="btn btn-sm btn-danger" onclick="hapus('warga','${d.id}')">Hapus</button></td></tr>`; });
-        document.getElementById('list-warga-admin').innerHTML = h;
-    });
-
-    async function saveKas() {
-        const nom = parseInt(document.getElementById('k-nominal').value);
-        const tipe = document.getElementById('k-tipe').value;
-        const ket = document.getElementById('k-ket').value;
-        if(!nom || !ket) return alert("Isi lengkap!");
+    <script>
+        // HAPUS SEMUA SCRIPT OTOMATIS REDIRECT LAMA BAPAK
+        // Kode di bawah ini hanya akan jalan kalau tombol diklik
         
-        await db.collection("transaksi").add({ nominal: nom, tipe, keterangan: ket, kategori: 'kas', tgl: firebase.firestore.Timestamp.now() });
-        const ref = db.collection("config").doc("kas");
-        const doc = await ref.get();
-        let total = doc.exists ? doc.data().total : 0;
-        total = (tipe == 'in') ? total + nom : total - nom;
-        await ref.set({ total });
-        alert("Selesai!");
-        document.getElementById('k-nominal').value = ""; document.getElementById('k-ket').value = "";
-    }
+        function cekLogin() {
+            const pin = document.getElementById('pinInput').value;
+            
+            // Contoh PIN sederhana: 123456 (Silakan ganti sesuai keinginan)
+            if (pin === "123456") {
+                alert("Login Berhasil! Selamat Datang Pak Mukhid.");
+                // Di sini nanti arahkan ke halaman kelola data
+                // window.location.href = "dashboard_admin.html"; 
+            } else {
+                alert("PIN Salah! Silakan coba lagi.");
+            }
+        }
 
-    async function saveWarga() {
-        const n = document.getElementById('w-nama').value;
-        if(!n) return;
-        await db.collection("warga").add({ nama: n });
-        document.getElementById('w-nama').value = "";
-    }
-
-    function hapus(col, id) { if(confirm("Hapus?")) db.collection(col).doc(id).delete(); }
-    function logout() { auth.signOut(); }
-</script>
+        // CATATAN PENTING:
+        // Jangan masukkan script window.location.href = "index.html" 
+        // di luar fungsi manapun, karena itu yang bikin "Mental".
+    </script>
 </body>
 </html>
