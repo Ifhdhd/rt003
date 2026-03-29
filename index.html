@@ -23,7 +23,7 @@
 <div class="bg-navy p-4 text-center shadow-sm">
     <img src="logo.png" height="60" class="mb-2 rounded-circle border">
     <h5 class="fw-bold mb-0">PORTAL WARGA RT 003</h5>
-    <small class="opacity-75">Satu Hati, Satu Lingkungan</small>
+    <small class="opacity-75">Guyub Rukun Saklawase</small>
 </div>
 
 <div class="container mt-4">
@@ -129,15 +129,15 @@
         body.innerHTML = "Memuat...";
 
         if(tipe === 'kas') {
-            const snap = await db.collection("transaksi").orderBy("tanggal","desc").limit(15).get();
+            const snap = await db.collection("transaksi").orderBy("tanggal","desc").limit(20).get();
             let h = '<ul class="list-group list-group-flush">';
             snap.forEach(d => {
                 const t = d.data();
+                const info = (t.tipe === 'in') ? `<b>${t.nama}</b>` : `<span class="text-muted">${t.keterangan}</span>`;
                 h += `<li class="list-group-item d-flex justify-content-between align-items-center">
                     <div>
-                        <small class="text-muted d-block">${t.tanggal.toDate().toLocaleDateString('id-ID')}</small>
-                        <b class="d-block">${t.nama}</b>
-                        <span class="small text-muted">${t.keterangan}</span>
+                        <small class="text-muted d-block" style="font-size:10px">${t.tanggal.toDate().toLocaleDateString('id-ID')}</small>
+                        ${info}
                     </div>
                     <b class="${t.tipe=='in'?'text-success':'text-danger'}">${t.tipe=='in'?'+':'-'} ${t.jumlah.toLocaleString()}</b>
                 </li>`;

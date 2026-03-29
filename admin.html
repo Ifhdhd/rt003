@@ -13,82 +13,88 @@
         .main-content { margin-left: 260px; padding: 20px; }
         .admin-section { display: none; }
         .active { display: block; }
-        .toast-custom { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; padding: 12px 25px; border-radius: 50px; color: white; display: none; }
+        /* Style Notifikasi Kustom */
+        .toast-custom { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; padding: 12px 25px; border-radius: 50px; color: white; display: none; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); min-width: 250px; text-align: center; }
         @media (max-width: 991px) { .sidebar { transform: translateX(-100%); } .sidebar.show { transform: translateX(0); } .main-content { margin-left: 0; } }
     </style>
 </head>
 <body>
 
-<div id="notif-box" class="toast-custom shadow-lg"></div>
+<div id="notif-box" class="toast-custom"></div>
+
 <button class="btn btn-dark d-lg-none m-2" onclick="document.getElementById('sidebar').classList.toggle('show')"><i class="bi bi-list"></i></button>
 
 <div class="sidebar" id="sidebar">
     <h5 class="fw-bold text-center">ADMIN RT 003</h5><hr>
-    <nav class="nav flex-column gap-2">
-        <a href="#" class="nav-link text-white" onclick="showSec('s-kas')"><i class="bi bi-wallet2 me-2"></i> Keuangan</a>
-        <a href="#" class="nav-link text-white" onclick="showSec('s-ronda')"><i class="bi bi-shield-check me-2"></i> Ronda</a>
-        <a href="#" class="nav-link text-white" onclick="showSec('s-warga')"><i class="bi bi-people me-2"></i> Warga</a>
-        <a href="#" class="nav-link text-white" onclick="showSec('s-info')"><i class="bi bi-megaphone me-2"></i> Pengumuman</a>
-        <a href="#" class="nav-link text-white" onclick="showSec('s-foto')"><i class="bi bi-camera me-2"></i> Upload Foto</a>
-        <a href="index.html" class="nav-link text-warning mt-4"><i class="bi bi-house-door me-2"></i> Web Depan</a>
+    <nav class="nav flex-column gap-2 text-white">
+        <a href="#" class="nav-link text-white" onclick="showSec('s-kas')">💰 Keuangan</a>
+        <a href="#" class="nav-link text-white" onclick="showSec('s-ronda')">👮 Ronda</a>
+        <a href="#" class="nav-link text-white" onclick="showSec('s-warga')">👥 Warga</a>
+        <a href="#" class="nav-link text-white" onclick="showSec('s-info')">📢 Pengumuman</a>
+        <a href="#" class="nav-link text-white" onclick="showSec('s-foto')">📸 Foto</a>
+        <a href="#" class="nav-link text-danger mt-3 fw-bold" onclick="logoutAdmin()">🚪 Keluar / Logout</a>
     </nav>
 </div>
 
 <div class="main-content">
     <div id="s-kas" class="admin-section active">
         <h4 class="fw-bold mb-3">Input Transaksi Kas</h4>
-        <div class="card p-3 shadow-sm mb-3">
+        <div class="card p-3 shadow-sm mb-3 border-0">
             <div class="row g-2">
-                <div class="col-6"><label class="small fw-bold">Nominal (Rp)</label><input type="number" id="k-amt" class="form-control" placeholder="Contoh: 20000"></div>
-                <div class="col-6"><label class="small fw-bold">Tipe</label><select id="k-type" class="form-select"><option value="in">Masuk (+)</option><option value="out">Keluar (-)</option></select></div>
-                <div class="col-6"><label class="small fw-bold">Nama Warga</label><input type="text" id="k-nama" class="form-control" placeholder="Nama Pembayar"></div>
-                <div class="col-6"><label class="small fw-bold">Keterangan</label><input type="text" id="k-note" class="form-control" placeholder="Keperluan"></div>
-                <button class="btn btn-primary mt-3 fw-bold" onclick="saveKas()">SIMPAN TRANSAKSI</button>
+                <div class="col-6">
+                    <label class="small fw-bold">Nominal (Rp)</label>
+                    <input type="number" id="k-amt" class="form-control" placeholder="0">
+                </div>
+                <div class="col-6">
+                    <label class="small fw-bold">Tipe</label>
+                    <select id="k-type" class="form-select" onchange="toggleFormKas()">
+                        <option value="in">Masuk (+)</option>
+                        <option value="out">Keluar (-)</option>
+                    </select>
+                </div>
+                <div class="col-12" id="input-nama">
+                    <label class="small fw-bold">Nama Pembayar (Warga)</label>
+                    <input type="text" id="k-nama" class="form-control" placeholder="Nama Lengkap">
+                </div>
+                <div class="col-12 d-none" id="input-ket">
+                    <label class="small fw-bold">Keterangan Pengeluaran</label>
+                    <input type="text" id="k-note" class="form-control" placeholder="Contoh: Beli Token Listrik">
+                </div>
+                <button class="btn btn-primary mt-3 fw-bold py-2" onclick="saveKas()">SIMPAN TRANSAKSI</button>
             </div>
         </div>
-        <div class="table-responsive">
-            <table class="table table-sm bg-white small shadow-sm">
-                <thead class="table-dark"><tr><th>Tgl</th><th>Nama</th><th>Ket</th><th>Jml</th><th>Del</th></tr></thead>
+        
+        <div class="table-responsive bg-white rounded shadow-sm p-2">
+            <table class="table table-sm small">
+                <thead class="table-dark"><tr><th>Tgl</th><th>Info</th><th>Nominal</th><th>Aksi</th></tr></thead>
                 <tbody id="list-kas"></tbody>
             </table>
         </div>
     </div>
 
-    <div id="s-foto" class="admin-section">
-        <h4 class="fw-bold mb-3">Upload Foto Kegiatan</h4>
-        <div class="card p-3 shadow-sm mb-3">
-            <input type="text" id="f-judul" class="form-control mb-2" placeholder="Nama Kegiatan">
-            <input type="file" id="f-file" class="form-control mb-2">
-            <button class="btn btn-primary w-100 fw-bold" id="btn-up" onclick="uploadFoto()">UPLOAD FOTO</button>
-        </div>
-        <div class="row g-2" id="adm-list-foto"></div>
-    </div>
-
     <div id="s-info" class="admin-section">
         <h4 class="fw-bold mb-3">Update Pengumuman</h4>
-        <div class="card p-3 shadow-sm"><textarea id="adm-p" class="form-control mb-2" rows="3"></textarea><button class="btn btn-danger fw-bold" onclick="saveP()">KIRIM</button></div>
+        <div class="card p-3 shadow-sm border-0">
+            <textarea id="adm-p" class="form-control mb-2" rows="3"></textarea>
+            <button class="btn btn-danger w-100 fw-bold" onclick="saveP()">UPDATE INFO</button>
+        </div>
     </div>
 
     <div id="s-warga" class="admin-section">
-        <h4 class="fw-bold mb-3">Database Warga</h4>
-        <div class="card p-3 shadow-sm mb-3">
-            <input type="text" id="w-nama" class="form-control mb-2" placeholder="Nama"><select id="w-status" class="form-select mb-2"><option>Tetap</option><option>Kontrak</option></select><button class="btn btn-success w-100 fw-bold" onclick="saveWarga()">TAMBAH</button>
+        <h4 class="fw-bold mb-3">Data Warga</h4>
+        <div class="card p-3 shadow-sm mb-3 border-0">
+            <input type="text" id="w-nama" class="form-control mb-2" placeholder="Nama Warga">
+            <select id="w-status" class="form-select mb-2"><option>Tetap</option><option>Kontrak</option></select>
+            <button class="btn btn-success w-100 fw-bold" onclick="saveWarga()">TAMBAH WARGA</button>
         </div>
-        <table class="table bg-white"><tbody id="list-warga"></tbody></table>
-    </div>
-
-    <div id="s-ronda" class="admin-section">
-        <h4 class="fw-bold mb-3">Jadwal Ronda</h4>
-        <div class="card p-3 shadow-sm mb-3">
-            <select id="r-hari" class="form-select mb-2"><option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option><option>Sabtu</option><option>Minggu</option></select>
-            <input type="text" id="r-nama" class="form-control mb-2" placeholder="Petugas"><button class="btn btn-warning w-100 fw-bold" onclick="saveRonda()">SIMPAN</button>
-        </div>
-        <div id="list-ronda"></div>
+        <table class="table bg-white small shadow-sm"><tbody id="list-warga"></tbody></table>
     </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
@@ -100,11 +106,15 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    // CEK LOGIN
+    auth.onAuthStateChanged(u => { if(!u) window.location.href="index.html"; });
 
     function n(msg, col="#2ecc71") {
         const b = document.getElementById('notif-box');
         b.innerText = msg; b.style.backgroundColor = col; b.style.display = 'block';
-        setTimeout(() => b.style.display='none', 2500);
+        setTimeout(() => b.style.display='none', 3000);
     }
 
     function showSec(id) {
@@ -113,87 +123,94 @@
         if(window.innerWidth < 992) document.getElementById('sidebar').classList.remove('show');
     }
 
-    // --- FUNGSI FIX SIMPAN KAS ---
+    function toggleFormKas() {
+        const tp = document.getElementById('k-type').value;
+        document.getElementById('input-nama').classList.toggle('d-none', tp === 'out');
+        document.getElementById('input-ket').classList.toggle('d-none', tp === 'in');
+    }
+
+    // SIMPAN KAS
     async function saveKas() {
         const amt = parseInt(document.getElementById('k-amt').value);
         const nm = document.getElementById('k-nama').value;
         const ket = document.getElementById('k-note').value;
         const tp = document.getElementById('k-type').value;
 
-        if(!amt || !nm || !ket) return n("Lengkapi Data!", "#e74c3c");
+        if(!amt || (tp === 'in' && !nm) || (tp === 'out' && !ket)) {
+            return n("⚠️ Mohon lengkapi data!", "#e74c3c");
+        }
 
         try {
-            // 1. Simpan Transaksi
             await db.collection("transaksi").add({
-                jumlah: amt, nama: nm, keterangan: ket, tipe: tp, 
-                tanggal: firebase.firestore.Timestamp.now() 
+                jumlah: amt, nama: tp==='in'?nm:'', keterangan: tp==='out'?ket:'', tipe: tp, tanggal: firebase.firestore.Timestamp.now()
             });
 
-            // 2. Update Saldo (Logic yang diperbaiki)
             const ref = db.collection("config").doc("kas");
             const snap = await ref.get();
-            let totalSkrg = 0;
-            if(snap.exists) totalSkrg = snap.data().total || 0;
+            let total = snap.exists ? (snap.data().total || 0) : 0;
+            total = (tp === 'in') ? total + amt : total - amt;
+            await ref.set({ total }, { merge: true });
 
-            let totalBaru = (tp === 'in') ? totalSkrg + amt : totalSkrg - amt;
-            await ref.set({ total: totalBaru }, { merge: true });
-
-            n("✅ Data Tersimpan!");
+            n("✅ Data Kas Berhasil Disimpan!");
             document.getElementById('k-amt').value=""; document.getElementById('k-nama').value=""; document.getElementById('k-note').value="";
-        } catch(e) {
-            console.error(e);
-            n("Gagal: " + e.message, "#e74c3c");
-        }
+        } catch(e) { n("❌ Gagal Menyimpan!", "#e74c3c"); }
     }
 
-    // --- TAMPILKAN LIST KAS ---
-    db.collection("transaksi").orderBy("tanggal","desc").limit(15).onSnapshot(s => {
+    // LIST KAS REALTIME
+    db.collection("transaksi").orderBy("tanggal","desc").limit(10).onSnapshot(s => {
         let h = "";
         s.forEach(d => {
             const t = d.data();
-            const tgl = t.tanggal ? t.tanggal.toDate().toLocaleDateString('id-ID') : '-';
-            h += `<tr><td>${tgl}</td><td>${t.nama}</td><td>${t.keterangan}</td><td class="fw-bold ${t.tipe=='in'?'text-success':'text-danger'}">${t.jumlah.toLocaleString()}</td><td><button class="btn btn-sm" onclick="delT('${d.id}',${t.jumlah},'${t.tipe}')">❌</button></td></tr>`;
+            const info = (t.tipe === 'in') ? `<b>${t.nama}</b>` : `<span class="text-muted">${t.keterangan}</span>`;
+            h += `<tr>
+                <td>${t.tanggal.toDate().toLocaleDateString('id-ID')}</td>
+                <td>${info}</td>
+                <td class="${t.tipe=='in'?'text-success':'text-danger'} fw-bold">${t.jumlah.toLocaleString()}</td>
+                <td><button class="btn btn-sm btn-light border" onclick="delT('${d.id}',${t.jumlah},'${t.tipe}')">❌</button></td>
+            </tr>`;
         });
         document.getElementById('list-kas').innerHTML = h;
     });
 
-    // --- FUNGSI LAIN ---
-    async function uploadFoto() {
-        const f = document.getElementById('f-file').files[0];
-        const j = document.getElementById('f-judul').value;
-        if(!f || !j) return n("Isi Judul & File!", "#e74c3c");
-        const fd = new FormData(); fd.append("image", f);
-        try {
-            const r = await fetch("https://api.imgbb.com/1/upload?key=6bfd8efeb32a8bebf742a71cb0a8a04a", { method: "POST", body: fd });
-            const res = await r.json();
-            await db.collection("kegiatan").add({ url: res.data.url, judul: j, tanggal: new Date() });
-            n("Foto Terupload!");
-        } catch(e) { n("Gagal!", "red"); }
-    }
-
     async function delT(id, jml, tp) {
-        if(!confirm("Hapus?")) return;
-        const ref = db.collection("config").doc("kas");
-        const s = await ref.get();
-        let t = s.data().total;
-        t = (tp === 'in') ? t - jml : t + jml;
-        await ref.set({ total: t });
-        await db.collection("transaksi").doc(id).delete();
-        n("Dihapus!", "#3498db");
+        if(!confirm("Hapus transaksi ini?")) return;
+        try {
+            const ref = db.collection("config").doc("kas");
+            const snap = await ref.get();
+            let total = snap.data().total;
+            total = (tp === 'in') ? total - jml : total + jml;
+            await ref.set({ total }, { merge: true });
+            await db.collection("transaksi").doc(id).delete();
+            n("🗑️ Data Berhasil Dihapus!");
+        } catch(e) { n("❌ Gagal Menghapus!", "#e74c3c"); }
     }
 
-    async function saveP() { await db.collection("config").doc("pengumuman").set({ isi: document.getElementById('adm-p').value }); n("OK!"); }
-    async function saveWarga() { await db.collection("warga").add({ nama: document.getElementById('w-nama').value, status: document.getElementById('w-status').value }); n("OK!"); }
-    async function saveRonda() { await db.collection("ronda").doc(document.getElementById('r-hari').value).set({ petugas: document.getElementById('r-nama').value }); n("OK!"); }
-    
+    async function saveP() { 
+        try {
+            await db.collection("config").doc("pengumuman").set({ isi: document.getElementById('adm-p').value }); 
+            n("✅ Pengumuman Diperbarui!");
+        } catch(e) { n("❌ Gagal Update!", "#e74c3c"); }
+    }
+
+    async function saveWarga() { 
+        try {
+            await db.collection("warga").add({ nama: document.getElementById('w-nama').value, status: document.getElementById('w-status').value }); 
+            n("✅ Warga Berhasil Ditambah!");
+            document.getElementById('w-nama').value="";
+        } catch(e) { n("❌ Gagal Tambah!", "#e74c3c"); }
+    }
+
+    function logoutAdmin() {
+        auth.signOut().then(() => {
+            n("🚪 Berhasil Keluar...", "#1a3a5f");
+            setTimeout(() => { window.location.href="index.html"; }, 1000);
+        });
+    }
+
+    // TAMPIL LIST WARGA (Update Realtime)
     db.collection("warga").orderBy("nama").onSnapshot(s => {
         let h = ""; s.forEach(d => h += `<tr><td>${d.data().nama}</td><td class="text-end"><button class="btn btn-sm text-danger" onclick="db.collection('warga').doc('${d.id}').delete()">Hapus</button></td></tr>`);
         document.getElementById('list-warga').innerHTML = h;
-    });
-
-    db.collection("ronda").onSnapshot(s => {
-        let h = ""; s.forEach(d => h += `<div class="p-2 mb-1 bg-white shadow d-flex justify-content-between"><span><b>${d.id}</b>: ${d.data().petugas}</span><button class="btn btn-sm text-danger" onclick="db.collection('ronda').doc('${d.id}').delete()">X</button></div>`);
-        document.getElementById('list-ronda').innerHTML = h;
     });
 </script>
 </body>
