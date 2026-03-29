@@ -12,180 +12,160 @@
             --navy: #1a3a5f;
             --orange: #f39c12;
             --blue: #3498db;
-            --green: #2ecc71;
             --light: #f4f7f6;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light); margin: 0; overflow-x: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--light); margin: 0; overflow-x: hidden; }
 
-        /* --- SIDEBAR LOGIC --- */
+        /* SIDEBAR LOGIC */
         .sidebar { 
             width: 260px; 
             height: 100vh; 
             position: fixed; 
-            left: 0; 
-            top: 0; 
+            left: 0; top: 0; 
             background: var(--navy); 
             color: white; 
             padding: 20px; 
-            z-index: 2000; 
-            transition: all 0.3s ease;
+            z-index: 9999; 
+            transition: transform 0.3s ease-in-out;
         }
 
         .main-content { 
             margin-left: 260px; 
             padding: 30px; 
-            transition: all 0.3s ease; 
+            transition: 0.3s; 
         }
 
-        /* Tombol Toggle (Hanya muncul di HP) */
-        #toggle-menu {
+        /* Tombol Menu di HP */
+        #btn-toggle {
             display: none;
             position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 2100;
+            top: 15px; left: 15px;
+            z-index: 10000;
             background: var(--navy);
             color: white;
             border: none;
             border-radius: 8px;
             padding: 8px 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        /* Responsive Mobile */
-        @media (max-width: 991.98px) {
-            .sidebar { left: -260px; } /* Sembunyi ke kiri */
-            .sidebar.active { left: 0; } /* Muncul saat aktif */
-            .main-content { margin-left: 0; padding: 70px 15px 20px 15px; }
-            #toggle-menu { display: block; }
+        @media (max-width: 991px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; padding-top: 80px; padding-inline: 15px; }
+            #btn-toggle { display: block; }
         }
 
-        /* Sidebar Nav Links */
-        .nav-link { 
-            color: rgba(255,255,255,0.7); 
-            padding: 12px 15px; 
-            border-radius: 10px; 
-            margin-bottom: 5px; 
-            display: block; 
-            text-decoration: none; 
-            transition: 0.2s;
-        }
-        .nav-link:hover, .nav-link.active { 
-            background: rgba(255,255,255,0.1); 
-            color: white; 
-        }
-        .nav-link i { margin-right: 10px; }
-
+        /* UI Components */
+        .nav-link { color: rgba(255,255,255,0.7); padding: 12px; border-radius: 10px; margin-bottom: 5px; text-decoration: none; display: block; }
+        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.1); color: white; }
+        .card-custom { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: white; margin-bottom: 20px; }
         .admin-section { display: none; }
-        .admin-section.active { display: block; animation: fadeIn 0.4s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .card-custom { border: none; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); background: white; margin-bottom: 20px; }
-        .btn-rt { border-radius: 10px; font-weight: 600; padding: 10px; }
+        .admin-section.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Notifikasi Toast */
+        .my-toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 20000; padding: 12px 25px; border-radius: 50px;
+            color: white; font-weight: 600; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: slideDown 0.3s ease-out;
+        }
+        @keyframes slideDown { from { top: -50px; } to { top: 20px; } }
     </style>
 </head>
 <body>
 
-    <button id="toggle-menu" onclick="toggleSidebar()">
-        <i class="bi bi-list fs-4"></i>
-    </button>
+    <button id="btn-toggle" onclick="aksiSidebar()"><i class="bi bi-list fs-3"></i></button>
 
-    <div id="login-form" class="container d-flex justify-content-center align-items-center vh-100">
-        <div class="card p-4 shadow-lg border-0" style="width: 350px; border-radius: 20px;">
-            <div class="text-center mb-4">
-                <img src="logo.png" height="60" class="mb-2 rounded-circle border shadow-sm">
-                <h5 class="fw-bold" style="color: var(--navy);">Admin RT 003</h5>
-            </div>
-            <input type="email" id="email" class="form-control mb-2" placeholder="Email Admin">
-            <input type="password" id="password" class="form-control mb-3" placeholder="Password">
-            <button class="btn w-100 text-white fw-bold" style="background: var(--navy);" onclick="handleLogin()">LOGIN</button>
-            <p id="login-error" class="text-danger small mt-2 text-center"></p>
+    <div id="login-box" class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="card p-4 border-0 shadow-lg text-center" style="width: 350px; border-radius: 20px;">
+            <img src="logo.png" height="70" class="mb-3 rounded-circle border mx-auto">
+            <h5 class="fw-bold mb-3">Admin Portal RT 003</h5>
+            <input type="email" id="email" class="form-control mb-2" placeholder="Email">
+            <input type="password" id="pass" class="form-control mb-3" placeholder="Password">
+            <button class="btn btn-primary w-100 fw-bold py-2" onclick="login()">MASUK</button>
         </div>
     </div>
 
-    <div id="admin-panel" class="d-none">
-        <div class="sidebar shadow" id="sidebar">
+    <div id="panel-isi" class="d-none">
+        <div class="sidebar shadow" id="mySidebar">
             <div class="text-center mb-4">
                 <img src="logo.png" height="50" class="rounded-circle border mb-2">
-                <h6 class="fw-bold mb-0">PANEL PENGURUS</h6>
+                <h6 class="fw-bold text-white mb-0">RT 003 RW 001</h6>
                 <hr class="opacity-25">
             </div>
-            
             <nav>
-                <a href="#" class="nav-link active" onclick="showSec('sec-kas', this)"><i class="bi bi-wallet2"></i> Laporan Kas</a>
-                <a href="#" class="nav-link" onclick="showSec('sec-ronda', this)"><i class="bi bi-shield-check"></i> Jadwal Ronda</a>
-                <a href="#" class="nav-link" onclick="showSec('sec-warga', this)"><i class="bi bi-people"></i> Data Warga</a>
-                <a href="#" class="nav-link" onclick="showSec('sec-foto', this)"><i class="bi bi-camera"></i> Foto Kegiatan</a>
+                <a href="#" class="nav-link active" onclick="bukaSec('sec-kas', this)"><i class="bi bi-wallet2 me-2"></i> Laporan Kas</a>
+                <a href="#" class="nav-link" onclick="bukaSec('sec-ronda', this)"><i class="bi bi-shield-check me-2"></i> Jadwal Ronda</a>
+                <a href="#" class="nav-link" onclick="bukaSec('sec-warga', this)"><i class="bi bi-people me-2"></i> Data Warga</a>
+                <a href="#" class="nav-link" onclick="bukaSec('sec-foto', this)"><i class="bi bi-camera me-2"></i> Foto Kegiatan</a>
                 <hr class="opacity-25">
-                <a href="index.html" class="nav-link text-warning"><i class="bi bi-arrow-left-circle"></i> Ke Web Warga</a>
-                <a href="#" onclick="firebase.auth().signOut()" class="nav-link text-danger"><i class="bi bi-box-arrow-left"></i> Logout</a>
+                <a href="index.html" class="nav-link text-warning"><i class="bi bi-eye me-2"></i> Lihat Web Warga</a>
+                <a href="#" onclick="logout()" class="nav-link text-danger"><i class="bi bi-box-arrow-left me-2"></i> Logout</a>
             </nav>
         </div>
 
         <div class="main-content">
             <div id="sec-kas" class="admin-section active">
-                <h4 class="fw-bold mb-4 text-navy">💰 Kelola Kas RT</h4>
-                <div class="card card-custom p-4 mb-4" style="border-left: 5px solid var(--orange);">
-                    <small class="text-muted">Total Saldo Kas</small>
-                    <h2 class="fw-bold text-navy" id="adm-total-saldo">Rp 0</h2>
+                <h4 class="fw-bold text-navy mb-4">💰 Kelola Kas RT</h4>
+                <div class="card card-custom p-4 text-center mb-4">
+                    <small class="text-muted text-uppercase">Total Saldo Saat Ini</small>
+                    <h1 class="fw-bold text-navy" id="adm-total-saldo">Rp 0</h1>
                 </div>
                 <div class="card card-custom p-4">
-                    <h6>Update Saldo</h6>
                     <div class="row g-2">
-                        <div class="col-8"><input type="number" id="kas-amt" class="form-control" placeholder="Nominal Rp"></div>
-                        <div class="col-4">
+                        <div class="col-md-8"><input type="number" id="kas-amt" class="form-control" placeholder="Nominal (Tanpa titik/koma)"></div>
+                        <div class="col-md-4">
                             <select id="kas-type" class="form-select">
-                                <option value="in">Masuk (+)</option>
-                                <option value="out">Keluar (-)</option>
+                                <option value="in">Kas Masuk (+)</option>
+                                <option value="out">Kas Keluar (-)</option>
                             </select>
                         </div>
-                        <button class="btn btn-primary mt-2 fw-bold" onclick="saveKas()">Simpan Transaksi</button>
+                        <button class="btn btn-primary mt-3 py-2 fw-bold" onclick="saveKas()">SIMPAN TRANSAKSI</button>
                     </div>
                 </div>
             </div>
 
             <div id="sec-ronda" class="admin-section">
-                <h4 class="fw-bold mb-4 text-navy">👮 Jadwal Ronda</h4>
+                <h4 class="fw-bold text-navy mb-4">👮 Jadwal Ronda</h4>
                 <div class="card card-custom p-4">
-                    <label class="small fw-bold mb-1">Pilih Hari</label>
                     <select id="ron-hari" class="form-select mb-3">
                         <option value="Senin">Senin</option><option value="Selasa">Selasa</option>
                         <option value="Rabu">Rabu</option><option value="Kamis">Kamis</option>
                         <option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option>
                         <option value="Minggu">Minggu</option>
                     </select>
-                    <label class="small fw-bold mb-1">Nama Petugas</label>
-                    <input type="text" id="ron-nama" class="form-control mb-3" placeholder="Contoh: Bpk. Mukhid, Bpk. Anto">
-                    <button class="btn btn-warning fw-bold w-100" onclick="saveRonda()">Update Jadwal</button>
+                    <input type="text" id="ron-nama" class="form-control mb-3" placeholder="Nama-nama Petugas">
+                    <button class="btn btn-warning w-100 fw-bold" onclick="saveRonda()">UPDATE JADWAL</button>
                 </div>
             </div>
 
             <div id="sec-warga" class="admin-section">
-                <h4 class="fw-bold mb-4 text-navy">👥 Data Warga</h4>
-                <div class="card card-custom p-3 mb-4">
-                    <input type="text" id="w-nama" class="form-control mb-2" placeholder="Nama Warga">
-                    <input type="text" id="w-hp" class="form-control mb-2" placeholder="No HP (08xx)">
+                <h4 class="fw-bold text-navy mb-4">👥 Data Warga</h4>
+                <div class="card card-custom p-4 mb-4">
+                    <input type="text" id="w-nama" class="form-control mb-2" placeholder="Nama Lengkap">
+                    <input type="text" id="w-hp" class="form-control mb-2" placeholder="Nomor HP (Contoh: 0812...)">
                     <select id="w-status" class="form-select mb-3">
                         <option value="Tetap">Warga Tetap</option>
-                        <option value="Kontrak">Kontrak</option>
+                        <option value="Kontrak">Kontrak/Kos</option>
                     </select>
-                    <button class="btn btn-success fw-bold w-100" onclick="saveWarga()">Tambah Warga</button>
+                    <button class="btn btn-success w-100 fw-bold" onclick="saveWarga()">TAMBAH WARGA</button>
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-sm bg-white rounded shadow-sm">
-                        <thead class="table-dark"><tr><th>Nama</th><th>Status</th><th>Hapus</th></tr></thead>
+                    <table class="table table-hover bg-white rounded shadow-sm">
+                        <thead class="table-dark"><tr><th>Nama</th><th>Status</th><th>Aksi</th></tr></thead>
                         <tbody id="adm-list-warga"></tbody>
                     </table>
                 </div>
             </div>
 
             <div id="sec-foto" class="admin-section">
-                <h4 class="fw-bold mb-4 text-navy">📸 Foto Kegiatan</h4>
+                <h4 class="fw-bold text-navy mb-4">📸 Foto Kegiatan</h4>
                 <div class="card card-custom p-4">
-                    <input type="file" id="f-file" class="form-control mb-2">
-                    <button class="btn btn-primary w-100" onclick="uploadFoto()">Upload Foto</button>
-                    <hr>
+                    <input type="file" id="f-file" class="form-control mb-3">
+                    <button class="btn btn-primary w-100 mb-4" onclick="uploadFoto()">UPLOAD FOTO</button>
                     <div class="row g-2" id="adm-list-foto"></div>
                 </div>
             </div>
@@ -209,101 +189,92 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // 1. Toggle Sidebar (Buka/Tutup)
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
+        // NOTIFIKASI TOAST
+        function notif(m, c="success") {
+            const t = document.createElement("div");
+            t.className = `my-toast bg-${c}`;
+            t.innerHTML = `<i class="bi bi-info-circle-fill me-2"></i> ${m}`;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
         }
 
-        // 2. Navigasi Section
-        function showSec(id, btn) {
+        // SIDEBAR & NAV
+        function aksiSidebar() { document.getElementById('mySidebar').classList.toggle('show'); }
+        function bukaSec(id, b) {
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            btn.classList.add('active');
-            
-            // Otomatis tutup sidebar di HP setelah pilih menu
-            if(window.innerWidth <= 991) {
-                document.getElementById('sidebar').classList.remove('active');
-            }
+            document.getElementById(id).classList.add('active'); b.classList.add('active');
+            if(window.innerWidth < 992) aksiSidebar();
         }
 
-        // 3. Auth Check
-        auth.onAuthStateChanged(user => {
-            if(user) {
-                document.getElementById('login-form').classList.add('d-none');
-                document.getElementById('admin-panel').classList.remove('d-none');
-                initData();
-            } else {
-                document.getElementById('login-form').classList.remove('d-none');
-                document.getElementById('admin-panel').classList.add('d-none');
-            }
+        // AUTH
+        auth.onAuthStateChanged(u => {
+            if(u){ document.getElementById('login-box').classList.add('d-none'); document.getElementById('panel-isi').classList.remove('d-none'); initData(); }
+            else { document.getElementById('login-box').classList.remove('d-none'); document.getElementById('panel-isi').classList.add('d-none'); }
         });
-
-        async function handleLogin() {
-            const e = document.getElementById('email').value;
-            const p = document.getElementById('password').value;
-            try { await auth.signInWithEmailAndPassword(e, p); } 
-            catch(err) { document.getElementById('login-error').innerText = "Login Gagal!"; }
+        async function login() {
+            const e = document.getElementById('email').value; const p = document.getElementById('pass').value;
+            try { await auth.signInWithEmailAndPassword(e, p); } catch(err) { notif("Login Gagal!", "danger"); }
         }
+        function logout() { auth.signOut(); }
 
-        // 4. CRUD Functions
+        // INIT DATA
         function initData() {
+            // Saldo Kas (Fix NaN)
             db.collection("config").doc("kas").onSnapshot(doc => {
-                if(doc.exists) document.getElementById('adm-total-saldo').innerText = `Rp ${Number(doc.data().total).toLocaleString('id-ID')}`;
+                let s = 0; if(doc.exists && !isNaN(doc.data().total)) s = doc.data().total;
+                document.getElementById('adm-total-saldo').innerText = `Rp ${Number(s).toLocaleString('id-ID')}`;
             });
+            // Warga
             db.collection("warga").orderBy("nama").onSnapshot(s => {
-                let h = "";
-                s.forEach(d => { h += `<tr><td>${d.data().nama}</td><td>${d.data().status}</td><td><button class="btn btn-danger btn-sm" onclick="delData('warga','${d.id}')">X</button></td></tr>`; });
-                document.getElementById('adm-list-warga').innerHTML = h;
+                let h = ""; s.forEach(d => {
+                    h += `<tr><td>${d.data().nama}</td><td>${d.data().status}</td><td><button class="btn btn-danger btn-sm" onclick="del('warga','${d.id}')">X</button></td></tr>`;
+                });
+                document.getElementById('adm-list-warga').innerHTML = h || "<tr><td colspan='3'>Kosong</td></tr>";
             });
-            db.collection("kegiatan").orderBy("tanggal","desc").onSnapshot(s => {
-                let h = "";
-                s.forEach(d => { h += `<div class="col-4 position-relative"><img src="${d.data().url}" class="img-fluid rounded"><button class="btn btn-dark btn-sm position-absolute top-0 end-0" onclick="delData('kegiatan','${d.id}')">X</button></div>`; });
+            // Foto
+            db.collection("kegiatan").orderBy("tanggal", "desc").onSnapshot(s => {
+                let h = ""; s.forEach(d => {
+                    h += `<div class="col-4 position-relative"><img src="${d.data().url}" class="img-fluid rounded border shadow-sm"><button class="btn btn-dark btn-sm position-absolute top-0 end-0 m-1" onclick="del('kegiatan','${d.id}')">X</button></div>`;
+                });
                 document.getElementById('adm-list-foto').innerHTML = h;
             });
         }
 
+        // SAVE FUNCTIONS
         async function saveKas() {
-            const amt = parseInt(document.getElementById('kas-amt').value);
-            const type = document.getElementById('kas-type').value;
+            const input = document.getElementById('kas-amt').value; if(!input) return notif("Isi nominal!", "warning");
+            const amt = parseInt(input); const type = document.getElementById('kas-type').value;
             const ref = db.collection("config").doc("kas");
             const snap = await ref.get();
-            let total = snap.exists ? snap.data().total : 0;
+            let total = (snap.exists && !isNaN(snap.data().total)) ? snap.data().total : 0;
             total = (type === 'in') ? total + amt : total - amt;
-            await ref.set({ total });
-            alert("Kas Berhasil Diupdate!");
-            document.getElementById('kas-amt').value = "";
+            await ref.set({ total }); notif("Saldo Diperbarui!"); document.getElementById('kas-amt').value = "";
         }
 
         async function saveRonda() {
-            const h = document.getElementById('ron-hari').value;
-            const n = document.getElementById('ron-nama').value;
-            await db.collection("ronda").doc(h).set({ petugas: n });
-            alert("Jadwal Terupdate!");
+            const h = document.getElementById('ron-hari').value; const n = document.getElementById('ron-nama').value;
+            await db.collection("ronda").doc(h).set({ petugas: n }); notif("Jadwal Disimpan!");
         }
 
         async function saveWarga() {
-            const nama = document.getElementById('w-nama').value;
-            const hp = document.getElementById('w-hp').value;
-            const status = document.getElementById('w-status').value;
-            await db.collection("warga").add({ nama, hp, status });
-            alert("Warga Ditambahkan!");
+            const nama = document.getElementById('w-nama').value; const hp = document.getElementById('w-hp').value;
+            const status = document.getElementById('w-status').value; if(!nama || !hp) return notif("Lengkapi data!", "warning");
+            await db.collection("warga").add({ nama, hp, status }); notif("Warga Ditambah!");
             document.getElementById('w-nama').value = ""; document.getElementById('w-hp').value = "";
         }
 
         async function uploadFoto() {
-            const file = document.getElementById('f-file').files[0];
-            if(!file) return alert("Pilih foto!");
-            const fd = new FormData(); fd.append("image", file);
-            const res = await fetch("https://api.imgbb.com/1/upload?key=6bfd8efeb32a8bebf742a71cb0a8a04a", { method: "POST", body: fd });
-            const result = await res.json();
-            await db.collection("kegiatan").add({ url: result.data.url, tanggal: new Date() });
-            alert("Foto Terupload!");
+            const f = document.getElementById('f-file').files[0]; if(!f) return notif("Pilih file!", "warning");
+            const fd = new FormData(); fd.append("image", f);
+            try {
+                const r = await fetch("https://api.imgbb.com/1/upload?key=6bfd8efeb32a8bebf742a71cb0a8a04a", { method: "POST", body: fd });
+                const res = await r.json(); await db.collection("kegiatan").add({ url: res.data.url, tanggal: new Date() });
+                notif("Foto Terupload!");
+            } catch(e) { notif("Gagal upload!", "danger"); }
         }
 
-        function delData(col, id) {
-            if(confirm("Hapus data?")) db.collection(col).doc(id).delete();
-        }
+        function del(c, i) { if(confirm("Hapus data?")) db.collection(c).doc(i).delete().then(() => notif("Berhasil dihapus!", "info")); }
     </script>
 </body>
 </html>
