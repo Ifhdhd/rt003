@@ -8,18 +8,20 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{margin:0;font-family:system-ui;background:#020617;color:#e2e8f0;}
-.header{text-align:center;padding:20px;}
-.logo{width:80px;}
-.menu{display:flex;gap:8px;overflow:auto;padding:10px;justify-content:center;}
-.menu button{padding:10px;border-radius:20px;border:none;background:#0f172a;color:#94a3b8;}
-.menu button.active{background:#38bdf8;color:black;}
-.card{background:#0f172a;margin:12px;padding:16px;border-radius:12px;}
+body{margin:0;font-family:system-ui;background:#f1f5f9;color:#0f172a;}
+.header{text-align:center;padding:20px;background:white;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+.logo{width:70px;}
+.menu{display:flex;gap:8px;overflow:auto;padding:10px;justify-content:center;background:white;}
+.menu button{padding:10px;border-radius:20px;border:none;background:#e2e8f0;}
+.menu button.active{background:#38bdf8;color:white;}
+.card{background:white;margin:12px;padding:16px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.05);}
 .hidden{display:none;}
+.item{padding:10px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;}
+.btn{margin-left:5px;cursor:pointer;}
+.edit{color:#0ea5e9;}
+.delete{color:#ef4444;}
+input,select{padding:8px;margin:5px 0;width:100%;border-radius:8px;border:1px solid #cbd5f5;}
 img{width:100%;border-radius:10px;margin-top:10px;}
-.item{padding:8px;border-bottom:1px solid #1e293b;display:flex;justify-content:space-between;}
-.delete{color:red;cursor:pointer;}
-.btnWA{background:#22c55e;color:white;padding:5px 10px;border-radius:6px;text-decoration:none;}
 </style>
 </head>
 
@@ -28,7 +30,6 @@ img{width:100%;border-radius:10px;margin-top:10px;}
 <div class="header">
 <img src="logo.png" class="logo">
 <h2>RT 003 RW 001</h2>
-<p style="color:#94a3b8">Paninggilan Ciledug</p>
 </div>
 
 <div class="menu">
@@ -37,18 +38,16 @@ img{width:100%;border-radius:10px;margin-top:10px;}
 <button onclick="show('kas',this)">Kas</button>
 <button onclick="show('galeri',this)">Kegiatan</button>
 <button onclick="show('ronda',this)">Ronda</button>
-<button onclick="show('kontak',this)">Kontak</button>
 <button onclick="show('admin',this)">Admin</button>
 </div>
 
 <div id="home" class="card">
-<h3>Grafik Kas</h3>
 <canvas id="chartKas"></canvas>
 </div>
 
 <div id="warga" class="card hidden">
 <h3>Warga</h3>
-<div id="formWarga" class="hidden">
+<div id="formWarga">
 <input id="namaWarga" placeholder="nama">
 <button onclick="tambahWarga()">Tambah</button>
 </div>
@@ -57,7 +56,7 @@ img{width:100%;border-radius:10px;margin-top:10px;}
 
 <div id="kas" class="card hidden">
 <h3>Kas</h3>
-<div id="formKas" class="hidden">
+<div id="formKas">
 <input id="ketKas" placeholder="keterangan">
 <input id="jumlahKas" placeholder="jumlah">
 <select id="tipeKas">
@@ -71,39 +70,23 @@ img{width:100%;border-radius:10px;margin-top:10px;}
 
 <div id="galeri" class="card hidden">
 <h3>Kegiatan</h3>
-<div id="formGaleri" class="hidden">
 <input type="file" id="fileFoto">
 <input id="judulFoto" placeholder="judul">
 <button onclick="uploadFoto()">Upload</button>
-</div>
 <div id="listGaleri"></div>
 </div>
 
 <div id="ronda" class="card hidden">
 <h3>Ronda</h3>
-<div id="formRonda" class="hidden">
 <input id="namaRonda" placeholder="nama">
 <input id="tanggalRonda" placeholder="tanggal">
 <button onclick="tambahRonda()">Tambah</button>
-</div>
 <div id="listRonda"></div>
-</div>
-
-<div id="kontak" class="card hidden">
-<h3>Kontak</h3>
-
-<p>Ketua - <a class="btnWA" href="https://wa.me/6287774188870" target="_blank">WA</a></p>
-<p>Wakil - <a class="btnWA" href="https://wa.me/6281298349222" target="_blank">WA</a></p>
-<p>Bendahara - <a class="btnWA" href="https://wa.me/628568121707" target="_blank">WA</a></p>
-<p>Sekretaris - <a class="btnWA" href="https://wa.me/6282298983714" target="_blank">WA</a></p>
-<p>Humas - <a class="btnWA" href="https://wa.me/6281371121986" target="_blank">WA</a></p>
-<p>Keamanan - <a class="btnWA" href="https://wa.me/62895331784458" target="_blank">WA</a></p>
-
 </div>
 
 <div id="admin" class="card hidden">
 <input id="email" placeholder="email">
-<input id="password" type="password" placeholder="password">
+<input id="password" type="password">
 <button onclick="login()">Login</button>
 <button onclick="logout()">Logout</button>
 <p id="status"></p>
@@ -112,157 +95,140 @@ img{width:100%;border-radius:10px;margin-top:10px;}
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,addDoc,getDocs,deleteDoc,doc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,addDoc,deleteDoc,doc,updateDoc,onSnapshot} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-apiKey: "AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
-authDomain: "rt003-a6d85.firebaseapp.com",
-projectId: "rt003-a6d85"
+const firebaseConfig={
+apiKey:"AIzaSyBtMhGOhQSGrrQp1Hah0paYgsMG3r2QVeM",
+authDomain:"rt003-a6d85.firebaseapp.com",
+projectId:"rt003-a6d85"
 };
 
-const API_KEY = "6bfd8efeb32a8bebf742a71cb0a8a04a";
+const API_KEY="6bfd8efeb32a8bebf742a71cb0a8a04a";
 
-const ADMINS = [
-"admin_kt@rt003.com",
-"admin_wkt@rt003.com",
-"admin_hms@rt003.com",
-"admin_bendahara@rt003.com",
-"admin_sekertaris@rt003.com",
-"admin_sekuriti@rt003.com"
-];
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
 let isAdmin=false;
 let chart;
 
-window.show=(id,el)=>{
+const el=id=>document.getElementById(id);
+
+window.show=(id,btn)=>{
 document.querySelectorAll('.card').forEach(x=>x.classList.add('hidden'));
-document.getElementById(id).classList.remove('hidden');
+el(id).classList.remove('hidden');
 document.querySelectorAll('.menu button').forEach(b=>b.classList.remove('active'));
-if(el) el.classList.add('active');
+btn.classList.add('active');
 }
 
 onAuthStateChanged(auth,(user)=>{
-isAdmin = user && ADMINS.includes(user.email);
-status.innerText = isAdmin ? "Admin" : "User";
-
-formKas.classList.toggle("hidden",!isAdmin);
-formWarga.classList.toggle("hidden",!isAdmin);
-formGaleri.classList.toggle("hidden",!isAdmin);
-formRonda.classList.toggle("hidden",!isAdmin);
-
-loadAll();
+isAdmin=!!user;
+el("status").innerText=isAdmin?"Admin":"User";
 });
 
-window.login=()=>signInWithEmailAndPassword(auth,email.value,password.value)
-.then(()=>alert("Login berhasil"))
-.catch(e=>alert(e.message));
-
+// LOGIN
+window.login=()=>signInWithEmailAndPassword(auth,el("email").value,el("password").value);
 window.logout=()=>signOut(auth);
 
-window.uploadFoto=async()=>{
-if(!isAdmin) return alert("Admin only");
+// CRUD
+window.tambahWarga=()=>addDoc(collection(db,"warga"),{nama:el("namaWarga").value});
+window.tambahKas=()=>addDoc(collection(db,"kas"),{
+ket:el("ketKas").value,
+jumlah:+el("jumlahKas").value,
+tipe:el("tipeKas").value
+});
+window.tambahRonda=()=>addDoc(collection(db,"ronda"),{
+nama:el("namaRonda").value,
+tanggal:el("tanggalRonda").value
+});
 
-const file=fileFoto.files[0];
+// EDIT
+window.editData=async(col,id,val)=>{
+const baru=prompt("Edit:",val);
+if(baru) await updateDoc(doc(db,col,id),{nama:baru,ket:baru});
+};
+
+// DELETE
+window.hapus=(col,id)=>deleteDoc(doc(db,col,id));
+
+// GALERI
+window.uploadFoto=async()=>{
+const file=el("fileFoto").files[0];
 const fd=new FormData();
 fd.append("image",file);
-
 const res=await fetch("https://api.imgbb.com/1/upload?key="+API_KEY,{method:"POST",body:fd});
 const data=await res.json();
 
-await addDoc(collection(db,"galeri"),{
-judul:judulFoto.value,
+addDoc(collection(db,"galeri"),{
+judul:el("judulFoto").value,
 url:data.data.url
 });
-
-loadAll();
 };
 
-window.tambahWarga=()=>addDoc(collection(db,"warga"),{nama:namaWarga.value}).then(loadAll);
+// REALTIME
+onSnapshot(collection(db,"warga"),snap=>{
+el("listWarga").innerHTML="";
+snap.forEach(d=>{
+el("listWarga").innerHTML+=`
+<div class="item">
+${d.data().nama}
+<div>
+<span class="btn edit" onclick="editData('warga','${d.id}','${d.data().nama}')">✏️</span>
+<span class="btn delete" onclick="hapus('warga','${d.id}')">❌</span>
+</div>
+</div>`;
+});
+});
 
-window.tambahKas=()=>addDoc(collection(db,"kas"),{
-ket:ketKas.value,
-jumlah:+jumlahKas.value,
-tipe:tipeKas.value
-}).then(loadAll);
-
-window.tambahRonda=()=>addDoc(collection(db,"ronda"),{
-nama:namaRonda.value,
-tanggal:tanggalRonda.value
-}).then(loadAll);
-
-window.hapus=(col,id)=>deleteDoc(doc(db,col,id)).then(loadAll);
-
-async function loadAll(){
-
-// kas + chart
-let kasSnap=await getDocs(collection(db,"kas"));
+onSnapshot(collection(db,"kas"),snap=>{
 let masuk=0,keluar=0;
-
-listKas.innerHTML="";
-kasSnap.forEach(d=>{
+el("listKas").innerHTML="";
+snap.forEach(d=>{
 let x=d.data();
-if(x.tipe=="masuk") masuk+=x.jumlah;
-else keluar+=x.jumlah;
+if(x.tipe=="masuk") masuk+=x.jumlah; else keluar+=x.jumlah;
 
-listKas.innerHTML+=`
+el("listKas").innerHTML+=`
 <div class="item">
 ${x.ket} - ${x.jumlah}
-${isAdmin?`<span class="delete" onclick="hapus('kas','${d.id}')">❌</span>`:""}
+<div>
+<span class="btn edit" onclick="editData('kas','${d.id}','${x.ket}')">✏️</span>
+<span class="btn delete" onclick="hapus('kas','${d.id}')">❌</span>
+</div>
 </div>`;
 });
 
 if(chart) chart.destroy();
-chart=new Chart(chartKas,{
-type:"doughnut",
-data:{
-labels:["Masuk","Keluar"],
-datasets:[{data:[masuk,keluar]}]
-}
+chart=new Chart(el("chartKas"),{
+type:"pie",
+data:{labels:["Masuk","Keluar"],datasets:[{data:[masuk,keluar]}]}
+});
 });
 
-// warga
-let w=await getDocs(collection(db,"warga"));
-listWarga.innerHTML="";
-w.forEach(d=>{
-listWarga.innerHTML+=`
-<div class="item">
-${d.data().nama}
-${isAdmin?`<span class="delete" onclick="hapus('warga','${d.id}')">❌</span>`:""}
-</div>`;
-});
-
-// galeri
-let g=await getDocs(collection(db,"galeri"));
-listGaleri.innerHTML="";
-g.forEach(d=>{
+onSnapshot(collection(db,"galeri"),snap=>{
+el("listGaleri").innerHTML="";
+snap.forEach(d=>{
 let x=d.data();
-listGaleri.innerHTML+=`
+el("listGaleri").innerHTML+=`
 <div class="item">
-<div>
 <img src="${x.url}">
 <p>${x.judul}</p>
-</div>
-${isAdmin?`<span class="delete" onclick="hapus('galeri','${d.id}')">❌</span>`:""}
+<span class="delete" onclick="hapus('galeri','${d.id}')">❌</span>
 </div>`;
 });
+});
 
-// ronda
-let r=await getDocs(collection(db,"ronda"));
-listRonda.innerHTML="";
-r.forEach(d=>{
+onSnapshot(collection(db,"ronda"),snap=>{
+el("listRonda").innerHTML="";
+snap.forEach(d=>{
 let x=d.data();
-listRonda.innerHTML+=`
+el("listRonda").innerHTML+=`
 <div class="item">
 ${x.nama} - ${x.tanggal}
-${isAdmin?`<span class="delete" onclick="hapus('ronda','${d.id}')">❌</span>`:""}
+<span class="delete" onclick="hapus('ronda','${d.id}')">❌</span>
 </div>`;
 });
+});
 
-}
 </script>
 
 </body>
