@@ -72,8 +72,15 @@ button:active:not(:disabled){transform:scale(.97)}
 <nav id="navbar" class="bg-white/95 backdrop-blur-md fixed top-0 left-0 right-0 z-50 border-b border-gray-100 transition-shadow">
 <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
 <a onclick="nav('beranda')" class="flex items-center gap-2.5 cursor-pointer flex-shrink-0">
-<div class="w-9 h-9 bg-primary-600 rounded-lg flex items-center justify-center shadow-lg shadow-primary-600/30"><span class="text-white font-bold text-xs">RT3</span></div>
-<div><div class="font-bold text-gray-900 text-sm leading-tight">RT 003 RW 001</div><div class="text-[10px] text-gray-500 leading-tight">Paninggilan, Ciledug</div></div>
+  <!-- LOGO NAVBAR -->
+  <img src="https://iili.io/B25zxI4.md.png" 
+       alt="Logo RT 003" 
+       class="w-10 h-10 object-contain rounded-2xl shadow-lg border border-white">
+  
+  <div>
+    <div class="font-bold text-gray-900 text-sm leading-tight">RT 003 RW 001</div>
+    <div class="text-[10px] text-gray-500 leading-tight">Paninggilan, Ciledug</div>
+  </div>
 </a>
 <div class="hidden xl:flex items-center gap-4">
 <a onclick="nav('beranda')" class="nl text-[11px] font-semibold text-gray-600 on" data-p="beranda">Beranda</a>
@@ -102,13 +109,29 @@ button:active:not(:disabled){transform:scale(.97)}
 </div>
 <div id="mmO" class="fixed inset-0 bg-black/40 z-[55] hidden" onclick="tMM()"></div>
 
-<!-- BERANDA -->
+<!-- HERO / BERANDA -->
 <div id="pg-beranda" class="page active pt-14">
-<div class="hero-mini text-white relative pb-12 pt-8"><div class="relative z-10 max-w-6xl mx-auto px-4 text-center">
-<div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-5"><span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span><span class="text-xs font-medium text-green-100">Kelurahan Paninggilan, Kec. Ciledug</span></div>
-<h1 class="text-3xl sm:text-4xl font-extrabold leading-tight mb-3">RT 003 <span class="text-green-300">RW 001</span></h1>
-<p class="text-sm sm:text-base text-green-100/80 font-light max-w-lg mx-auto">Melayani warga dengan sepenuh hati untuk lingkungan yang aman, nyaman, dan harmonis.</p>
-</div></div>
+  <div class="hero-mini text-white relative pb-12 pt-8">
+    <div class="relative z-10 max-w-6xl mx-auto px-4 text-center">
+      
+      <!-- LOGO BARU - di tengah di atas title -->
+      <div class="mx-auto mb-6 flex justify-center">
+        <div class="w-28 h-28 bg-white rounded-3xl p-3 shadow-2xl shadow-black/30 flex items-center justify-center">
+          <img id="heroLogo" 
+               src="https://iili.io/B25zxI4.md.png" 
+               alt="Logo RT 003" 
+               class="w-24 h-24 object-contain drop-shadow-lg">
+        </div>
+      </div>
+
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-5">
+        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+        <span class="text-xs font-medium text-green-100">Kelurahan Paninggilan, Kec. Ciledug</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold leading-tight mb-3">RT 003 <span class="text-green-300">RW 001</span></h1>
+      <p class="text-sm sm:text-base text-green-100/80 font-light max-w-lg mx-auto">Melayani warga dengan sepenuh hati untuk lingkungan yang aman, nyaman, dan harmonis.</p>
+    </div>
+  </div>
 <div class="max-w-6xl mx-auto px-4 -mt-8 relative z-10 pb-12">
 <div class="bg-white rounded-2xl shadow-xl shadow-gray-200/60 border border-gray-100 p-5 grid grid-cols-2 lg:grid-cols-4 gap-4">
 <div class="text-center p-2"><div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center mx-auto mb-2"><i data-lucide="users" class="w-5 h-5 text-blue-600"></i></div><div class="text-2xl font-bold text-gray-900" id="sW">-</div><div class="text-[11px] text-gray-500">Total Warga</div></div>
@@ -125,7 +148,7 @@ button:active:not(:disabled){transform:scale(.97)}
 <div id="pg-profil" class="page pt-14"><div class="max-w-5xl mx-auto px-4 py-10">
 <div class="text-center mb-10"><h2 class="st text-3xl font-bold text-gray-900 mb-4">Profil RT</h2><p class="text-gray-500 mt-6 text-sm">Informasi Rukun Tetangga 003 Rukun Warga 001</p></div>
 <div class="grid md:grid-cols-2 gap-8 items-center">
-<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden"><img src="https://picsum.photos/seed/rt003-area/600/400.jpg" class="w-full h-64 object-cover"></div>
+<div class="bg-white rounded-2xl border border-gray-100 shadow-lg overflow-hidden"><img src="https://iili.io/B25zxI4.md.png" class="w-full h-64 object-cover"></div>
 <div class="space-y-4">
 <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-start gap-3"><div class="w-9 h-9 bg-primary-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="map-pin" class="w-4 h-4 text-primary-600"></i></div><div><div class="font-semibold text-gray-900 text-sm mb-0.5">Alamat</div><div class="text-xs text-gray-600 leading-relaxed">Jalan Sadar RT.003 RW.001, Kelurahan Paninggilan, Kecamatan Ciledug, Kota Tangerang, Banten</div></div></div>
 <div class="bg-white rounded-xl border border-gray-100 p-4 shadow-sm flex items-start gap-3"><div class="w-9 h-9 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="building-2" class="w-4 h-4 text-blue-600"></i></div><div><div class="font-semibold text-gray-900 text-sm mb-0.5">Wilayah</div><div class="text-xs text-gray-600 leading-relaxed">Kel. Paninggilan, Kec. Ciledug, Kota Tangerang, Provinsi Banten</div></div></div>
@@ -297,7 +320,30 @@ function needLogin(){if(!isL){showL();return true;}return false;}
 
 function logAct(action,coll,detail){if(!isL)return;var u=auth.currentUser;db.collection('activityLog').add({adminName:u.displayName||u.email||'Admin',adminEmail:u.email||'',action:action,collection:coll,detail:detail,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(e){console.error('Log error:',e);});}
 
-function nav(id){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});var pg=$('pg-'+id);if(pg)pg.classList.add('active');document.querySelectorAll('.nl').forEach(function(l){l.classList.toggle('on',l.getAttribute('data-p')===id);});window.scrollTo(0,0);if(id==='beranda')loadDash();if(id==='pengaduan')loadPd();if(id==='log')loadLog();tMM(true);}
+function nav(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  var pg=$('pg-'+id);
+  if(pg) pg.classList.add('active');
+  
+  document.querySelectorAll('.nl').forEach(function(l){
+    l.classList.toggle('on',l.getAttribute('data-p')===id);
+  });
+  
+  window.scrollTo(0,0);
+  
+  // PERBAIKAN: refresh data otomatis tiap pindah halaman
+  if(id==='beranda') loadDash();
+  if(id==='warga') loadW();
+  if(id==='kas') loadK();
+  if(id==='piket') loadPk();
+  if(id==='inventaris') loadInv();
+  if(id==='ds') loadDs();           // ← ini yang memperbaiki grafik Dana Sosial
+  if(id==='kegiatan') loadKg();
+  if(id==='pengaduan') loadPd();
+  if(id==='log') loadLog();
+  
+  tMM(true);
+}
 
 function tMM(fc){var m=$('mm'),o=$('mmO');if(fc||m.classList.contains('open')){m.classList.remove('open');o.classList.add('hidden');document.body.style.overflow='';}else{m.classList.add('open');o.classList.remove('hidden');document.body.style.overflow='hidden';}}
 
@@ -418,7 +464,47 @@ function editDs(id){if(needLogin())return;var x=aD.find(function(a){return a.id=
 
 function updDs(id){var j=document.querySelector('input[name="dJ"]:checked').value,cat=$('dCat').value,ket=$('dKet').value.trim(),pnr=$('dPnr').value.trim(),jml=$('dJml').value,tgl=$('dTgl').value;if(!ket||!jml||Number(jml)<=0||!tgl){sE('dEr','Lengkapi semua field wajib');return;}hE('dEr');var b=$('dBtn');b.disabled=true;b.innerHTML='<div class="ls w-4 h-4 border-2 border-white/30 border-t-white"></div>';db.collection('danaSosial').doc(id).update({jenis:j,kategori:cat,keterangan:ket,penerima:pnr,jumlah:Number(jml),tanggal:tgl}).then(function(){toast('Dana sosial diperbarui');logAct('edit','Dana Sosial','Mengedit DS '+j+': '+cat+' '+fR(jml));cMod();loadDs();}).catch(function(){sE('dEr','Gagal');b.disabled=false;b.innerHTML='<i data-lucide="save" class="w-3.5 h-3.5"></i>Update';lucide.createIcons();});}
 
-function loadDs(){$('dL').classList.remove('hidden');$('dC').classList.add('hidden');db.collection('danaSosial').orderBy('tanggal','desc').get().then(function(s){aD=s.docs.map(function(d){return {id:d.id,data:d.data()};});$('dL').classList.add('hidden');$('dC').classList.remove('hidden');var m=0,k=0;aD.forEach(function(d){if(d.data.jenis==='masuk')m+=Number(d.data.jumlah)||0;else k+=Number(d.data.jumlah)||0;});$('dM').textContent=fR(m);$('dK').textContent=fR(k);$('dS').textContent=fR(m-k);var ag=aggM(aD.map(function(x){return x.data();}));if(cDD)cDD.destroy();cDD=mkDC('cDDT',ag);rD(aD);}).catch(function(){$('dL').classList.add('hidden');});}
+function loadDs(){
+  $('dL').classList.remove('hidden');
+  $('dC').classList.add('hidden');
+
+  db.collection('danaSosial').orderBy('tanggal','desc').get().then(function(s){
+    aD = s.docs.map(function(d){return {id:d.id, data:d.data()};});
+
+    $('dL').classList.add('hidden');
+    $('dC').classList.remove('hidden');
+
+    // Hitung saldo
+    var m=0, k=0;
+    aD.forEach(function(d){
+      if(d.data.jenis==='masuk') m += Number(d.data.jumlah)||0;
+      else k += Number(d.data.jumlah)||0;
+    });
+    $('dM').textContent = fR(m);
+    $('dK').textContent = fR(k);
+    $('dS').textContent = fR(m-k);
+
+    var ag = aggM(aD.map(function(x){return x.data;}));
+
+    // Destroy chart lama dulu
+    if(cDD) cDD.destroy();
+
+    // Buat chart baru
+    cDD = mkDC('cDDT', ag);
+
+    // Render tabel
+    rD(aD);
+
+    // PERBAIKAN KHUSUS: paksa grafik muncul
+    setTimeout(function(){
+      if(cDD) cDD.resize();
+    }, 180);
+
+  }).catch(function(e){
+    console.error('Error load Dana Sosial:', e);
+    $('dL').classList.add('hidden');
+  });
+}
 
 function rD(d){$('dB').innerHTML=d.map(function(x,i){var v=x.data;return '<tr class="border-b border-gray-50 hover:bg-gray-50/50"><td class="px-4 py-3 text-xs text-gray-500">'+(i+1)+'</td><td class="px-4 py-3 text-xs text-gray-600">'+fT(v.tanggal)+'</td><td class="px-4 py-3"><span class="badge bg-violet-100 text-violet-700">'+esc(v.kategori||'-')+'</span></td><td class="px-4 py-3 text-xs text-gray-900 max-w-[130px] lc2">'+esc(v.keterangan)+'</td><td class="px-4 py-3 text-xs text-gray-500">'+(esc(v.penerima)||'-')+'</td><td class="px-4 py-3 text-center"><span class="badge '+(v.jenis==='masuk'?'bg-violet-100 text-violet-700':'bg-orange-100 text-orange-700')+'">'+(v.jenis==='masuk'?'↑ Masuk':'↓ Keluar')+'</span></td><td class="px-4 py-3 text-xs text-right font-semibold '+(v.jenis==='masuk'?'text-violet-600':'text-orange-600')+'">'+(v.jenis==='masuk'?'+':'-')+fR(v.jumlah)+'</td><td class="px-4 py-3 text-center ac"><div class="flex items-center justify-center gap-1"><button onclick="editDs(\''+x.id+'\')" class="p-1.5 rounded-lg hover:bg-amber-50 text-amber-500"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button><button onclick="delDs(\''+x.id+'\')" class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div></td></tr>';}).join('');lucide.createIcons();}
 
